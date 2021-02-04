@@ -1,10 +1,17 @@
 server:
-  port: 18081
+  port: 8888
 
 spring:
-  application:
-    name: gateway-service
   cloud:
     nacos:
       discovery:
         server-addr: 192.168.136.222:9527
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: face-service
+          uri: lb://face-service
+          predicates:
+            - Path=/backend/**
