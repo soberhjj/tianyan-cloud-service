@@ -1,0 +1,10 @@
+server:
+  port: 18081
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.136.222:9527

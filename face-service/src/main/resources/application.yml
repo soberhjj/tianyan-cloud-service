@@ -1,0 +1,50 @@
+server:
+  port: 18080
+
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.136.222:9527
+    jackson:
+      property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+      serialization:
+        FAIL_ON_EMPTY_BEANS: false
+      main:
+        allow-bean-definition-overriding: true
+
+    logging:
+      config: classpath:logback.xml
+      level:
+        com:
+          github:
+            pagehelper: debug
+          itheima:
+            dbsharding: debug
+          newland:
+            ncsms: debug
+        druid:
+          sql: debug
+        newland:
+          mapper: debug
+        org:
+          springframework:
+            web: info
+        root: info
+      path: H:/tianyan/logs
+
+    mybatis:
+      configuration:
+        map-underscore-to-camel-case: true
+      mapper-locations: classpath:mapper/*.xml
+      type-aliases-package: com.newland.ncsms.domain
+
+    security:
+      oauth2:
+        resource:
+          id: ${spring.application.name}
+          jwt:
+            key-uri: http://localhost:18081/oauth/token_key #这里的IP和端口是auth-cloud服务的IP和端口
+
+user:
+  id: ohhhhhh,I'm primary,just for test~
