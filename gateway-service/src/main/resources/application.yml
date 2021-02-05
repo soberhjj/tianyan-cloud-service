@@ -14,4 +14,4 @@ spring:
         - id: face-service
           uri: lb://face-service
           predicates:
-            - Path=/backend/**
+            - Path=/backend/**,/face/**

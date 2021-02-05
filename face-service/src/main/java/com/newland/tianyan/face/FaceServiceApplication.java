@@ -12,7 +12,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @EnableFeignClients(basePackages = "com.newland.tianyan.common.feign")
 @EnableDiscoveryClient
-@SpringBootApplication(scanBasePackages = {"com.newland.tianyan.face.controller"})
+@SpringBootApplication(scanBasePackages = {"com.newland.tianyan.face.*"})
 public class FaceServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(FaceServiceApplication.class, args);
