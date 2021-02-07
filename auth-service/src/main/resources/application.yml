@@ -6,4 +6,27 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.136.222:9527
-        namespace: tianyan-cloud
+  profiles: dev
+  datasource:
+    url: jdbc:mysql://192.168.136.34/newland_cloud_oauth?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+    username: cloud
+    password: Cloud@Algo_db1
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    management-app:
+      username: cloud
+      password: Cloud@Algo_db1
+      jdbc-url: jdbc:mysql://192.168.136.34/newland_cloud_management_app?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    account:
+      username: cloud
+      password: Cloud@Algo_db1
+      jdbc-url: jdbc:mysql://192.168.136.34/newland_cloud_oauth?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.springframework.security: error
+
+
