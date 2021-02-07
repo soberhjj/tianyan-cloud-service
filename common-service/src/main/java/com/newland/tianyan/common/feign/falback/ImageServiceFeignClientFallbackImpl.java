@@ -11,7 +11,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class ImageServiceFeignClientFallbackImpl implements ImageStoreFeignService {
     @Override
-    public String uploadImage() {
-        return "请求超时了。。。";
+    public String uploadImage(String image) {
+        return null;
+    }
+
+    @Override
+    public String downloadImage(String imagePath) {
+        return null;
+    }
+
+    @Override
+    public String uploadImageV2(String image) {
+        return null;
     }
 }

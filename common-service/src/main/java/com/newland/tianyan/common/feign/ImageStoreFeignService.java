@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.GetMapping;
         configuration = FeignConfiguration.class)
 public interface ImageStoreFeignService {
 
-    @GetMapping("/uploadImage")
-    String uploadImage();
+    String uploadImage(String image);
+
+    String downloadImage(String imagePath);
+
+    String uploadImageV2(String image);
+
 }

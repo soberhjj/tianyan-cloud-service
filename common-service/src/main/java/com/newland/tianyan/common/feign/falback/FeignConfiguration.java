@@ -9,7 +9,13 @@ import org.springframework.context.annotation.Bean;
  */
 public class FeignConfiguration {
     @Bean
-    public ImageServiceFeignClientFallbackImpl echoServiceFallback() {
+    public ImageServiceFeignClientFallbackImpl imageServiceFeignClientFallback() {
         return new ImageServiceFeignClientFallbackImpl();
     }
+
+    @Bean
+    public AuthServiceFeignClientFallbackImpl authServiceFeignClientFallback() {
+        return new AuthServiceFeignClientFallbackImpl();
+    }
 }
+
