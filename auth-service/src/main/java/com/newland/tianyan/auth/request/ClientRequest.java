@@ -1,18 +1,15 @@
-package com.newland.tianyan.auth.dto;
+package com.newland.tianyan.auth.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 public class ClientRequest {
+
     @NotBlank
     private String account;
 
@@ -24,4 +21,5 @@ public class ClientRequest {
 
     @NotBlank
     private String clientSecret;
+
 }
