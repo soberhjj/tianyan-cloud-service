@@ -1,0 +1,37 @@
+syntax = "proto2";
+
+package newlandTongue;
+
+message CloudTongueAllRequest{
+  optional string log_id = 1;
+  optional string image = 2;
+}
+
+message CloudTongueDetectInfo{
+  optional uint32 tongue_color = 1;
+  optional float tongue_color_confidence = 2;
+  optional uint32 tongue_shape = 3;
+  optional float tongue_shape_confidence = 4;
+  optional uint32 tongue_spot = 5;
+  optional float tongue_spot_confidence = 6;
+  optional uint32 tongue_crack = 7;
+  optional float tongue_crack_confidence = 8;
+  optional uint32 teeth_mark = 9;
+  optional float teeth_mark_confidence = 10;
+  optional uint32 coat_color = 11;
+  optional float coat_color_confidence = 12;
+  optional uint32 coat_thickness = 13;
+  optional float coat_thickness_confidence = 14;
+  optional uint32 coat_humidity = 15;
+  optional float coat_humidity_confidence = 16;
+  optional uint32 coat_rotten = 17;
+  optional float coat_rotten_confidence = 18;
+}
+
+message CloudTongueSendMessage{
+  optional string log_id = 1;
+  optional string image = 2;
+  optional uint32 error_code = 3;
+  optional string error_msg = 4;
+  repeated CloudTongueDetectInfo tongue_infos = 5;
+}

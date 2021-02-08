@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package newlandBackend;
+
+option java_package = "com.newland.tianyan.common.utils.message";
+
+message BackendAllRequest {
+    string log_id = 1;
+    string task_type = 2;
+    string image = 3;
+    uint64 app_id = 16;
+    string account = 17;
+    string mailbox = 18;
+    string password = 19;
+    string app_name = 20;
+    string api_list = 21;
+    string app_info = 22;
+    string group_id = 23;
+    uint32 type = 24;
+    uint32 start_index = 25;
+    uint32 length = 26;
+    string face_id = 27;
+    string user_id = 28;
+    string user_name = 29;
+    string user_info = 30;
+    string src_group_id = 31;
+    string dst_group_id = 32;
+    string action_type = 33;
+    string title = 34;
+    string content = 35;
+    uint32 quality_control = 36;
+    string author = 37;
+    string publish_time = 38;
+}
+
+message BackendErrorMessage {
+    string log_id = 1;
+    uint32 error_code = 2;
+    string error_msg = 3;
+}
+
+message BackendLoginSendMessage {
+
+    string log_id = 1;
+    string mailbox = 2;
+    string account = 3;
+    string account_name = 4;
+    string account_level = 5;
+
+}
+
+message BackendAppSendMessage {
+    string log_id = 1;
+    uint32 count = 2;
+    message BackendAppTableMessage {
+        string app_name = 1;
+        uint64 app_id = 2;
+        string api_key = 3;
+        string secret_key = 4;
+        string create_time = 5;
+        uint32 type = 6;
+        string api_list = 7;
+        string app_info = 8;
+    }
+    repeated BackendAppTableMessage result = 3;
+}
+
+message BackendFacesetSendMessage {
+    string log_id = 1;
+    uint32 count = 2;
+    string face_id = 4;
+    message BackendFacesetTableMessage {
+        string app_name = 1;
+        uint64 app_id = 2;
+        string create_time = 3;
+        uint32 group_number = 4;
+        string group_id = 5;
+        string modify_time = 6;
+        uint32 user_number = 7;
+        uint32 face_number = 8;
+        string user_id = 9;
+        string user_info = 10;
+        string face_id = 16;
+        string image = 17;
+        float distance = 18;
+    }
+    repeated BackendFacesetTableMessage result = 3;
+}
+
+message BackendMailSendMessage {
+    string log_id = 1;
+    uint32 count = 2;
+    string mail_id = 3;
+    message BackendMailDetailMessage {
+        string mail_id = 1;
+        string title = 2;
+        string content = 3;
+        string read = 4;
+        string mail_type = 5;
+        string create_time = 6;
+        string mail_author = 7;
+    }
+    repeated BackendMailDetailMessage mail_list = 4;
+}
+
+

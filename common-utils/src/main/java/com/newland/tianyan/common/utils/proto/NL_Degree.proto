@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+package newlandDegree;
+
+message CloudDegreeAllRequest{
+  optional string log_id = 1;
+  optional string image = 2;
+}
+
+message CloudDegreeDetectInfo{
+  optional float degree = 1;
+}
+
+message CloudDegreeSendMessage{
+  optional string log_id = 1;
+  optional string image = 2;
+  optional uint32 error_code = 3;
+  optional string error_msg = 4;
+  repeated CloudDegreeDetectInfo degree_infos = 5;
+}

@@ -25,6 +25,7 @@
         <module>image-store-service</module>
         <module>vector-search-service</module>
         <module>gateway-service</module>
+        <module>common-utils</module>
 
     </modules>
 

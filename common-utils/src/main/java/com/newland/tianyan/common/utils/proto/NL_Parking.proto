@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+package newlandParking;
+
+message CloudParkingCoordinate{
+  optional uint32 x1 = 1;
+  optional uint32 y1 = 2;
+  optional uint32 x2 = 3;
+  optional uint32 y2 = 4;
+  optional uint32 x3 = 5;
+  optional uint32 y3 = 6;
+  optional uint32 x4 = 7;
+  optional uint32 y4 = 8;
+}
+
+message CloudParkingAllRequest{
+  optional string log_id = 1;
+  optional string image = 2;
+  optional uint32 count = 3;
+  repeated CloudParkingCoordinate coordinates = 4;
+}
+
+message CloudParkingDetectInfo{
+  optional uint32 is_occupied = 1;
+}
+
+message CloudParkingSendMessage{
+  optional string log_id = 1;
+  optional string image = 2;
+  optional uint32 error_code = 3;
+  optional string error_msg = 4;
+  repeated CloudParkingDetectInfo results = 5;
+}

@@ -1,0 +1,22 @@
+syntax = "proto2";
+
+package newlandSkin;
+
+message CloudSkinAllRequest{
+  optional string log_id = 1;
+  optional string image = 2;
+}
+
+message CloudSkinDetectInfo{
+  optional string disease_chinese = 1;
+  optional string disease_english = 2;
+  optional float confidence = 3;
+}
+
+message CloudSkinSendMessage{
+  optional string log_id = 1;
+  optional string image = 2;
+  optional uint32 error_code = 3;
+  optional string error_msg = 4;
+  repeated CloudSkinDetectInfo skin_infos = 5;
+}
