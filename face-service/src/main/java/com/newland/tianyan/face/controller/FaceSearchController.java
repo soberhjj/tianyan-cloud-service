@@ -1,6 +1,5 @@
 package com.newland.tianyan.face.controller;
 
-import com.newland.face.message.NLBackend;
 import com.newland.face.message.NLFace;
 import com.newland.tianyan.face.dto.face.BackendFacesetFaceCompareRequest;
 import com.newland.tianyan.face.dto.face.BackendFacesetFaceDetectRequest;
@@ -49,22 +48,22 @@ public class FaceSearchController {
     }
 
     @RequestMapping(value = "/features/v20", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV20old(@RequestBody  @Validated BackendFacesetFaceDetectRequest request) {
+    public NLFace.CloudFaceSendMessage featuresV20old(@RequestBody @Validated BackendFacesetFaceDetectRequest request) {
         return faceSearchService.features(request, -20);
     }
 
     @RequestMapping(value = "/features/v20/new", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV20(@RequestBody  @Validated BackendFacesetFaceDetectRequest request) {
-        return faceSearchService.features(request,20);
+    public NLFace.CloudFaceSendMessage featuresV20(@RequestBody @Validated BackendFacesetFaceDetectRequest request) {
+        return faceSearchService.features(request, 20);
     }
 
     @RequestMapping(value = "/features/v36/new", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV36(@RequestBody  @Validated BackendFacesetFaceDetectRequest request) {
-        return faceSearchService.features(request,36);
+    public NLFace.CloudFaceSendMessage featuresV36(@RequestBody @Validated BackendFacesetFaceDetectRequest request) {
+        return faceSearchService.features(request, 36);
     }
 
     @RequestMapping(value = "/features/v34/new", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV34(@RequestBody  @Validated BackendFacesetFaceDetectRequest request) {
+    public NLFace.CloudFaceSendMessage featuresV34(@RequestBody @Validated BackendFacesetFaceDetectRequest request) {
         return faceSearchService.features(request, 34);
     }
 }

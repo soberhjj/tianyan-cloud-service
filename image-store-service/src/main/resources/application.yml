@@ -6,6 +6,7 @@
 #    nacos:
 #      discovery:
 #        server-addr: 192.168.136.222:9527
+#          namespace: tianyan-cloud
 #
 #fdfs:
 #  so-timeout: 1500

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name = "image-store-service", fallback = ImageServiceFeignClientFallbackImpl.class,
+@FeignClient(name = "auth-service", fallback = ImageServiceFeignClientFallbackImpl.class,
         configuration = FeignConfiguration.class)
 public interface AuthFeignService {
     @RequestMapping(value = "/addClient", method = RequestMethod.POST)

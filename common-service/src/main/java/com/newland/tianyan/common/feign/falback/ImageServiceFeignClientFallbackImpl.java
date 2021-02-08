@@ -1,6 +1,10 @@
 package com.newland.tianyan.common.feign.falback;
 
 import com.newland.tianyan.common.feign.ImageStoreFeignService;
+import com.newland.tianyan.common.feign.dto.image.DownloadReq;
+import com.newland.tianyan.common.feign.dto.image.DownloadRes;
+import com.newland.tianyan.common.feign.dto.image.UploadReq;
+import com.newland.tianyan.common.feign.dto.image.UploadRes;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,18 +14,14 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ImageServiceFeignClientFallbackImpl implements ImageStoreFeignService {
+
     @Override
-    public String uploadImage(String image) {
+    public UploadRes uploadV2(UploadReq uploadReq) {
         return null;
     }
 
     @Override
-    public String downloadImage(String imagePath) {
-        return null;
-    }
-
-    @Override
-    public String uploadImageV2(String image) {
+    public DownloadRes download(DownloadReq downloadReq) {
         return null;
     }
 }

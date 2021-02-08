@@ -2,7 +2,7 @@ package com.newland.tianyan.face.cache;
 
 
 import com.newland.tianyan.common.feign.VectorSearchFeignService;
-import com.newland.tianyan.common.feign.dto.MilvusQueryRes;
+import com.newland.tianyan.common.feign.dto.milvus.*;
 import com.newland.tianyan.face.common.utils.FeaturesTool;
 import com.newland.tianyan.face.domain.FaceInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +28,13 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
         return "FACE_" + appId;
     }
 
-    public List<MilvusQueryRes> query(Long appId, List<Float> feature, List<Long> gids, Integer topK) {
-        return vectorSearchFeignService.query(getCollectionName(appId), feature, gids, topK);
+    public List<QueryRes> query(Long appId, List<Float> feature, List<Long> gids, Integer topK) {
+        QueryReq queryReq = QueryReq.builder()
+                .appId(getCollectionName(appId))
+                .feature(feature)
+                .topK(topK)
+                .build();
+        return vectorSearchFeignService.query(queryReq);
     }
 
     /**
@@ -40,7 +45,11 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
 
         int result = 1;
         try {
-            vectorSearchFeignService.delete(getCollectionName(collectionId), id);
+            DeleteReq deleteReq = DeleteReq.builder()
+                    .appId(getCollectionName(collectionId))
+                    .entityId(id)
+                    .build();
+            vectorSearchFeignService.delete(deleteReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;
@@ -56,7 +65,11 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
 
         int result = 1;
         try {
-            vectorSearchFeignService.deleteBatch(getCollectionName(collectionId), idList);
+            BatchDeleteReq batchDeleteReq = BatchDeleteReq.builder()
+                    .appId(getCollectionName(collectionId))
+                    .entityIds(idList)
+                    .build();
+            vectorSearchFeignService.batchDelete(batchDeleteReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;
@@ -69,8 +82,12 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
 
         FaceInfo dto = (FaceInfo) entity;
         List<Float> feature = this.convertByteArrayToList(dto);
-        Integer result = vectorSearchFeignService.insert(getCollectionName(dto.getAppId()), feature, dto.getId(), dto.getGid(), dto.getUid());
-        return Integer.toUnsignedLong(result);
+        InsertReq insertReq = InsertReq.builder()
+                .appId(getCollectionName(dto.getAppId()))
+                .feature(feature)
+                .entityId(dto.getId())
+                .build();
+        return vectorSearchFeignService.insert(insertReq);
     }
 
     @Override
@@ -94,7 +111,13 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
             gids.add(face.getGid());
             uids.add(face.getUid());
         });
-        return vectorSearchFeignService.batchInsert(getCollectionName(appId), features, entityIds, gids, uids);
+
+        BatchInsertReq batchInsertReq = BatchInsertReq.builder()
+                .appId(getCollectionName(appId))
+                .entityIds(entityIds)
+                .features(features)
+                .build();
+        return vectorSearchFeignService.batchInsert(batchInsertReq);
     }
 
     public List<Float> convertByteArrayToList(FaceInfo entity) {
@@ -107,7 +130,10 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
     public Integer createCollection(Long collectionId) {
         int result = 1;
         try {
-            vectorSearchFeignService.createCollection(getCollectionName(collectionId));
+            CreateColReq createColReq = CreateColReq.builder()
+                    .appId(getCollectionName(collectionId))
+                    .build();
+            vectorSearchFeignService.createCollection(createColReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;
@@ -119,7 +145,10 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
     public Integer deleteCollection(Long collectionId) {
         int result = 1;
         try {
-            vectorSearchFeignService.dropCollection(getCollectionName(collectionId));
+            DeleteColReq deleteColReq = DeleteColReq.builder()
+                    .appId(getCollectionName(collectionId))
+                    .build();
+            vectorSearchFeignService.dropCollection(deleteColReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;

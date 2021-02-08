@@ -1,33 +1,43 @@
 package com.newland.tianyan.common.feign;
 
-import com.newland.tianyan.common.feign.dto.MilvusQueryRes;
+import com.newland.tianyan.common.feign.dto.milvus.*;
+import com.newland.tianyan.common.feign.falback.AuthServiceFeignClientFallbackImpl;
 import com.newland.tianyan.common.feign.falback.FeignConfiguration;
-import com.newland.tianyan.common.feign.falback.ImageServiceFeignClientFallbackImpl;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
 /**
  * @author: RojiaHuang
  * @description:
- * @date: 2021/2/3
+ * @date: 2021/2/8
  */
-@FeignClient(name = "vector-search-service", fallback = ImageServiceFeignClientFallbackImpl.class,
+@FeignClient(name = "vector-search-service", fallbackFactory = AuthServiceFeignClientFallbackImpl.class,
         configuration = FeignConfiguration.class)
 public interface VectorSearchFeignService {
+    @PostMapping("/insert")
+    Long insert(@RequestBody InsertReq insertReq);
 
-    List<MilvusQueryRes> query(String collectionId, List<Float> feature, List<Long> gids, Integer topK);
+    @PostMapping("/query")
+    List<QueryRes> query(@RequestBody QueryReq queryReq);
 
-    Integer delete(String collectionId, Long id);
+    @PostMapping("/delete")
+    void delete(@RequestBody DeleteReq deleteReq);
 
-    Integer deleteBatch(String collectionId, List<Long> idList);
+    @PostMapping("/createCol")
+    void createCollection(@RequestBody CreateColReq createColReq);
 
+    @PostMapping("/dropCol")
+    void dropCollection(@RequestBody DeleteColReq deleteReq);
 
-    Integer insert(String collectionId, List<Float> feature, Long entityId, Long gid, Long uid);
+    @PostMapping("/batchInsert")
+    List<Long> batchInsert(@RequestBody BatchInsertReq batchInsertReq);
 
-    List<Long> batchInsert(String collectionId, List<List<Float>> features, List<Long> entityIds, List<Long> gids, List<Long> uids);
+    @PostMapping("/batchQuery")
+    List<List<QueryRes>> batchQuery(@RequestBody BatchQueryReq batchQueryReq);
 
-    void createCollection(String collectionId);
-
-    void dropCollection(String collectionId);
+    @PostMapping("/batchDelete")
+    void batchDelete(@RequestBody BatchDeleteReq batchDeleteReq);
 }
