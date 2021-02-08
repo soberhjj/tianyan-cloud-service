@@ -37,7 +37,7 @@ public class MilvusController {
     }
 
     @PostMapping("/dropCol")
-    public void dropCollection(@RequestBody DeleteReq deleteReq) {
+    public void dropCollection(@RequestBody DeleteColReq deleteReq) {
         milvusService.dropCollection(deleteReq.getAppId());
     }
 

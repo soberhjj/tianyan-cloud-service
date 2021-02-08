@@ -1,10 +1,10 @@
 package com.newland.tianyan.common.feign.falback;
 
 import com.newland.tianyan.common.feign.ImageStoreFeignService;
-import com.newland.tianyan.common.feign.dto.imageStore.DownloadReq;
-import com.newland.tianyan.common.feign.dto.imageStore.DownloadRes;
-import com.newland.tianyan.common.feign.dto.imageStore.UploadReq;
-import com.newland.tianyan.common.feign.dto.imageStore.UploadRes;
+import com.newland.tianyan.common.feign.dto.image.DownloadReq;
+import com.newland.tianyan.common.feign.dto.image.DownloadRes;
+import com.newland.tianyan.common.feign.dto.image.UploadReq;
+import com.newland.tianyan.common.feign.dto.image.UploadRes;
 import org.springframework.stereotype.Component;
 
 /**

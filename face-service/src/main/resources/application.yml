@@ -24,42 +24,25 @@ spring:
         FAIL_ON_EMPTY_BEANS: false
       main:
         allow-bean-definition-overriding: true
-    #日志
-    logging:
-      config: classpath:logback.xml
-      level:
-        com:
-          github:
-            pagehelper: debug
-          itheima:
-            dbsharding: debug
-          newland:
-            ncsms: debug
-        druid:
-          sql: debug
-        newland:
-          mapper: debug
-        org:
-          springframework:
-            web: info
-        root: info
-      path: H:/tianyan/logs
-    #mybatis扫描
-    mybatis:
-      configuration:
-        map-underscore-to-camel-case: true
-      mapper-locations: classpath:mapper/*.xml
-      type-aliases-package: com.newland.ncsms.domain
-    #鉴权
-    security:
-      oauth2:
-        resource:
-          id: ${spring.application.name}
-          jwt:
-            key-uri: http://localhost:18081/oauth/token_key #这里的IP和端口是auth-cloud服务的IP和端口
+#mybatis
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.newland.tianyan.face.domain
+#oauth
+security:
+  oauth2:
+    resource:
+      id: ${spring.application.name}
+      jwt:
+        key-uri: http://localhost:18081/oauth/token_key #这里的IP和端口是auth-cloud服务的IP和端口
 #swagger
 swagger:
   enabled: false
+#日志
+log-dir: H:\yexj\tianyan-cloud\tianyan-cloud-api-service\logs
 
 user:
   id: ohhhhhh,I'm primary,just for test~
+

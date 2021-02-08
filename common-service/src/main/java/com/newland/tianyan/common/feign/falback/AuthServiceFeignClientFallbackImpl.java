@@ -1,8 +1,7 @@
 package com.newland.tianyan.common.feign.falback;
 
 
-import com.newland.tianyan.common.feign.AuthFeignService;
-import com.newland.tianyan.common.feign.dto.ClientRequest;
+import feign.hystrix.FallbackFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,15 +10,10 @@ import org.springframework.stereotype.Component;
  * @date: 2021/2/2
  */
 @Component
-public class AuthServiceFeignClientFallbackImpl implements AuthFeignService {
+public class AuthServiceFeignClientFallbackImpl implements FallbackFactory<AuthServiceFeignClientFallbackImpl> {
 
     @Override
-    public void addClient(ClientRequest request) {
-
-    }
-
-    @Override
-    public void deleteClient(ClientRequest request) {
-
+    public AuthServiceFeignClientFallbackImpl create(Throwable throwable) {
+        return null;
     }
 }
