@@ -2,6 +2,9 @@ package com.newland.tianyan.face.domain;
 
 import javax.persistence.Transient;
 
+/**
+ * 用于获取分页参数
+ */
 public class BaseEntity {
 
     @Transient

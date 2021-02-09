@@ -1,10 +1,8 @@
 package com.newland.tianyan.common.feign.falback;
 
+
 import com.newland.tianyan.common.feign.ImageStoreFeignService;
-import com.newland.tianyan.common.feign.dto.image.DownloadReq;
-import com.newland.tianyan.common.feign.dto.image.DownloadRes;
-import com.newland.tianyan.common.feign.dto.image.UploadReq;
-import com.newland.tianyan.common.feign.dto.image.UploadRes;
+import feign.hystrix.FallbackFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -13,15 +11,10 @@ import org.springframework.stereotype.Component;
  * @date: 2021/2/2
  */
 @Component
-public class ImageServiceFeignClientFallbackImpl implements ImageStoreFeignService {
+public class ImageServiceFeignClientFallbackImpl implements FallbackFactory<ImageStoreFeignService> {
 
     @Override
-    public UploadRes uploadV2(UploadReq uploadReq) {
-        return null;
-    }
-
-    @Override
-    public DownloadRes download(DownloadReq downloadReq) {
-        return null;
+    public ImageStoreFeignService create(Throwable throwable) {
+        throw new RuntimeException("远程服务器发生错误,请稍后再次尝试");
     }
 }

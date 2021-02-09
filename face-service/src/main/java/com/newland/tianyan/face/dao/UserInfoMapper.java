@@ -1,5 +1,6 @@
 package com.newland.tianyan.face.dao;
 
+
 import com.newland.tianyan.face.domain.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -8,13 +9,12 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * @author: RojiaHuang
- * @description:
- * @date: 2021/2/5
+ * @Author: huangJunJie  2020-11-05 14:34
  */
 @Mapper
 @Component
-public interface UserInfoMapper extends CommonMapper<UserInfo>  {
+public interface UserInfoMapper extends CommonMapper<UserInfo> {
+
     int faceNumberIncrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("userId") String userId, @Param("count") int count);
 
     int faceNumberDecrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("userId") String userId, @Param("count") int count);

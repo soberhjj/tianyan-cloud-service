@@ -1,14 +1,6 @@
 package com.newland.tianyan.face.event.user;
 
-import lombok.Data;
-
-/**
- * @author: RojiaHuang
- * @description:
- * @date: 2021/2/5
- */
-@Data
-public class UserCopyEvent extends UserEvent{
+public class UserCopyEvent extends UserEvent {
 
     private int faceNumber;
     private int userNumber;
@@ -17,5 +9,21 @@ public class UserCopyEvent extends UserEvent{
         super(appId, groupId, user_id);
         this.faceNumber = faceNumber;
         this.userNumber = usernumber;
+    }
+
+    public int getFaceNumber() {
+        return faceNumber;
+    }
+
+    public void setFaceNumber(int faceNumber) {
+        this.faceNumber = faceNumber;
+    }
+
+    public int getUserNumber() {
+        return userNumber;
+    }
+
+    public void setUserNumber(int userNumber) {
+        this.userNumber = userNumber;
     }
 }

@@ -1,22 +1,19 @@
 package com.newland.tianyan.face.service;
 
+
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.face.common.exception.FaceServiceException;
+import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.face.domain.GroupInfo;
-import com.newland.tianyan.face.dto.group.BackendFacesetGroupAddRequest;
-import com.newland.tianyan.face.dto.group.BackendFacesetGroupDeleteRequest;
-import com.newland.tianyan.face.dto.group.BackendFacesetGroupGetListRequest;
+import com.newland.tianyan.face.exception.ApiException;
 
 /**
- * @author: RojiaHuang
- * @description:
- * @date: 2021/2/5
+ * @Author: huangJunJie  2020-11-02 14:04
  */
 public interface GroupInfoService {
 
-    void create(BackendFacesetGroupAddRequest receive) throws FaceServiceException;
+    void create(NLBackend.BackendAllRequest receive) throws ApiException;
 
-    PageInfo<GroupInfo> getList(BackendFacesetGroupGetListRequest receive) throws FaceServiceException;
+    PageInfo<GroupInfo> getList(NLBackend.BackendAllRequest receive) throws ApiException;
 
-    void delete(BackendFacesetGroupDeleteRequest receive) throws FaceServiceException;
+    void delete(NLBackend.BackendAllRequest receive) throws ApiException;
 }

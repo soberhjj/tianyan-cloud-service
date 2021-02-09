@@ -1,12 +1,11 @@
 package com.newland.tianyan.face.cache;
 
-
 import com.newland.tianyan.common.feign.VectorSearchFeignService;
 import com.newland.tianyan.common.feign.dto.milvus.*;
-import com.newland.tianyan.face.common.utils.FeaturesTool;
-import com.newland.tianyan.face.domain.FaceInfo;
+import com.newland.tianyan.face.domain.Face;
+import com.newland.tianyan.face.exception.ApiReturnErrorCode;
+import com.newland.tianyan.face.utils.FeaturesTool;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -19,10 +18,9 @@ import java.util.List;
  * @date: 2021/1/12
  */
 @Service
-@Component
 public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
     @Autowired
-    private VectorSearchFeignService vectorSearchFeignService;
+    private VectorSearchFeignService milvusService;
 
     private String getCollectionName(Long appId) {
         return "FACE_" + appId;
@@ -34,7 +32,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                 .feature(feature)
                 .topK(topK)
                 .build();
-        return vectorSearchFeignService.query(queryReq);
+        return milvusService.query(queryReq);
     }
 
     /**
@@ -49,7 +47,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                     .appId(getCollectionName(collectionId))
                     .entityId(id)
                     .build();
-            vectorSearchFeignService.delete(deleteReq);
+            milvusService.delete(deleteReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;
@@ -69,7 +67,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                     .appId(getCollectionName(collectionId))
                     .entityIds(idList)
                     .build();
-            vectorSearchFeignService.batchDelete(batchDeleteReq);
+            milvusService.batchDelete(batchDeleteReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;
@@ -80,14 +78,14 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
     @Override
     public Long add(T entity) {
 
-        FaceInfo dto = (FaceInfo) entity;
+        Face dto = (Face) entity;
         List<Float> feature = this.convertByteArrayToList(dto);
         InsertReq insertReq = InsertReq.builder()
                 .appId(getCollectionName(dto.getAppId()))
-                .feature(feature)
                 .entityId(dto.getId())
+                .feature(feature)
                 .build();
-        return vectorSearchFeignService.insert(insertReq);
+        return milvusService.insert(insertReq);
     }
 
     @Override
@@ -97,8 +95,8 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
             throw new IllegalArgumentException("mainDataList must not be empty");
         }
         int size = entityList.size();
-        List<FaceInfo> insertSourceList = new ArrayList<>();
-        entityList.forEach(mainDataItem -> insertSourceList.add((FaceInfo) mainDataItem));
+        List<Face> insertSourceList = new ArrayList<>();
+        entityList.forEach(mainDataItem -> insertSourceList.add((Face) mainDataItem));
 
         Long appId = insertSourceList.get(0).getAppId();
         List<List<Float>> features = new ArrayList<>(size);
@@ -117,11 +115,13 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                 .entityIds(entityIds)
                 .features(features)
                 .build();
-        return vectorSearchFeignService.batchInsert(batchInsertReq);
+        return milvusService.batchInsert(batchInsertReq);
     }
 
-    public List<Float> convertByteArrayToList(FaceInfo entity) {
-
+    public List<Float> convertByteArrayToList(Face entity) {
+        if (entity == null || entity.getFeatures() == null) {
+            throw ApiReturnErrorCode.ILLEGAL_ARGUMENT.toException("feature must not be null");
+        }
 
         return FeaturesTool.convertByteArrayToList(entity.getFeatures());
     }
@@ -133,7 +133,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
             CreateColReq createColReq = CreateColReq.builder()
                     .appId(getCollectionName(collectionId))
                     .build();
-            vectorSearchFeignService.createCollection(createColReq);
+            milvusService.createCollection(createColReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;
@@ -148,7 +148,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
             DeleteColReq deleteColReq = DeleteColReq.builder()
                     .appId(getCollectionName(collectionId))
                     .build();
-            vectorSearchFeignService.dropCollection(deleteColReq);
+            milvusService.dropCollection(deleteColReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;

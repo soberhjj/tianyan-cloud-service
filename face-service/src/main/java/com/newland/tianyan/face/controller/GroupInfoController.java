@@ -1,12 +1,14 @@
 package com.newland.tianyan.face.controller;
 
+
 import com.github.pagehelper.PageInfo;
-import com.newland.face.message.NLBackend;
-import com.newland.tianyan.face.common.utils.ProtobufConvertUtils;
+import com.newland.tianyan.common.utils.constans.TaskType;
+import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.common.utils.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.GroupInfo;
-import com.newland.tianyan.face.dto.group.BackendFacesetGroupAddRequest;
-import com.newland.tianyan.face.dto.group.BackendFacesetGroupDeleteRequest;
-import com.newland.tianyan.face.dto.group.BackendFacesetGroupGetListRequest;
+import com.newland.tianyan.face.privateBean.BackendFacesetGroupAddRequest;
+import com.newland.tianyan.face.privateBean.BackendFacesetGroupDeleteRequest;
+import com.newland.tianyan.face.privateBean.BackendFacesetGroupGetListRequest;
 import com.newland.tianyan.face.service.GroupInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +18,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+
 /**
- * @author: RojiaHuang
- * @description: 人脸库用户组信息Controller
- * @date: 2021/2/4
+ * 人脸库用户组信息Controller
+ *
+ * @Author: huangJunJie  2020-11-02 14:02
  */
 @RestController
 @Slf4j
-@RequestMapping({"/backend/faceset/group", "/face/faceset/group"})
+@RequestMapping({"/face/group", "/backend/faceset/group", "/face/faceset/group"})
 public class GroupInfoController {
+
     @Autowired
     private GroupInfoService groupInfoService;
 
@@ -33,8 +37,9 @@ public class GroupInfoController {
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage add(@RequestBody @Validated BackendFacesetGroupAddRequest receive) {
-        groupInfoService.create(receive);
-        return ProtobufConvertUtils.buildFacesetSendMessage();
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        groupInfoService.create(request);
+        return ProtobufUtils.buildFacesetSendMessage();
     }
 
     /**
@@ -42,8 +47,9 @@ public class GroupInfoController {
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage checkUnique(@RequestBody @Validated BackendFacesetGroupGetListRequest receive) {
-        PageInfo<GroupInfo> pageInfo = groupInfoService.getList(receive);
-        return ProtobufConvertUtils.buildFacesetSendMessage(pageInfo.getList(), pageInfo.getSize());
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        PageInfo<GroupInfo> pageInfo = groupInfoService.getList(request);
+        return ProtobufUtils.buildFacesetSendMessage(pageInfo.getList(), pageInfo.getSize());
     }
 
     /**
@@ -51,8 +57,10 @@ public class GroupInfoController {
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated BackendFacesetGroupDeleteRequest receive) {
-        groupInfoService.delete(receive);
-        return ProtobufConvertUtils.buildFacesetSendMessage();
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        groupInfoService.delete(request);
+        return ProtobufUtils.buildFacesetSendMessage();
     }
+
 
 }

@@ -2,22 +2,20 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.exception.CommonException;
+import com.newland.tianyan.common.utils.exception.CommonException;
+import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.common.utils.utils.ProtobufUtils;
 import com.newland.tianyan.face.cache.FaceCacheHelperImpl;
-import com.newland.tianyan.face.common.constant.StatusConstants;
-import com.newland.tianyan.face.common.exception.FaceServiceErrorEnum;
-import com.newland.tianyan.face.common.utils.JsonUtils;
-import com.newland.tianyan.face.dao.FaceInfoMapper;
+import com.newland.tianyan.face.constant.StatusConstants;
+import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
-import com.newland.tianyan.face.domain.FaceInfo;
+import com.newland.tianyan.face.domain.Face;
 import com.newland.tianyan.face.domain.GroupInfo;
-import com.newland.tianyan.face.dto.group.BackendFacesetGroupAddRequest;
-import com.newland.tianyan.face.dto.group.BackendFacesetGroupDeleteRequest;
-import com.newland.tianyan.face.dto.group.BackendFacesetGroupGetListRequest;
 import com.newland.tianyan.face.event.group.GroupCreateEvent;
 import com.newland.tianyan.face.event.group.GroupDeleteEvent;
+import com.newland.tianyan.face.exception.ApiReturnErrorCode;
 import com.newland.tianyan.face.service.GroupInfoService;
-import org.springframework.beans.BeanUtils;
+import com.newland.tianyan.face.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -27,26 +25,24 @@ import javax.persistence.EntityExistsException;
 import java.util.List;
 
 /**
- * @author: RojiaHuang
- * @description:
- * @date: 2021/2/5
+ * @Author: huangJunJie  2020-11-02 14:11
  */
 @Service
 public class GroupInfoServiceImpl implements GroupInfoService {
+
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
     private GroupInfoMapper groupInfoMapper;
     @Autowired
-    private FaceInfoMapper faceMapper;
+    private FaceMapper faceMapper;
     @Autowired
-    private FaceCacheHelperImpl<FaceInfo> faceCacheHelper;
+    private FaceCacheHelperImpl<Face> faceCacheHelper;
 
 
     @Override
-    public void create(BackendFacesetGroupAddRequest receive) {
-        GroupInfo groupInfo = new GroupInfo();
-        BeanUtils.copyProperties(receive, groupInfo);
+    public void create(NLBackend.BackendAllRequest receive) {
+        GroupInfo groupInfo = ProtobufUtils.parseTo(receive, GroupInfo.class);
         //判断用户组是否存在
         groupInfo.setIsDelete(StatusConstants.NOT_DELETE);
         if (groupInfoMapper.selectCount(groupInfo) > 0) {
@@ -65,9 +61,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     }
 
     @Override
-    public PageInfo<GroupInfo> getList(BackendFacesetGroupGetListRequest receive) {
-        GroupInfo query = new GroupInfo();
-        BeanUtils.copyProperties(receive, query);
+    public PageInfo<GroupInfo> getList(NLBackend.BackendAllRequest receive) {
+        GroupInfo query = ProtobufUtils.parseTo(receive, GroupInfo.class);
         return PageHelper.offsetPage(query.getStartIndex(), query.getLength())
                 .doSelectPageInfo(
                         () -> {
@@ -91,9 +86,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * 删除用户组
      */
     @Override
-    public void delete(BackendFacesetGroupDeleteRequest receive) {
-        GroupInfo groupInfo = new GroupInfo();
-        BeanUtils.copyProperties(receive, groupInfo);
+    public void delete(NLBackend.BackendAllRequest receive) {
+        GroupInfo groupInfo = ProtobufUtils.parseTo(receive, GroupInfo.class);
         groupInfo.setIsDelete(StatusConstants.NOT_DELETE);
         GroupInfo groupToDelete = groupInfoMapper.selectOne(groupInfo);
         if (groupToDelete == null) {
@@ -102,8 +96,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
         //todo 删除该组所有用户的所有人脸-可以做个闲时的人脸删除
         List<Long> faceIdList = faceMapper.selectIdByGroupId(groupToDelete.getGroupId());
-        if (faceCacheHelper.deleteBatch(groupInfo.getAppId(), faceIdList) < 0) {
-            throw FaceServiceErrorEnum.CACHE_DELETE_ERROR.toException("[人脸管理]-移除用户组", "faceId:" + JsonUtils.toJson(faceIdList));
+        if (faceCacheHelper.deleteBatch(groupInfo.getAppId(),faceIdList) < 0) {
+            throw ApiReturnErrorCode.CACHE_DELETE_ERROR.toException("[人脸管理]-移除用户组", "faceId:" + JsonUtils.toJson(faceIdList));
         }
 
         //逻辑删除

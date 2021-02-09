@@ -1,0 +1,12 @@
+server:
+  port: 18083
+
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.136.222:9527
+milvus:
+  host: 192.168.136.222
+  port: 19540
+  nprobe: 1024

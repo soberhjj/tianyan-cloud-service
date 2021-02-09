@@ -1,24 +1,22 @@
 package com.newland.tianyan.face.service;
 
-import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.face.domain.AppInfo;
-import com.newland.tianyan.face.dto.app.*;
 
+import com.github.pagehelper.PageInfo;
+import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.face.domain.AppInfo;
 
 /**
- * @author: RojiaHuang
- * @description:
- * @date: 2021/2/4
- */
+ * @description: 用户接口
+ **/
 public interface AppInfoService {
 
-    void insert(BackendAppCreateRequest receive);
+     void insert(NLBackend.BackendAllRequest receive) ;
 
-    void delete(BackendAppDeleteRequest receive);
+     AppInfo getInfo(NLBackend.BackendAllRequest receive) ;
 
-    void update(BackendAppUpdateRequest receive);
+     PageInfo<AppInfo> getList(NLBackend.BackendAllRequest receive) ;
 
-    AppInfo getInfo(BackendAppGetInfoRequest receive);
+     void update(NLBackend.BackendAllRequest receive) ;
 
-    PageInfo<AppInfo> getList(BackendAppGetListRequest receive);
+     void delete(NLBackend.BackendAllRequest receive);
 }

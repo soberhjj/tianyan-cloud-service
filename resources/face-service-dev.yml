@@ -1,0 +1,110 @@
+server:
+  port: 18080
+
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.136.222:9527
+
+  rabbitmq:
+    host: 192.168.136.34
+    password: admin
+    username: admin
+    
+  shardingsphere:
+    datasource:
+      names: m1,m2,m3,oauth,face1,face2
+      m1:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        password: Cloud@Algo_db1
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://192.168.136.34/boot1?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: cloud
+      m2:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        password: Cloud@Algo_db1
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://192.168.136.34/boot2?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: cloud
+      m3:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        password: Cloud@Algo_db1
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://192.168.136.34/newland_cloud_management?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: cloud
+      oauth:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        password: Cloud@Algo_db1
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://192.168.136.34/newland_cloud_oauth?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: cloud
+      face1:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        password: Cloud@Algo_db1
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://192.168.136.34/newland_cloud_face_1?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: cloud
+      face2:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        password: Cloud@Algo_db1
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://192.168.136.34/newland_cloud_face_2?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
+        username: cloud
+        
+    sharding:
+      tables:
+        app_info:
+          actual-data-nodes: m3.app_info
+        group_info:
+          actual-data-nodes: m3.group_info
+        cloud_management_account:
+          actual-data-nodes: oauth.cloud_management_account
+        user_info:
+          actual-data-nodes: m3.user_info      
+        face:
+          actual-data-nodes: face$->{1..2}.face_$->{1..20}
+          database-strategy:
+            inline:
+              algorithm-expression: face$->{(user_id.hashCode() & Integer.MAX_VALUE) % 2 + 1}
+              sharding-column: user_id
+          table-strategy:
+            inline:
+              algorithm-expression: face_$->{(user_id.hashCode() & Integer.MAX_VALUE) % 20 + 1}
+              sharding-column: user_id
+      props:
+        sql:
+          show: true
+
+feign:
+  client:
+    config:
+      auth-service:
+        connectTimeout: 120000
+        readTimeout: 30000                  
+
+
+logging:
+  level:
+    com:
+      github:
+        pagehelper: debug
+      itheima:
+        dbsharding: debug
+      newland:
+        ncsms: debug
+    druid:
+      sql: debug
+    newland:
+      mapper: debug
+    org:
+      springframework:
+        web: info
+    root: info
+  path: /home/newland/face-api-service/logs
+
+swagger:
+  enabled: true
+  
+user:
+  id: ohhhhhh,I'm dev,just for test~

@@ -4,7 +4,6 @@ import com.newland.tianyan.common.feign.dto.image.DownloadReq;
 import com.newland.tianyan.common.feign.dto.image.DownloadRes;
 import com.newland.tianyan.common.feign.dto.image.UploadReq;
 import com.newland.tianyan.common.feign.dto.image.UploadRes;
-import com.newland.tianyan.common.feign.falback.FeignConfiguration;
 import com.newland.tianyan.common.feign.falback.ImageServiceFeignClientFallbackImpl;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,14 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
  * @description:
  * @date: 2021/2/3
  */
-@FeignClient(name = "image-store-service", fallback = ImageServiceFeignClientFallbackImpl.class,
-        configuration = FeignConfiguration.class)
+@FeignClient(name = "image-store-service", fallbackFactory = ImageServiceFeignClientFallbackImpl.class)
 public interface ImageStoreFeignService {
     String URI_PREFIX = "/backend/image";
 
     @PostMapping(URI_PREFIX + "/uploadV2")
-    UploadRes uploadV2(@RequestBody UploadReq uploadReq);
+    UploadRes uploadImageV2(@RequestBody UploadReq uploadReq);
 
     @PostMapping(URI_PREFIX + "/download")
-    DownloadRes download(@RequestBody DownloadReq downloadReq);
+    DownloadRes downloadImage(@RequestBody DownloadReq downloadReq);
 }

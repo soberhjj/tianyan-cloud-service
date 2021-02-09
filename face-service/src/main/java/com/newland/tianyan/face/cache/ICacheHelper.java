@@ -2,6 +2,11 @@ package com.newland.tianyan.face.cache;
 
 import java.util.List;
 
+/**
+ * @author: RojiaHuang
+ * @description: 统一缓存维护入口
+ * @date: 2021/1/12
+ */
 public interface ICacheHelper<T> {
 
     /**
@@ -18,7 +23,7 @@ public interface ICacheHelper<T> {
      * @param idList 缓存idList
      * @return 大于0 影响结果多于0个，判定成功
      */
-    Integer deleteBatch(Long collectionId, List<Long> idList);
+    Integer deleteBatch(Long collectionId,List<Long> idList);
 
     /**
      * 向缓存增加目标
