@@ -5,7 +5,7 @@ package com.newland.tianyan.face.cache;
  * @description:
  * @date: 2021/2/9
  */
-public class MivusKey {
+public class MilvusKey {
 
     private static int gpreLong = 18;
 

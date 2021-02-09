@@ -20,26 +20,26 @@ import java.util.List;
 public interface VectorSearchFeignService {
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
-    Long insert(@RequestBody InsertReq insertReq);
+    Long insert( InsertReq insertReq);
 
     @RequestMapping(value = "/query", method = RequestMethod.POST)
-    List<QueryRes> query(@RequestBody QueryReq queryReq);
+    List<QueryRes> query( QueryReq queryReq);
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    void delete(@RequestBody DeleteReq deleteReq);
+    void delete( DeleteReq deleteReq);
 
     @RequestMapping(value = "/createCol", method = RequestMethod.POST)
-    void createCollection(@RequestBody CreateColReq createColReq);
+    void createCollection( CreateColReq createColReq);
 
     @RequestMapping(value = "/dropCol", method = RequestMethod.POST)
-    void dropCollection(@RequestBody DeleteColReq deleteReq);
+    void dropCollection( DeleteColReq deleteReq);
 
     @RequestMapping(value = "/batchInsert", method = RequestMethod.POST)
-    List<Long> batchInsert(@RequestBody BatchInsertReq batchInsertReq);
+    List<Long> batchInsert( BatchInsertReq batchInsertReq);
 
     @RequestMapping(value = "/batchQuery", method = RequestMethod.POST)
-    List<List<QueryRes>> batchQuery(@RequestBody BatchQueryReq batchQueryReq);
+    List<List<QueryRes>> batchQuery( BatchQueryReq batchQueryReq);
 
     @RequestMapping(value = "/batchDelete", method = RequestMethod.POST)
-    void batchDelete(@RequestBody BatchDeleteReq batchDeleteReq);
+    void batchDelete( BatchDeleteReq batchDeleteReq);
 }

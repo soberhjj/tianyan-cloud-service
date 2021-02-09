@@ -17,7 +17,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @EnableDiscoveryClient
 @SpringBootApplication
 @EnableAspectJAutoProxy
-@EnableFeignClients
+@EnableFeignClients(basePackages = "com.newland.tianyan.face.remote")
 @EnableOAuth2Client
 public class FaceServiceApplication {
     public static void main(String[] args) {
