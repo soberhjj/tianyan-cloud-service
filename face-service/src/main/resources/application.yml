@@ -10,33 +10,31 @@ spring:
       discovery:
         server-addr: 192.168.136.222:9527
         namespace: tianyan-cloud
-    #远程调用
-    feign:
-      client:
-        config:
-          auth-service:
-            connectTimeout: 120000
-            readTimeout: 30000
-          image-store-service:
-            connectTimeout: 120000
-            readTimeout: 30000
-          vector-search-service:
-            connectTimeout: 1200000
-            readTimeout: 300000
-    #json
-    jackson:
-      property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES #驼峰转小写下划线
-      serialization:
-        FAIL_ON_EMPTY_BEANS: false
-      main:
-        allow-bean-definition-overriding: true
+  #json 驼峰转下划线
+  jackson:
+    property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
 #mybatis
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.newland.tianyan.face.domain
-#oauth
+#远程调用
+feign:
+  client:
+    config:
+      auth-service:
+        connectTimeout: 120000
+        readTimeout: 30000
+      image-store-service:
+        connectTimeout: 120000
+        readTimeout: 30000
+      vector-search-service:
+        connectTimeout: 1200000
+        readTimeout: 300000
+#oAuth
 security:
   oauth2:
     resource:

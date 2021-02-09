@@ -1,9 +1,10 @@
 package com.newland.tianyan.face.cache;
 
-import com.newland.tianyan.common.feign.VectorSearchFeignService;
-import com.newland.tianyan.common.feign.dto.milvus.*;
+
 import com.newland.tianyan.face.domain.Face;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
+import com.newland.tianyan.face.remote.VectorSearchFeignService;
+import com.newland.tianyan.face.remote.dto.milvus.*;
 import com.newland.tianyan.face.utils.FeaturesTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
