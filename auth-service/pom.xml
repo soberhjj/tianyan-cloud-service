@@ -28,18 +28,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.newland.tianyan</groupId>
-            <artifactId>common-service</artifactId>
-            <version>1.0.0</version>
-            <scope>compile</scope>
-        </dependency>
-
         <!--引入相关依赖-->
         <dependency>
-            <groupId>com.newland.common</groupId>
+            <groupId>com.newland.tianyan</groupId>
             <artifactId>common-utils</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
