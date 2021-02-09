@@ -3,7 +3,11 @@ package com.newland.tianyan.vectorsearch.controller;
 import com.newland.tianyan.vectorsearch.entity.*;
 import com.newland.tianyan.vectorsearch.service.MilvusService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 
 import java.util.List;
 
@@ -14,7 +18,7 @@ import java.util.List;
 @RequestMapping("/backend/search/milvus")
 public class MilvusController {
     @Autowired
-    MilvusService milvusService;
+    private MilvusService milvusService;
 
     @PostMapping("/insert")
     public Long insert(@RequestBody InsertReq insertReq) {

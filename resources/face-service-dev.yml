@@ -2,16 +2,23 @@ server:
   port: 18080
 
 spring:
+  application:
+    name: face-api-service
   cloud:
     nacos:
       discovery:
         server-addr: 192.168.136.222:9527
-
+        namespace: tianyan-cloud
+  jackson:
+    property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+  main:
+    allow-bean-definition-overriding: true
   rabbitmq:
     host: 192.168.136.34
     password: admin
     username: admin
-    
   shardingsphere:
     datasource:
       names: m1,m2,m3,oauth,face1,face2
@@ -51,7 +58,6 @@ spring:
         type: com.alibaba.druid.pool.DruidDataSource
         url: jdbc:mysql://192.168.136.34/newland_cloud_face_2?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
         username: cloud
-        
     sharding:
       tables:
         app_info:
@@ -61,7 +67,7 @@ spring:
         cloud_management_account:
           actual-data-nodes: oauth.cloud_management_account
         user_info:
-          actual-data-nodes: m3.user_info      
+          actual-data-nodes: m3.user_info
         face:
           actual-data-nodes: face$->{1..2}.face_$->{1..20}
           database-strategy:
@@ -72,19 +78,21 @@ spring:
             inline:
               algorithm-expression: face_$->{(user_id.hashCode() & Integer.MAX_VALUE) % 20 + 1}
               sharding-column: user_id
-      props:
-        sql:
-          show: true
+
+
+    props:
+      sql:
+        show: true
 
 feign:
   client:
     config:
       auth-service:
-        connectTimeout: 120000
-        readTimeout: 30000                  
-
+        connectTimeout: 1000
+        readTimeout: 12000
 
 logging:
+  config: classpath:logback-prod.xml
   level:
     com:
       github:
@@ -101,10 +109,20 @@ logging:
       springframework:
         web: info
     root: info
-  path: /home/newland/face-api-service/logs
+  path: /home/newland/ncsms/
 
-swagger:
-  enabled: true
-  
-user:
-  id: ohhhhhh,I'm dev,just for test~
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.newland.ncsms.domain
+
+security:
+  oauth2:
+    resource:
+      id: ${spring.application.name}
+      jwt:
+        key-uri: http://localhost:18081/oauth/token_key
+
+
+

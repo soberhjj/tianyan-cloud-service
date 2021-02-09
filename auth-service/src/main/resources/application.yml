@@ -6,7 +6,7 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.136.222:9527
-  profiles: dev
+        namespace: tianyan-cloud
   datasource:
     url: jdbc:mysql://192.168.136.34/newland_cloud_oauth?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
     username: cloud

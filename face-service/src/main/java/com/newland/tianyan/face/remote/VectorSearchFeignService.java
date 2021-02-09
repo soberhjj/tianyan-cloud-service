@@ -4,8 +4,9 @@ package com.newland.tianyan.face.remote;
 import com.newland.tianyan.face.remote.dto.milvus.*;
 import com.newland.tianyan.face.remote.falback.AuthServiceFeignClientFallbackImpl;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
 
@@ -15,28 +16,30 @@ import java.util.List;
  * @date: 2021/2/8
  */
 @FeignClient(name = "vector-search-service", fallbackFactory = AuthServiceFeignClientFallbackImpl.class)
+@RequestMapping("/backend/search/milvus")
 public interface VectorSearchFeignService {
-    @PostMapping("/insert")
+
+    @RequestMapping(value = "/insert", method = RequestMethod.POST)
     Long insert(@RequestBody InsertReq insertReq);
 
-    @PostMapping("/query")
+    @RequestMapping(value = "/query", method = RequestMethod.POST)
     List<QueryRes> query(@RequestBody QueryReq queryReq);
 
-    @PostMapping("/delete")
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
     void delete(@RequestBody DeleteReq deleteReq);
 
-    @PostMapping("/createCol")
+    @RequestMapping(value = "/createCol", method = RequestMethod.POST)
     void createCollection(@RequestBody CreateColReq createColReq);
 
-    @PostMapping("/dropCol")
+    @RequestMapping(value = "/dropCol", method = RequestMethod.POST)
     void dropCollection(@RequestBody DeleteColReq deleteReq);
 
-    @PostMapping("/batchInsert")
+    @RequestMapping(value = "/batchInsert", method = RequestMethod.POST)
     List<Long> batchInsert(@RequestBody BatchInsertReq batchInsertReq);
 
-    @PostMapping("/batchQuery")
+    @RequestMapping(value = "/batchQuery", method = RequestMethod.POST)
     List<List<QueryRes>> batchQuery(@RequestBody BatchQueryReq batchQueryReq);
 
-    @PostMapping("/batchDelete")
+    @RequestMapping(value = "/batchDelete", method = RequestMethod.POST)
     void batchDelete(@RequestBody BatchDeleteReq batchDeleteReq);
 }
