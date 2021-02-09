@@ -1,10 +1,9 @@
 package com.newland.tianyan.auth.service;
 
-import com.newland.common.utils.ProtobufUtils;
-import com.newland.common.utils.TableUtils;
-import com.newland.common.utils.message.NLBackend;
-
 import com.newland.tianyan.auth.entity.Account;
+import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.common.utils.utils.ProtobufUtils;
+import com.newland.tianyan.common.utils.utils.TableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

@@ -1,16 +1,15 @@
 package com.newland.tianyan.auth.controller;
 
-import com.newland.common.utils.JsonErrorObject;
-import com.newland.common.utils.LogUtils;
-import com.newland.common.utils.ProtobufUtils;
-import com.newland.common.utils.constans.TaskType;
-import com.newland.common.utils.message.NLBackend;
-
 import com.newland.tianyan.auth.entity.Account;
 import com.newland.tianyan.auth.privateBean.BackendLoginCheckUniqueRequest;
 import com.newland.tianyan.auth.privateBean.BackendLoginGetInfoRequest;
 import com.newland.tianyan.auth.privateBean.BackendLoginRegisterRequest;
 import com.newland.tianyan.auth.service.LoginService;
+import com.newland.tianyan.common.utils.constans.TaskType;
+import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.common.utils.utils.JsonErrorObject;
+import com.newland.tianyan.common.utils.utils.LogUtils;
+import com.newland.tianyan.common.utils.utils.ProtobufUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;

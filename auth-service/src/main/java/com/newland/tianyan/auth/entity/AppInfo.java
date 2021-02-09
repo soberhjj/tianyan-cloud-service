@@ -1,6 +1,7 @@
 package com.newland.tianyan.auth.entity;
 
-import com.newland.common.utils.TableUtils;
+
+import com.newland.tianyan.common.utils.utils.TableUtils;
 import tk.mybatis.mapper.entity.IDynamicTableName;
 
 import javax.persistence.Transient;

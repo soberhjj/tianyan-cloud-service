@@ -1,8 +1,8 @@
 package com.newland.tianyan.auth.advice;
 
-import com.newland.common.utils.JsonErrorObject;
-import com.newland.common.utils.LogUtils;
 import com.newland.tianyan.auth.exception.CommonException;
+import com.newland.tianyan.common.utils.utils.JsonErrorObject;
+import com.newland.tianyan.common.utils.utils.LogUtils;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -1,6 +1,7 @@
 package com.newland.tianyan.auth.config;
 
-import org.springframework.cloud.alibaba.nacos.NacosDiscoveryProperties;
+
+import com.alibaba.cloud.nacos.NacosDiscoveryProperties;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
