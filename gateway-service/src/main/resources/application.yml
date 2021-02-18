@@ -1,5 +1,5 @@
 server:
-  port: 8888
+  port: 18888
 
 spring:
   cloud:
@@ -12,7 +12,14 @@ spring:
         locator:
           enabled: true
       routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/oauth/token
         - id: face-service
           uri: lb://face-service
           predicates:
             - Path=/backend/**,/face/**
+
+
+log-dir: H:\framework\hzsy\hzsy-api\logs\gateway-service

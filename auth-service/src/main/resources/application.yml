@@ -28,8 +28,7 @@ spring:
     property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
     serialization:
       FAIL_ON_EMPTY_BEANS: false
-logging:
-  level:
-    org.springframework.security: error
+
+log-dir: H:\framework\hzsy\hzsy-api\logs\auth-service
 
 

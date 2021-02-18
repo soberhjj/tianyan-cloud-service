@@ -95,25 +95,7 @@ feign:
         connectTimeout: 1200000
         readTimeout: 300000
 
-logging:
-  config: classpath:logback-prod.xml
-  level:
-    com:
-      github:
-        pagehelper: debug
-      itheima:
-        dbsharding: debug
-      newland:
-        ncsms: debug
-    druid:
-      sql: debug
-    newland:
-      mapper: debug
-    org:
-      springframework:
-        web: info
-    root: info
-  path: /home/newland/ncsms/
+log-dir: H:\framework\hzsy\hzsy-api\logs\face-service
 
 mybatis:
   configuration:
