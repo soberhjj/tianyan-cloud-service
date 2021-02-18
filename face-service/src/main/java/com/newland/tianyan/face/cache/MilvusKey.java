@@ -60,11 +60,11 @@ public class MilvusKey {
         System.out.println(nf.format(beforeGid));
         System.out.println(nf.format(beforeUid));
 
-        Long key = MilvusKey2.generatedKey(beforeGid, beforeUid, 2);
+        Long key = MilvusKey.generatedKey(beforeGid, beforeUid, 2);
         System.out.println(nf.format(key));
 
-        Long afterGid = MilvusKey2.splitGid(key);
-        Long afterUid = MilvusKey2.splitUid(key);
+        Long afterGid = MilvusKey.splitGid(key);
+        Long afterUid = MilvusKey.splitUid(key);
         System.out.println(nf.format(afterGid));
         System.out.println(nf.format(afterUid));
     }
