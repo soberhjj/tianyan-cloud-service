@@ -45,11 +45,7 @@ public class MilvusKey {
     }
 
     public static String lpad(Integer value, int maxLength) {
-        if (value.toString().length() == maxLength) {
-            return value.toString();
-        }
-        String format = "%0" + maxLength + "d";
-        return String.format(format, value);
+       return lpad(new Long(value),maxLength);
     }
 
     public static void main(String[] args) {
