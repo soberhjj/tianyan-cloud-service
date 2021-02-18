@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AddClientRequest {
+public class ClientRequest {
 
     private String account;
     private Long appId;

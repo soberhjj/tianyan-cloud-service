@@ -6,7 +6,12 @@
 #    nacos:
 #      discovery:
 #        server-addr: 192.168.136.222:9527
-#          namespace: tianyan-cloud
+#        namespace: tianyan-cloud
+#  jackson:
+#    property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+#    serialization:
+#      FAIL_ON_EMPTY_BEANS: false
+#
 #
 #fdfs:
 #  so-timeout: 1500

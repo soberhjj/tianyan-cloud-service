@@ -6,6 +6,7 @@ import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.LogUtils;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
 import com.newland.tianyan.face.cache.FaceCacheHelperImpl;
+import com.newland.tianyan.face.cache.MilvusKey;
 import com.newland.tianyan.face.config.RabbitMQSender;
 import com.newland.tianyan.face.constant.RabbitMqQueueName;
 import com.newland.tianyan.face.constant.StatusConstants;
@@ -88,10 +89,14 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         resultBuilder.setFaceNum(feature.getFaceNum());
         //结果集.UserResult
         for (QueryRes milvusQueryRes : queryFaceList) {
+            //拆解根据规则拼接的向量id获得gid、uid
+            Long vectorId = milvusQueryRes.getEntityId();
+            Long gid = MilvusKey.splitGid(vectorId);
+            Long uid = MilvusKey.splitUid(vectorId);
             NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
             //用户信息
             UserInfo conditionUser = new UserInfo();
-            conditionUser.setId(milvusQueryRes.getUid());
+            conditionUser.setId(uid);
             UserInfo queryUser = userInfoMapper.selectOne(conditionUser);
             if (queryUser == null) {
                 continue;
@@ -101,7 +106,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             builder.setUserInfo(queryUser.getUserInfo());
             //用户组信息
             GroupInfo conditionGroup = new GroupInfo();
-            conditionGroup.setId(milvusQueryRes.getGid());
+            conditionGroup.setId(gid);
             GroupInfo queryGroup = groupInfoMapper.selectOne(conditionGroup);
             if (queryGroup == null) {
                 continue;

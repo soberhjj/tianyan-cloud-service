@@ -7,6 +7,7 @@ import com.newland.tianyan.common.utils.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
 import com.newland.tianyan.face.cache.FaceCacheHelperImpl;
+import com.newland.tianyan.face.cache.MilvusKey;
 import com.newland.tianyan.face.config.RabbitMQSender;
 import com.newland.tianyan.face.configuration.IDUtil;
 import com.newland.tianyan.face.constant.RabbitMqQueueName;
@@ -77,8 +78,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         this.handleFeatures(insertFace, receive.getImage());
         insertFace.setAppId(receive.getAppId());
         insertFace.setUserId(receive.getUserId());
-        //雪花算法
-        insertFace.setId(IDUtil.getRandomId());
 
         String[] groups = receive.getGroupId().split(",");
         //去重
@@ -136,6 +135,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 //添加人脸
                 insertFace.setUid(userInfo.getId());
                 insertFace.setGid(groupInfo.getId());
+                insertFace.setId(MilvusKey.generatedKey(insertFace.getGid(),insertFace.getUid()));
                 //note 缓存中添加用户的人脸
                 if (faceCacheHelper.add(insertFace) < 0) {
                     log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
@@ -153,6 +153,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             else {
                 insertFace.setUid(sourceUser.getId());
                 insertFace.setGid(sourceUser.getGid());
+                insertFace.setId(MilvusKey.generatedKey(insertFace.getGid(),insertFace.getUid()));
                 if ("append".equals(receive.getActionType())) {
                     //note 缓存中添加用户的人脸
                     if (faceCacheHelper.add(insertFace) < 0) {

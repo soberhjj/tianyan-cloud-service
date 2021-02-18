@@ -24,7 +24,10 @@ spring:
       driver-class-name: com.mysql.cj.jdbc.Driver
   main:
     allow-bean-definition-overriding: true
-
+  jackson:
+    property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
 logging:
   level:
     org.springframework.security: error

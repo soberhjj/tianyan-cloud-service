@@ -13,7 +13,7 @@ import com.newland.tianyan.face.domain.AppInfo;
 import com.newland.tianyan.face.domain.Face;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
 import com.newland.tianyan.face.remote.AuthFeignService;
-import com.newland.tianyan.face.remote.dto.auth.AddClientRequest;
+import com.newland.tianyan.face.remote.dto.auth.ClientRequest;
 import com.newland.tianyan.face.service.AppInfoService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,9 +67,9 @@ public class AppInfoServiceImpl implements AppInfoService {
         appInfo.setAppId(appId);
 
         // 远程调用
-        AddClientRequest addClientRequest = new AddClientRequest(receive.getAccount(), appInfo.getAppId(),
+        ClientRequest clientRequest = new ClientRequest(receive.getAccount(), appInfo.getAppId(),
                 appInfo.getApiKey(), appInfo.getSecretKey());
-        clientService.addClient(addClientRequest);
+        clientService.addClient(clientRequest);
     }
 
     @Override
@@ -182,9 +182,9 @@ public class AppInfoServiceImpl implements AppInfoService {
         }
 
         // 远程调用
-        AddClientRequest addClientRequest = new AddClientRequest(receive.getAccount(), appToDelete.getAppId(),
+        ClientRequest clientRequest = new ClientRequest(receive.getAccount(), appToDelete.getAppId(),
                 appToDelete.getApiKey(), appToDelete.getSecretKey());
-        clientService.deleteClient(addClientRequest);
+        clientService.deleteClient(clientRequest);
     }
 
 }
