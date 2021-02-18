@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import com.newland.tianyan.vectorsearch.entity.QueryRes;
 import com.newland.tianyan.vectorsearch.utils.CosineDistanceTool;
 import io.milvus.client.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,22 +16,24 @@ import java.util.List;
  * @Author: huangJunJie  2021-02-04 14:21
  */
 @Service
-//@RefreshScope
+@RefreshScope
 public class MilvusService {
 
-    //    @Value("${milvus.host}")
-    private String MILVUS_SERVER_HOST = "192.168.136.222";
+    @Value("${milvus.host}")
+    private String MILVUS_SERVER_HOST;
 
-    //    @Value("${milvus.port}")
-    private Integer MILVUS_SERVER_PORT = 19540;
+    @Value("${milvus.port}")
+    private Integer MILVUS_SERVER_PORT;
 
-    //    @Value("${milvus.nprobe}")
-    private Integer NPROBE = 1024;
+    @Value("${milvus.nprobe}")
+    private Integer NPROBE;
 
-    ConnectParam connectParam = new ConnectParam.Builder().withHost(MILVUS_SERVER_HOST).withPort(MILVUS_SERVER_PORT).build();
+    private ConnectParam getConnectParam() {
+        return new ConnectParam.Builder().withHost(MILVUS_SERVER_HOST).withPort(MILVUS_SERVER_PORT).build();
+    }
 
     public void createCollection(String appId) {
-        MilvusClient client = new MilvusGrpcClient(connectParam);
+        MilvusClient client = new MilvusGrpcClient(getConnectParam());
         CollectionMapping collectionMapping =
                 new CollectionMapping.Builder(appId, 512)
                         .withIndexFileSize(1024)
@@ -40,13 +44,13 @@ public class MilvusService {
     }
 
     public void dropCollection(String appId) {
-        MilvusClient client = new MilvusGrpcClient(connectParam);
+        MilvusClient client = new MilvusGrpcClient(getConnectParam());
         client.dropCollection(appId);
         client.close();
     }
 
     public Long insert(String appId, List<Float> feature, Long entityId) {
-        MilvusClient client = new MilvusGrpcClient(connectParam);
+        MilvusClient client = new MilvusGrpcClient(getConnectParam());
         List<List<Float>> features = new ArrayList<>();
         List<Long> entityIds = new ArrayList<>();
         features.add(feature);
@@ -62,7 +66,7 @@ public class MilvusService {
     }
 
     public List<QueryRes> query(String appId, List<Float> feature, Integer topK) {
-        MilvusClient client = new MilvusGrpcClient(connectParam);
+        MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
         List<List<Float>> features = new ArrayList<>();
         features.add(feature);
@@ -99,7 +103,7 @@ public class MilvusService {
     }
 
     public void delete(String appId, Long entityId) {
-        MilvusClient client = new MilvusGrpcClient(connectParam);
+        MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
         List<Long> entityIds = new ArrayList<>();
         entityIds.add(entityId);
@@ -110,7 +114,7 @@ public class MilvusService {
     }
 
     public List<Long> batchInsert(String appId, List<List<Float>> features, List<Long> entityIds) {
-        MilvusClient client = new MilvusGrpcClient(connectParam);
+        MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
         InsertParam insertParam = new InsertParam.Builder(appId).withFloatVectors(features).withVectorIds(entityIds).build();
         InsertResponse inserRes = client.insert(insertParam);
@@ -121,7 +125,7 @@ public class MilvusService {
     }
 
     public List<List<QueryRes>> batchQuery(String appId, List<List<Float>> features, Integer topK) {
-        MilvusClient client = new MilvusGrpcClient(connectParam);
+        MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
         JsonObject searchParamsJson = new JsonObject();
         searchParamsJson.addProperty("nprobe", NPROBE);
@@ -162,8 +166,8 @@ public class MilvusService {
         return batchRes;
     }
 
-    public void batchDelete(String appId, List<Long> entityIds){
-        MilvusClient client = new MilvusGrpcClient(connectParam);
+    public void batchDelete(String appId, List<Long> entityIds) {
+        MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
         client.deleteEntityByID(appId, entityIds);
         client.flush(appId);
