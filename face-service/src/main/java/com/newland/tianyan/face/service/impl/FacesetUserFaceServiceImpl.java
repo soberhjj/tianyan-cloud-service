@@ -9,7 +9,6 @@ import com.newland.tianyan.common.utils.utils.ProtobufUtils;
 import com.newland.tianyan.face.cache.FaceCacheHelperImpl;
 import com.newland.tianyan.face.cache.MilvusKey;
 import com.newland.tianyan.face.config.RabbitMQSender;
-import com.newland.tianyan.face.configuration.IDUtil;
 import com.newland.tianyan.face.constant.RabbitMqQueueName;
 import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.FaceMapper;
@@ -135,7 +134,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 //添加人脸
                 insertFace.setUid(userInfo.getId());
                 insertFace.setGid(groupInfo.getId());
-                insertFace.setId(MilvusKey.generatedKey(insertFace.getGid(),insertFace.getUid()));
+                insertFace.setId(MilvusKey.generatedKey(insertFace.getGid(), insertFace.getUid(), userInfo.getFaceNumber() + 1));
                 //note 缓存中添加用户的人脸
                 if (faceCacheHelper.add(insertFace) < 0) {
                     log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
@@ -153,9 +152,9 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             else {
                 insertFace.setUid(sourceUser.getId());
                 insertFace.setGid(sourceUser.getGid());
-                insertFace.setId(MilvusKey.generatedKey(insertFace.getGid(),insertFace.getUid()));
                 if ("append".equals(receive.getActionType())) {
                     //note 缓存中添加用户的人脸
+                    insertFace.setId(MilvusKey.generatedKey(insertFace.getGid(), insertFace.getUid(), sourceUser.getFaceNumber() + 1));
                     if (faceCacheHelper.add(insertFace) < 0) {
                         log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
                         throw ApiReturnErrorCode.CACHE_INSERT_ERROR.toException("[人脸新增]");
@@ -168,6 +167,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     //发布事件。已存在的用户添加了人脸，所以要在user_info中将该用户对应的那条记录进行更新（更新的字段是face_number）,也要在group_info表中将该用户对应的那个用户组的记录进行更新（更新的字段同样是face_number）
                     publisher.publishEvent(new FaceCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
                 } else if ("replace".equals(receive.getActionType())) {
+                    insertFace.setId(MilvusKey.generatedKey(insertFace.getGid(), insertFace.getUid(), 1));
                     //删除face表中该用户原本的人脸（用户在一个组中可能有多张人脸）
                     Face face = new Face();
                     face.setGroupId(groupId);
@@ -175,7 +175,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     face.setAppId(query.getAppId());
                     List<Long> faceIdList = faceMapper.selectIdByGroupId(groupId);
                     //note 删除原本缓存中的人脸，添加新的人脸
-                    if ((!CollectionUtils.isEmpty(faceIdList)) && faceCacheHelper.deleteBatch(query.getAppId(),faceIdList) < 0) {
+                    if ((!CollectionUtils.isEmpty(faceIdList)) && faceCacheHelper.deleteBatch(query.getAppId(), faceIdList) < 0) {
                         log.info("[人脸删除向量失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
                         throw ApiReturnErrorCode.CACHE_DELETE_ERROR.toException("[人脸新增]");
                     }
@@ -425,7 +425,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         }
 
         //note 缓存中删除用户指定的人脸
-        if (faceCacheHelper.delete(query.getAppId(),face.getId()) < 0) {
+        if (faceCacheHelper.delete(query.getAppId(), face.getId()) < 0) {
             log.info("[人脸删除],参数{}", "AppId:" + face.getAppId() + "GroupId" + face.getGroupId() + "userId" + face.getUserId());
             throw ApiReturnErrorCode.CACHE_DELETE_ERROR.toException("[人脸删除]", "faceId:" + face.getId());
         }
