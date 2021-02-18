@@ -1,5 +1,7 @@
 package com.newland.tianyan.common.feign;
 
+
+
 import com.newland.tianyan.common.feign.dto.image.DownloadReq;
 import com.newland.tianyan.common.feign.dto.image.DownloadRes;
 import com.newland.tianyan.common.feign.dto.image.UploadReq;

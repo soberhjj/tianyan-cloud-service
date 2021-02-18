@@ -1,6 +1,8 @@
 package com.newland.tianyan.common.feign.falback;
 
 
+
+
 import com.newland.tianyan.common.feign.AuthFeignService;
 import feign.hystrix.FallbackFactory;
 import org.springframework.stereotype.Component;

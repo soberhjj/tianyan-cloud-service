@@ -2,12 +2,14 @@ package com.newland.tianyan.common.feign.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class AddClientRequest {
+@NoArgsConstructor
+public class ClientRequest {
 
     private String account;
     private Long appId;

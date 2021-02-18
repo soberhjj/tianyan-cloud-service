@@ -1,5 +1,6 @@
 package com.newland.tianyan.common.feign.falback;
 
+
 import com.newland.tianyan.common.feign.VectorSearchFeignService;
 import feign.hystrix.FallbackFactory;
 
