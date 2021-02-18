@@ -1,6 +1,7 @@
 package com.newland.tianyan.face.config;
 
 import feign.RequestInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.security.oauth2.client.feign.OAuth2FeignRequestInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,13 +17,24 @@ public class OAuth2FeignInterceptorConfig {
         return new OAuth2FeignRequestInterceptor(new DefaultOAuth2ClientContext(), resourceDetails());
     }
 
+    @Value("${auth-service.host}")
+    private String host;
+
+    @Value("${auth-service.port}")
+    private String port;
+
+    @Value("${auth-service.client-id}")
+    private String clientId;
+
+    @Value("${auth-service.client-secret}")
+    private String clientSecret;
+
     private OAuth2ProtectedResourceDetails resourceDetails() {
         final ClientCredentialsResourceDetails details = new ClientCredentialsResourceDetails();
-        //TODO: remove magic number
-        details.setAccessTokenUri("http://localhost:18081/oauth/token");
-//        details.setAccessTokenUri("http://192.168.136.34:18081/oauth/token"); //这里的IP和端口是auth-cloud服务的IP和端口
-        details.setClientId("client_2");
-        details.setClientSecret("123456");
+        String url = "http://"+host+":"+port+"/oauth/token";
+        details.setAccessTokenUri(url);
+        details.setClientId(clientId);
+        details.setClientSecret(clientSecret);
         return details;
     }
 }

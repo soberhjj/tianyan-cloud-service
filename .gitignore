@@ -5,3 +5,4 @@ target/
 */iml
 *.iml
 LOG_PATH_IS_UNDEFINED/
+logs/

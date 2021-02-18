@@ -1,6 +1,5 @@
 server:
-  port: 18888
-
+  port: 6060
 spring:
   cloud:
     nacos:
@@ -14,12 +13,16 @@ spring:
       routes:
         - id: auth-service
           uri: lb://auth-service
+          filters:
+            - StripPrefix=2
           predicates:
-            - Path=/oauth/token
+            - Path=/cloudService/auth-cloud/oauth/token
         - id: face-service
           uri: lb://face-service
+          filters:
+            - StripPrefix=2
           predicates:
-            - Path=/backend/**,/face/**
+            - Path=/cloudService/ncsms/backend/**,/cloudService/ncsms/face/**
 
 
 log-dir: H:\framework\hzsy\hzsy-api\logs\gateway-service

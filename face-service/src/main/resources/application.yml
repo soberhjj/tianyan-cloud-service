@@ -110,4 +110,10 @@ security:
       jwt:
         key-uri: http://localhost:18081/oauth/token_key
 
+auth-service:
+   host: 127.0.0.1
+   port: 18081
+   client-id: client_2
+   client-secret: 123456
+
 
