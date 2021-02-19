@@ -1,9 +1,9 @@
 package com.newland.tianyan.image.controller;
 
-import com.newland.tianyan.image.entity.DownloadReq;
-import com.newland.tianyan.image.entity.DownloadRes;
-import com.newland.tianyan.image.entity.UploadReq;
-import com.newland.tianyan.image.entity.UploadRes;
+import com.newland.tianyan.image.vo.DownloadReq;
+import com.newland.tianyan.image.vo.DownloadRes;
+import com.newland.tianyan.image.vo.UploadReq;
+import com.newland.tianyan.image.vo.UploadRes;
 import com.newland.tianyan.image.service.FastdfsImageStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

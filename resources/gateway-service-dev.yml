@@ -13,7 +13,7 @@ spring:
           filters:
             - StripPrefix=2
           predicates:
-            - Path=/cloudService/auth-cloud/oauth/token
+            - Path=/cloudService/auth-cloud/oauth/token,/cloudService/auth-cloud/login/**
         - id: face-service
           uri: lb://face-service
           filters:

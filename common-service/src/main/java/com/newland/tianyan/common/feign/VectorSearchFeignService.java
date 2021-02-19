@@ -1,7 +1,7 @@
 package com.newland.tianyan.common.feign;
 
 
-import com.newland.tianyan.common.feign.dto.milvus.*;
+import com.newland.tianyan.common.feign.vo.milvus.*;
 import com.newland.tianyan.common.feign.falback.AuthServiceFeignClientFallbackImpl;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;

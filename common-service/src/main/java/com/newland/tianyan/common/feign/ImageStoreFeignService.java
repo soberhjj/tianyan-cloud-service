@@ -2,10 +2,10 @@ package com.newland.tianyan.common.feign;
 
 
 
-import com.newland.tianyan.common.feign.dto.image.DownloadReq;
-import com.newland.tianyan.common.feign.dto.image.DownloadRes;
-import com.newland.tianyan.common.feign.dto.image.UploadReq;
-import com.newland.tianyan.common.feign.dto.image.UploadRes;
+import com.newland.tianyan.common.feign.vo.image.DownloadReq;
+import com.newland.tianyan.common.feign.vo.image.DownloadRes;
+import com.newland.tianyan.common.feign.vo.image.UploadReq;
+import com.newland.tianyan.common.feign.vo.image.UploadRes;
 import com.newland.tianyan.common.feign.falback.ImageServiceFeignClientFallbackImpl;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
