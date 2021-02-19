@@ -2,10 +2,10 @@ package com.newland.tianyan.face.service;
 
 
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceCompareRequest;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceDetectRequest;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceSearchRequest;
-import com.newland.tianyan.face.privateBean.FaceDetectVo;
+import com.newland.tianyan.face.vo.FaceSetFaceCompareVo;
+import com.newland.tianyan.face.vo.FaceSetFaceDetectVo;
+import com.newland.tianyan.face.vo.FaceSetFaceSearchVo;
+import com.newland.tianyan.face.vo.FaceDetectVo;
 import newlandFace.NLFace;
 
 /**
@@ -13,15 +13,15 @@ import newlandFace.NLFace;
  */
 public interface FacesetFaceService {
 
-    NLFace.CloudFaceSendMessage searchNew(BackendFacesetFaceSearchRequest request);
+    NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchVo request);
 
-    NLFace.CloudFaceSendMessage compare(BackendFacesetFaceCompareRequest request);
+    NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareVo request);
 
     NLFace.CloudFaceSendMessage multiAttribute(FaceDetectVo vo);
 
     NLFace.CloudFaceSendMessage liveness(FaceDetectVo vo);
 
-    NLFace.CloudFaceSendMessage detect(BackendFacesetFaceDetectRequest request);
+    NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectVo request);
 
     NLFace.CloudFaceSendMessage features(NLBackend.BackendAllRequest receive, int model);
 

@@ -4,10 +4,10 @@ package com.newland.tianyan.face.controller;
 import com.newland.tianyan.common.utils.constans.TaskType;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceCompareRequest;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceDetectRequest;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceSearchRequest;
-import com.newland.tianyan.face.privateBean.FaceDetectVo;
+import com.newland.tianyan.face.vo.FaceSetFaceCompareVo;
+import com.newland.tianyan.face.vo.FaceSetFaceDetectVo;
+import com.newland.tianyan.face.vo.FaceSetFaceSearchVo;
+import com.newland.tianyan.face.vo.FaceDetectVo;
 import com.newland.tianyan.face.service.FacesetFaceService;
 import newlandFace.NLFace;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +25,12 @@ public class FacesetFaceController {
     FacesetFaceService facesetFaceService;
 
     @PostMapping(value = "/search")
-    public NLFace.CloudFaceSendMessage search(@RequestBody @Validated BackendFacesetFaceSearchRequest request) {
+    public NLFace.CloudFaceSendMessage search(@RequestBody @Validated FaceSetFaceSearchVo request) {
         return facesetFaceService.searchNew(request);
     }
 
     @PostMapping(value = "/compare")
-    public NLFace.CloudFaceSendMessage compare(@RequestBody @Validated BackendFacesetFaceCompareRequest request) {
+    public NLFace.CloudFaceSendMessage compare(@RequestBody @Validated FaceSetFaceCompareVo request) {
         return facesetFaceService.compare(request);
     }
 
@@ -45,30 +45,30 @@ public class FacesetFaceController {
     }
 
     @RequestMapping(value = "/detect", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage detect(@RequestBody @Validated BackendFacesetFaceDetectRequest request) {
+    public NLFace.CloudFaceSendMessage detect(@RequestBody @Validated FaceSetFaceDetectVo request) {
         return facesetFaceService.detect(request);
     }
 
     @RequestMapping(value = "/features/v20", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV20old(@RequestBody  @Validated BackendFacesetFaceDetectRequest request) {
+    public NLFace.CloudFaceSendMessage featuresV20old(@RequestBody  @Validated FaceSetFaceDetectVo request) {
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, -20);
     }
 
     @RequestMapping(value = "/features/v20/new", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV20(@RequestBody  @Validated BackendFacesetFaceDetectRequest request) {
+    public NLFace.CloudFaceSendMessage featuresV20(@RequestBody  @Validated FaceSetFaceDetectVo request) {
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive,20);
     }
 
     @RequestMapping(value = "/features/v36/new", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV36(@RequestBody  @Validated BackendFacesetFaceDetectRequest request) {
+    public NLFace.CloudFaceSendMessage featuresV36(@RequestBody  @Validated FaceSetFaceDetectVo request) {
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive,36);
     }
 
     @RequestMapping(value = "/features/v34/new", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV34(@RequestBody  @Validated BackendFacesetFaceDetectRequest request) {
+    public NLFace.CloudFaceSendMessage featuresV34(@RequestBody  @Validated FaceSetFaceDetectVo request) {
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, 34);
     }

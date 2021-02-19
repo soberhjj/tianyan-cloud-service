@@ -15,7 +15,7 @@ import com.newland.tianyan.face.event.group.GroupCreateEvent;
 import com.newland.tianyan.face.event.group.GroupDeleteEvent;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
 import com.newland.tianyan.face.service.GroupInfoService;
-import com.newland.tianyan.face.utils.JsonUtils;
+import com.newland.tianyan.common.utils.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

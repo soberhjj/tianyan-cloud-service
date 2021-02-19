@@ -7,9 +7,9 @@ import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.LogUtils;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.Face;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceAddRequest;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceDeleteRequest;
-import com.newland.tianyan.face.privateBean.BackendFacesetUserFaceGetListRequest;
+import com.newland.tianyan.face.vo.FaceSetFaceAddVo;
+import com.newland.tianyan.face.vo.FaceSetFaceDeleteVo;
+import com.newland.tianyan.face.vo.FaceSetUserFaceGetListVo;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
 import newlandFace.NLFace;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class FacesetUserFaceController {
      * 添加人脸
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage add(@RequestBody @Validated BackendFacesetFaceAddRequest receive) {
+    public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddVo receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         Face face = facesetUserFaceService.create(request);
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
@@ -73,7 +73,7 @@ public class FacesetUserFaceController {
      * 获取人脸列表
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage getList(@RequestBody @Validated BackendFacesetUserFaceGetListRequest receive) {
+    public NLBackend.BackendFacesetSendMessage getList(@RequestBody @Validated FaceSetUserFaceGetListVo receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         List<Face> list = facesetUserFaceService.getList(request);
         return ProtobufUtils.buildFacesetSendMessage(list, list.size());
@@ -83,7 +83,7 @@ public class FacesetUserFaceController {
      * 删除人脸
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated BackendFacesetFaceDeleteRequest receive) {
+    public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated FaceSetFaceDeleteVo receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         facesetUserFaceService.delete(request);
         return ProtobufUtils.buildFacesetSendMessage();

@@ -18,10 +18,10 @@ import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.domain.Face;
 import com.newland.tianyan.face.domain.GroupInfo;
 import com.newland.tianyan.face.domain.UserInfo;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceCompareRequest;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceDetectRequest;
-import com.newland.tianyan.face.privateBean.BackendFacesetFaceSearchRequest;
-import com.newland.tianyan.face.privateBean.FaceDetectVo;
+import com.newland.tianyan.face.vo.FaceSetFaceCompareVo;
+import com.newland.tianyan.face.vo.FaceSetFaceDetectVo;
+import com.newland.tianyan.face.vo.FaceSetFaceSearchVo;
+import com.newland.tianyan.face.vo.FaceDetectVo;
 import com.newland.tianyan.face.service.FacesetFaceService;
 import com.newland.tianyan.face.utils.CosineDistanceTool;
 import com.newland.tianyan.face.utils.FeaturesTool;
@@ -60,7 +60,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }};
 
     @Override
-    public NLFace.CloudFaceSendMessage searchNew(BackendFacesetFaceSearchRequest request) {
+    public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchVo request) {
         String fileName = request.getImage();
         List<String> groupIdList = new ArrayList<>();
         Collections.addAll(groupIdList, request.getGroupId().split(","));
@@ -191,7 +191,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage compare(BackendFacesetFaceCompareRequest request) {
+    public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareVo request) {
         String image1 = request.getFirstImage();
         String image2 = request.getSecondImage();
         String logId = UUID.randomUUID().toString();
@@ -271,7 +271,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage detect(BackendFacesetFaceDetectRequest request) {
+    public NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectVo request) {
         String image = request.getImage();
         String logId = UUID.randomUUID().toString();
         UploadReq uploadReq = UploadReq.builder().image(image).build();
