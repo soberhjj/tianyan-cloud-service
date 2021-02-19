@@ -1,6 +1,9 @@
 package com.newland.tianyan.face.service.impl;
 
 import com.googlecode.protobuf.format.JsonFormat;
+import com.newland.tianyan.common.feign.ImageStoreFeignService;
+import com.newland.tianyan.common.feign.dto.image.UploadReq;
+import com.newland.tianyan.common.feign.dto.milvus.QueryRes;
 import com.newland.tianyan.common.utils.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.LogUtils;
@@ -19,9 +22,6 @@ import com.newland.tianyan.face.privateBean.BackendFacesetFaceCompareRequest;
 import com.newland.tianyan.face.privateBean.BackendFacesetFaceDetectRequest;
 import com.newland.tianyan.face.privateBean.BackendFacesetFaceSearchRequest;
 import com.newland.tianyan.face.privateBean.FaceDetectVo;
-import com.newland.tianyan.face.remote.ImageStoreFeignService;
-import com.newland.tianyan.face.remote.dto.image.UploadReq;
-import com.newland.tianyan.face.remote.dto.milvus.QueryRes;
 import com.newland.tianyan.face.service.FacesetFaceService;
 import com.newland.tianyan.face.utils.CosineDistanceTool;
 import com.newland.tianyan.face.utils.FeaturesTool;

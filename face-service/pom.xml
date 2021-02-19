@@ -34,7 +34,11 @@
             <groupId>com.newland.tianyan</groupId>
             <artifactId>common-utils</artifactId>
             <version>1.0.0</version>
-            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.newland.tianyan</groupId>
+            <artifactId>common-service</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <!--数据库组件-->
         <dependency>

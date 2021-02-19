@@ -15,9 +15,10 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
  */
 @EnableAsync
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.newland.tianyan.face","com.newland.tianyan.common.feign"})
 @EnableAspectJAutoProxy
-@EnableFeignClients(basePackages = "com.newland.tianyan.face.remote")
+//@EnableFeignClients(basePackages = "com.newland.tianyan.face.remote")
+@EnableFeignClients(basePackages = "com.newland.tianyan.common.feign")
 @EnableOAuth2Client
 public class FaceServiceApplication {
     public static void main(String[] args) {

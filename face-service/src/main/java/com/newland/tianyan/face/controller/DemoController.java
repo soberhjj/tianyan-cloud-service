@@ -1,9 +1,8 @@
 package com.newland.tianyan.face.controller;
 
-import com.newland.tianyan.face.remote.ImageStoreFeignService;
-import com.newland.tianyan.face.remote.VectorSearchFeignService;
-import com.newland.tianyan.face.remote.dto.image.DownloadReq;
-import com.newland.tianyan.face.remote.dto.milvus.CreateColReq;
+
+import com.newland.tianyan.common.feign.VectorSearchFeignService;
+import com.newland.tianyan.common.feign.dto.milvus.CreateColReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
