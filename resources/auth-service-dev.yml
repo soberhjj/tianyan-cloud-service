@@ -6,7 +6,7 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.136.222:9527
-  profiles: dev
+        namespace: tianyan-cloud
   datasource:
     url: jdbc:mysql://192.168.136.34/newland_cloud_oauth?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
     username: cloud
@@ -23,9 +23,4 @@ spring:
       jdbc-url: jdbc:mysql://192.168.136.34/newland_cloud_oauth?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
       driver-class-name: com.mysql.cj.jdbc.Driver
 
-  main:
-    allow-bean-definition-overriding: true
-
-logging:
-  level:
-    org.springframework.security: error
+log-dir: H:\tianyan\logs\auth-service
