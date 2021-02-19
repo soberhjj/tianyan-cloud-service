@@ -1,5 +1,5 @@
 import com.newland.tianyan.vectorsearch.VectorSearchApplication;
-import com.newland.tianyan.vectorsearch.entity.QueryRes;
+import com.newland.tianyan.vectorsearch.vo.QueryRes;
 import com.newland.tianyan.vectorsearch.service.MilvusService;
 import org.aspectj.weaver.ast.Var;
 import org.junit.Assert;

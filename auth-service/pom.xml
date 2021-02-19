@@ -31,7 +31,7 @@
         <!--引入相关依赖-->
         <dependency>
             <groupId>com.newland.tianyan</groupId>
-            <artifactId>common-utils</artifactId>
+            <artifactId>common-tools</artifactId>
             <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
@@ -55,12 +55,6 @@
             <groupId>org.springframework.security.oauth.boot</groupId>
             <artifactId>spring-security-oauth2-autoconfigure</artifactId>
             <version>2.1.4.RELEASE</version>
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.springframework.cloud</groupId>-->
-<!--                    <artifactId>spring-cloud-alibaba-nacos-discovery</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
         </dependency>
 
         <dependency>

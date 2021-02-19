@@ -30,7 +30,7 @@
         </dependency>
         <dependency>
             <groupId>com.newland.tianyan</groupId>
-            <artifactId>common-utils</artifactId>
+            <artifactId>common-tools</artifactId>
             <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
