@@ -1,15 +1,5 @@
-server:
-  port: 18083
-
 spring:
-  cloud:
-    nacos:
-      discovery:
-        server-addr: 192.168.136.222:9527
-        namespace: tianyan-cloud
   jackson:
     property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
     serialization:
       FAIL_ON_EMPTY_BEANS: false
-
-log-dir: H:\framework\hzsy\hzsy-api\logs\vector-search-service

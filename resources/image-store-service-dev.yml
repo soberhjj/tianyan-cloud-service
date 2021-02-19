@@ -16,3 +16,5 @@ fdfs:
     width: 100
     height: 100
   tracker-list: 192.168.136.222:22122
+
+log-dir: H:\tianyan\logs\image-store-service

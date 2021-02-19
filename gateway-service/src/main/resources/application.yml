@@ -1,8 +1,5 @@
 spring:
   cloud:
-    nacos:
-      discovery:
-        namespace: tianyan-cloud
     gateway:
       discovery:
         locator:

@@ -6,6 +6,7 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.136.222:9527
+        namespace: tianyan-cloud
   rabbitmq:
     host: 192.168.136.34
     password: admin
@@ -83,7 +84,7 @@ feign:
         connectTimeout: 1200000
         readTimeout: 300000
 
-log-dir: H:\framework\hzsy\hzsy-api\logs\face-service
+log-dir: H:\tianyan\logs\face-service
 
 security:
   oauth2:
