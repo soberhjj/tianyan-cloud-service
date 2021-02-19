@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.cache;
+package com.newland.tianyan.face.service.cache;
 
 import java.util.List;
 

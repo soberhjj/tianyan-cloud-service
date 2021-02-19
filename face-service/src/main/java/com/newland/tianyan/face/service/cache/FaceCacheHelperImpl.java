@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.cache;
+package com.newland.tianyan.face.service.cache;
 
 
 import com.newland.tianyan.common.feign.VectorSearchFeignService;
