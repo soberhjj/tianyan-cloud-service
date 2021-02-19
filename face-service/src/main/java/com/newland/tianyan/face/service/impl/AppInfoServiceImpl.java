@@ -3,7 +3,7 @@ package com.newland.tianyan.face.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.newland.tianyan.common.feign.AuthFeignService;
-import com.newland.tianyan.common.feign.dto.auth.ClientRequest;
+import com.newland.tianyan.common.feign.vo.auth.ClientRequest;
 import com.newland.tianyan.common.utils.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.AppUtils;

@@ -2,7 +2,7 @@ package com.newland.tianyan.face.cache;
 
 
 import com.newland.tianyan.common.feign.VectorSearchFeignService;
-import com.newland.tianyan.common.feign.dto.milvus.*;
+import com.newland.tianyan.common.feign.vo.milvus.*;
 import com.newland.tianyan.face.domain.Face;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
 import com.newland.tianyan.face.utils.FeaturesTool;

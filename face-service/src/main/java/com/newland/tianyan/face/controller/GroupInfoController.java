@@ -6,9 +6,9 @@ import com.newland.tianyan.common.utils.constans.TaskType;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.GroupInfo;
-import com.newland.tianyan.face.vo.FaceSetGroupAddVo;
-import com.newland.tianyan.face.vo.FaceSetGroupDeleteVo;
-import com.newland.tianyan.face.vo.FaceSetGroupGetListVo;
+import com.newland.tianyan.face.vo.FaceSetGroupAddReq;
+import com.newland.tianyan.face.vo.FaceSetGroupDeleteReq;
+import com.newland.tianyan.face.vo.FaceSetGroupGetListReq;
 import com.newland.tianyan.face.service.GroupInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class GroupInfoController {
      * 对内&对外 创建用户组接口
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage add(@RequestBody @Validated FaceSetGroupAddVo receive) {
+    public NLBackend.BackendFacesetSendMessage add(@RequestBody @Validated FaceSetGroupAddReq receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         groupInfoService.create(request);
         return ProtobufUtils.buildFacesetSendMessage();
@@ -46,7 +46,7 @@ public class GroupInfoController {
      * 对内&对外 获取用户组列表接口
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage checkUnique(@RequestBody @Validated FaceSetGroupGetListVo receive) {
+    public NLBackend.BackendFacesetSendMessage checkUnique(@RequestBody @Validated FaceSetGroupGetListReq receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         PageInfo<GroupInfo> pageInfo = groupInfoService.getList(request);
         return ProtobufUtils.buildFacesetSendMessage(pageInfo.getList(), pageInfo.getSize());
@@ -56,7 +56,7 @@ public class GroupInfoController {
      * 对内&对外 删除用户组接口
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated FaceSetGroupDeleteVo receive) {
+    public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated FaceSetGroupDeleteReq receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         groupInfoService.delete(request);
         return ProtobufUtils.buildFacesetSendMessage();

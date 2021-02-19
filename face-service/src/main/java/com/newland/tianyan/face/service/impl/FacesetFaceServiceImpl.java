@@ -2,8 +2,8 @@ package com.newland.tianyan.face.service.impl;
 
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianyan.common.feign.ImageStoreFeignService;
-import com.newland.tianyan.common.feign.dto.image.UploadReq;
-import com.newland.tianyan.common.feign.dto.milvus.QueryRes;
+import com.newland.tianyan.common.feign.vo.image.UploadReq;
+import com.newland.tianyan.common.feign.vo.milvus.QueryRes;
 import com.newland.tianyan.common.utils.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.LogUtils;
@@ -18,10 +18,10 @@ import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.domain.Face;
 import com.newland.tianyan.face.domain.GroupInfo;
 import com.newland.tianyan.face.domain.UserInfo;
-import com.newland.tianyan.face.vo.FaceSetFaceCompareVo;
-import com.newland.tianyan.face.vo.FaceSetFaceDetectVo;
-import com.newland.tianyan.face.vo.FaceSetFaceSearchVo;
-import com.newland.tianyan.face.vo.FaceDetectVo;
+import com.newland.tianyan.face.vo.FaceSetFaceCompareReq;
+import com.newland.tianyan.face.vo.FaceSetFaceDetectReq;
+import com.newland.tianyan.face.vo.FaceSetFaceSearchReq;
+import com.newland.tianyan.face.vo.FaceDetectReq;
 import com.newland.tianyan.face.service.FacesetFaceService;
 import com.newland.tianyan.face.utils.CosineDistanceTool;
 import com.newland.tianyan.face.utils.FeaturesTool;
@@ -60,7 +60,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }};
 
     @Override
-    public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchVo request) {
+    public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReq request) {
         String fileName = request.getImage();
         List<String> groupIdList = new ArrayList<>();
         Collections.addAll(groupIdList, request.getGroupId().split(","));
@@ -191,7 +191,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareVo request) {
+    public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReq request) {
         String image1 = request.getFirstImage();
         String image2 = request.getSecondImage();
         String logId = UUID.randomUUID().toString();
@@ -217,7 +217,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectVo vo) {
+    public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReq vo) {
         String image = vo.getImage();
         String logId = UUID.randomUUID().toString();
         UploadReq uploadReq = UploadReq.builder().image(image).build();
@@ -244,7 +244,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage liveness(FaceDetectVo vo) {
+    public NLFace.CloudFaceSendMessage liveness(FaceDetectReq vo) {
         String image = vo.getImage();
         String logId = UUID.randomUUID().toString();
         UploadReq uploadReq = UploadReq.builder().image(image).build();
@@ -271,7 +271,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectVo request) {
+    public NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectReq request) {
         String image = request.getImage();
         String logId = UUID.randomUUID().toString();
         UploadReq uploadReq = UploadReq.builder().image(image).build();
