@@ -8,13 +8,14 @@ import com.newland.tianyan.common.utils.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.AppUtils;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
-import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
+
 import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.AppInfoMapper;
 import com.newland.tianyan.face.domain.AppInfo;
 import com.newland.tianyan.face.domain.Face;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
 import com.newland.tianyan.face.service.AppInfoService;
+import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
