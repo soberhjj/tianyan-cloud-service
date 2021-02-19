@@ -1,13 +1,9 @@
-server:
-  port: 18080
-
 spring:
   application:
     name: face-service
   cloud:
     nacos:
       discovery:
-        server-addr: 192.168.136.222:9527
         namespace: tianyan-cloud
   jackson:
     property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
@@ -15,87 +11,10 @@ spring:
       FAIL_ON_EMPTY_BEANS: false
   main:
     allow-bean-definition-overriding: true
-  rabbitmq:
-    host: 192.168.136.34
-    password: admin
-    username: admin
   shardingsphere:
-    datasource:
-      names: m1,m2,m3,oauth,face1,face2
-      m1:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        password: Cloud@Algo_db1
-        type: com.alibaba.druid.pool.DruidDataSource
-        url: jdbc:mysql://192.168.136.34/boot1?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
-        username: cloud
-      m2:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        password: Cloud@Algo_db1
-        type: com.alibaba.druid.pool.DruidDataSource
-        url: jdbc:mysql://192.168.136.34/boot2?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
-        username: cloud
-      m3:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        password: Cloud@Algo_db1
-        type: com.alibaba.druid.pool.DruidDataSource
-        url: jdbc:mysql://192.168.136.34/newland_cloud_management?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
-        username: cloud
-      oauth:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        password: Cloud@Algo_db1
-        type: com.alibaba.druid.pool.DruidDataSource
-        url: jdbc:mysql://192.168.136.34/newland_cloud_oauth?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
-        username: cloud
-      face1:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        password: Cloud@Algo_db1
-        type: com.alibaba.druid.pool.DruidDataSource
-        url: jdbc:mysql://192.168.136.34/newland_cloud_face_1?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
-        username: cloud
-      face2:
-        driver-class-name: com.mysql.cj.jdbc.Driver
-        password: Cloud@Algo_db1
-        type: com.alibaba.druid.pool.DruidDataSource
-        url: jdbc:mysql://192.168.136.34/newland_cloud_face_2?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=false
-        username: cloud
-    sharding:
-      tables:
-        app_info:
-          actual-data-nodes: m3.app_info
-        group_info:
-          actual-data-nodes: m3.group_info
-        cloud_management_account:
-          actual-data-nodes: oauth.cloud_management_account
-        user_info:
-          actual-data-nodes: m3.user_info
-        face:
-          actual-data-nodes: face$->{1..2}.face_$->{1..20}
-          database-strategy:
-            inline:
-              algorithm-expression: face$->{(user_id.hashCode() & Integer.MAX_VALUE) % 2 + 1}
-              sharding-column: user_id
-          table-strategy:
-            inline:
-              algorithm-expression: face_$->{(user_id.hashCode() & Integer.MAX_VALUE) % 20 + 1}
-              sharding-column: user_id
     props:
       sql:
         show: true
-
-feign:
-  client:
-    config:
-      auth-service:
-        connectTimeout: 1000
-        readTimeout: 12000
-      image-store-service:
-        connectTimeout: 120000
-        readTimeout: 30000
-      vector-search-service:
-        connectTimeout: 1200000
-        readTimeout: 300000
-
-log-dir: H:\framework\hzsy\hzsy-api\logs\face-service
 
 mybatis:
   configuration:
@@ -103,17 +22,5 @@ mybatis:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.newland.tianyan.face.domain
 
-security:
-  oauth2:
-    resource:
-      id: ${spring.application.name}
-      jwt:
-        key-uri: http://localhost:18081/oauth/token_key
-
-auth-service:
-   host: 127.0.0.1
-   port: 18081
-   client-id: client_2
-   client-secret: 123456
 
 
