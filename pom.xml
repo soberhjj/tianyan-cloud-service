@@ -19,7 +19,7 @@
     <packaging>pom</packaging>
     <version>1.0.0</version>
     <modules>
-        <module>faceDO-service</module>
+        <module>face-service</module>
         <module>auth-service</module>
         <module>image-store-service</module>
         <module>vector-search-service</module>
