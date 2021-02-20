@@ -3,7 +3,6 @@ package com.newland.tianyan.auth.service;
 import com.newland.tianyan.auth.entity.Account;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.model.proto.ProtobufUtils;
-import com.newland.tianyan.common.utils.utils.TableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,13 +16,11 @@ import javax.persistence.EntityNotFoundException;
 public class LoginService {
 
     private final AccountService accountService;
-    private final AppInfoService appInfoService;
     private final PasswordEncoder encoder;
 
     @Autowired
-    public LoginService(AccountService accountService, AppInfoService appInfoService, PasswordEncoder encoder) {
+    public LoginService(AccountService accountService, PasswordEncoder encoder) {
         this.accountService = accountService;
-        this.appInfoService = appInfoService;
         this.encoder=encoder;
     }
 
@@ -59,9 +56,9 @@ public class LoginService {
             throw new EntityExistsException("mailbox exist!");
         }
         account.setPassword(encoder.encode(account.getPassword()));
-        // register user
-        if (accountService.insert(account) != 0) {
-            appInfoService.createTable(TableUtils.generateAppTableName(account.getAccount()));
+        // register account
+        if (accountService.insert(account) == 0) {
+            throw new RuntimeException("failed to register the account");
         }
     }
 
@@ -87,7 +84,7 @@ public class LoginService {
             }
         }
         if (account == null) {
-            throw new EntityNotFoundException("user doesn't exist!");
+            throw new EntityNotFoundException("account doesn't exist!");
         }
         return account;
     }
