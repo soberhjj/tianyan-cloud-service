@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
-public class LoginResetPasswordReqDO {
+public class LoginResetPasswordReqDTO {
 
     @NotBlank
     private String mailbox;

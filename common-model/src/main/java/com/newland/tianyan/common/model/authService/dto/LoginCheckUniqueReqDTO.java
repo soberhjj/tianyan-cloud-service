@@ -7,12 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginGetInfoReqDO {
+public class LoginCheckUniqueReqDTO {
 
     private String account;
 
     private String mailbox;
-
 
 
 }

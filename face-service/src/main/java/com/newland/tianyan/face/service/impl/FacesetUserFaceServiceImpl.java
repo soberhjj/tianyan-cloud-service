@@ -8,7 +8,7 @@ import com.newland.tianyan.common.feign.vo.image.DownloadReq;
 import com.newland.tianyan.common.feign.vo.image.UploadReq;
 import com.newland.tianyan.common.utils.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.common.utils.utils.ProtobufUtils;
+import com.newland.tianyan.common.model.proto.ProtobufUtils;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import com.newland.tianyan.face.service.cache.MilvusKey;
 import com.newland.tianyan.face.config.RabbitMQSender;

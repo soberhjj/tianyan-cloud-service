@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.utils.utils;
+package com.newland.tianyan.common.model.proto;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.PropertyNamingStrategy;
@@ -6,6 +6,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
+import com.google.protobuf.WireFormat;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import org.springframework.data.domain.Page;
@@ -128,7 +129,8 @@ public class ProtobufUtils {
             return field.getEnumType().findValueByName((String) value);
         } else {
             switch (field.getJavaType()) {
-                case FLOAT: // float is a special case
+                // float is a special case
+                case FLOAT:
                     return Float.valueOf(value.toString());
                 case INT:
                     return Integer.valueOf(value.toString());

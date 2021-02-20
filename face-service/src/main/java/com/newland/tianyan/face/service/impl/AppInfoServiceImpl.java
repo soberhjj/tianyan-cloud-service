@@ -2,18 +2,18 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.model.authService.dto.AuthClientReqDO;
+import com.newland.tianyan.common.model.authService.dto.AuthClientReqDTO;
 import com.newland.tianyan.common.utils.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.AppUtils;
-import com.newland.tianyan.common.utils.utils.ProtobufUtils;
+import com.newland.tianyan.common.model.proto.ProtobufUtils;
 
 import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.AppInfoMapper;
 import com.newland.tianyan.face.entity.AppInfo;
 import com.newland.tianyan.face.entity.Face;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
-import com.newland.tianyan.face.remote.AuthFeignService;
+import com.newland.tianyan.face.remote.ClientFeign;
 import com.newland.tianyan.face.service.AppInfoService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +32,7 @@ import javax.persistence.EntityNotFoundException;
 public class AppInfoServiceImpl implements AppInfoService {
 
     @Autowired
-    private AuthFeignService clientService;
+    private ClientFeign clientService;
     @Autowired
     private AppInfoMapper appInfoMapper;
     @Autowired
@@ -68,7 +68,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         appInfo.setAppId(appId);
 
         // 远程调用
-        AuthClientReqDO clientRequest = new AuthClientReqDO(receive.getAccount(), appInfo.getAppId(),
+        AuthClientReqDTO clientRequest = new AuthClientReqDTO(receive.getAccount(), appInfo.getAppId(),
                 appInfo.getApiKey(), appInfo.getSecretKey());
         clientService.addClient(clientRequest);
     }
@@ -183,7 +183,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         }
 
         // 远程调用
-        AuthClientReqDO clientRequest = new AuthClientReqDO(receive.getAccount(), appToDelete.getAppId(),
+        AuthClientReqDTO clientRequest = new AuthClientReqDTO(receive.getAccount(), appToDelete.getAppId(),
                 appToDelete.getApiKey(), appToDelete.getSecretKey());
         clientService.deleteClient(clientRequest);
     }

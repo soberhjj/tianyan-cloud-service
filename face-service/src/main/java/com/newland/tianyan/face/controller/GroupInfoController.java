@@ -4,7 +4,7 @@ package com.newland.tianyan.face.controller;
 import com.github.pagehelper.PageInfo;
 import com.newland.tianyan.common.utils.constans.TaskType;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.common.utils.utils.ProtobufUtils;
+import com.newland.tianyan.common.model.proto.ProtobufUtils;
 import com.newland.tianyan.face.entity.GroupInfo;
 import com.newland.tianyan.face.vo.FaceSetGroupAddReq;
 import com.newland.tianyan.face.vo.FaceSetGroupDeleteReq;

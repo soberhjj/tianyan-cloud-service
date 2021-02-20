@@ -1,15 +1,16 @@
 package com.newland.tianyan.auth.controller;
 
 import com.newland.tianyan.auth.entity.Account;
-import com.newland.tianyan.auth.privateBean.BackendLoginCheckUniqueRequest;
-import com.newland.tianyan.auth.privateBean.BackendLoginGetInfoRequest;
-import com.newland.tianyan.auth.privateBean.BackendLoginRegisterRequest;
 import com.newland.tianyan.auth.service.LoginService;
+import com.newland.tianyan.common.model.authService.ILoginApi;
+import com.newland.tianyan.common.model.authService.dto.LoginCheckUniqueReqDTO;
+import com.newland.tianyan.common.model.authService.dto.LoginGetInfoReqDTO;
+import com.newland.tianyan.common.model.authService.dto.LoginRegisterReqDTO;
 import com.newland.tianyan.common.utils.constans.TaskType;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.JsonErrorObject;
-import com.newland.tianyan.common.utils.utils.LogUtils;
-import com.newland.tianyan.common.utils.utils.ProtobufUtils;
+import com.newland.tianyan.common.model.proto.LogUtils;
+import com.newland.tianyan.common.model.proto.ProtobufUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -20,17 +21,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/login")
-public class LoginController {
+public class LoginApiImpl implements ILoginApi {
 
     private final LoginService loginService;
 
     @Autowired
-    public LoginController(LoginService loginService) {
+    public LoginApiImpl(LoginService loginService) {
         this.loginService = loginService;
     }
 
+    @Override
     @RequestMapping(value = "/checkUnique", method = RequestMethod.POST)
-    public Object checkUnique(@RequestBody @Validated BackendLoginCheckUniqueRequest receive) {
+    public Object checkUnique(@RequestBody @Validated LoginCheckUniqueReqDTO receive) {
         boolean unique = StringUtils.isEmpty(receive.getAccount()) ^ StringUtils.isEmpty(receive.getMailbox());
         if (!unique) {
             return new JsonErrorObject(LogUtils.getLogId(), 6100, "invalid param");
@@ -40,8 +42,9 @@ public class LoginController {
         return ProtobufUtils.buildLoginSendMessage();
     }
 
+    @Override
     @RequestMapping(value = "/getInfo", method = RequestMethod.POST)
-    public Object getInfo(@RequestBody BackendLoginGetInfoRequest receive) {
+    public Object getInfo(@RequestBody LoginGetInfoReqDTO receive) {
         boolean unique = StringUtils.isEmpty(receive.getAccount()) ^ StringUtils.isEmpty(receive.getMailbox());
         if (!unique) {
             return new JsonErrorObject(LogUtils.getLogId(), 6100, "invalid param");
@@ -52,15 +55,17 @@ public class LoginController {
 
     }
 
+    @Override
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public NLBackend.BackendLoginSendMessage update(@RequestBody @Validated BackendLoginRegisterRequest receive) {
+    public NLBackend.BackendLoginSendMessage update(@RequestBody @Validated LoginRegisterReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         loginService.register(request);
         return ProtobufUtils.buildLoginSendMessage();
     }
 
+    @Override
     @RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
-    public NLBackend.BackendLoginSendMessage resetPassword(@RequestBody @Validated BackendLoginRegisterRequest receive) {
+    public NLBackend.BackendLoginSendMessage resetPassword(@RequestBody @Validated LoginRegisterReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         loginService.restPassword(request);
         return ProtobufUtils.buildLoginSendMessage();

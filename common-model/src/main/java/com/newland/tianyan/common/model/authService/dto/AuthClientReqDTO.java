@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthClientReqDO {
+public class AuthClientReqDTO {
 
     private String account;
     private Long appId;

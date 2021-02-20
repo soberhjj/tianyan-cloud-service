@@ -4,7 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.newland.tianyan.common.utils.generator.IDUtil;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.common.utils.utils.ProtobufUtils;
+import com.newland.tianyan.common.model.proto.ProtobufUtils;
 import com.newland.tianyan.face.service.cache.ICacheHelper;
 import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.FaceMapper;

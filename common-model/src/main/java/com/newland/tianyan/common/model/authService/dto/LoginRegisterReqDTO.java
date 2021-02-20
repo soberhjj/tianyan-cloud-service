@@ -8,7 +8,7 @@ import javax.validation.constraints.Pattern;
 
 @Getter
 @Setter
-public class LoginRegisterReqDO {
+public class LoginRegisterReqDTO {
 
     @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{6,32}$")
     private String account;

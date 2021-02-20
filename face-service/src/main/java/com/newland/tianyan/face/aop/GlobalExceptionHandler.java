@@ -3,7 +3,7 @@ package com.newland.tianyan.face.aop;
 
 import com.newland.tianyan.common.utils.exception.CommonException;
 import com.newland.tianyan.common.utils.utils.JsonErrorObject;
-import com.newland.tianyan.common.utils.utils.LogUtils;
+import com.newland.tianyan.common.model.proto.LogUtils;
 import com.newland.tianyan.face.exception.ApiException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;

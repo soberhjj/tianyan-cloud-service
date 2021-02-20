@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.model.imageStoreService;
+package com.newland.tianyan.common.model.imageStoreService.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UploadRes {
+public class UploadResDO {
 
     String imagePath;
 

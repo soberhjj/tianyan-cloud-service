@@ -1,6 +1,7 @@
 package com.newland.tianyan.auth.controller;
 
-import com.newland.tianyan.auth.request.ClientRequest;
+import com.newland.tianyan.common.model.authService.IClientApi;
+import com.newland.tianyan.common.model.authService.dto.AuthClientReqDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
@@ -13,18 +14,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 
 @RestController
-public class ClientController {
+public class ClientApiImpl implements IClientApi {
 
     private final JdbcClientDetailsService service;
     private final PasswordEncoder encoder;
 
-    public ClientController(JdbcClientDetailsService service, PasswordEncoder encoder) {
+    public ClientApiImpl(JdbcClientDetailsService service, PasswordEncoder encoder) {
         this.service = service;
         this.encoder = encoder;
     }
 
+    @Override
     @RequestMapping(value = "/addClient", method = RequestMethod.POST)
-    public void addClient(@RequestBody @Validated ClientRequest request) {
+    public void addClient(@RequestBody @Validated AuthClientReqDTO request) {
         BaseClientDetails details = new BaseClientDetails();
 
         details.setClientId(request.getClientId());
@@ -37,8 +39,9 @@ public class ClientController {
         service.addClientDetails(details);
     }
 
+    @Override
     @RequestMapping(value = "/deleteClient", method = RequestMethod.POST)
-    public void deleteClient(@RequestBody @Validated ClientRequest request) {
+    public void deleteClient(@RequestBody @Validated AuthClientReqDTO request) {
         service.removeClientDetails(request.getClientId());
     }
 

@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.utils.utils;
+package com.newland.tianyan.common.model.proto;
 
 import brave.Tracer;
 import org.springframework.beans.factory.annotation.Autowired;

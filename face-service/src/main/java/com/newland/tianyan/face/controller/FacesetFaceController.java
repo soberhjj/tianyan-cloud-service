@@ -3,7 +3,7 @@ package com.newland.tianyan.face.controller;
 
 import com.newland.tianyan.common.utils.constans.TaskType;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.common.utils.utils.ProtobufUtils;
+import com.newland.tianyan.common.model.proto.ProtobufUtils;
 import com.newland.tianyan.face.vo.FaceSetFaceCompareReq;
 import com.newland.tianyan.face.vo.FaceSetFaceDetectReq;
 import com.newland.tianyan.face.vo.FaceSetFaceSearchReq;
