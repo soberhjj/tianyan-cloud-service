@@ -89,15 +89,8 @@ log-dir: H:\tianyan\logs\face-service
 security:
   oauth2:
     resource:
-      id: ${spring.application.name}
       jwt:
-        key-uri: http://localhost:18081/oauth/token_key
-
-auth-service:
-  host: 127.0.0.1
-  port: 18081
-  client-id: client_2
-  client-secret: 123456
+        key-uri: http://auth-service/oauth/token_key
 
 
 

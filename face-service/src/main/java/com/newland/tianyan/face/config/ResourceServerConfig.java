@@ -16,10 +16,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .anyRequest().authenticated();
     }
 
-    //TODO: remove dependency
-
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-        resources.resourceId("entrance-guard-service");
+        resources.resourceId("face-service");
     }
 }

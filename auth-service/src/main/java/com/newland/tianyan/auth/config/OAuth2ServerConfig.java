@@ -94,7 +94,7 @@ public class OAuth2ServerConfig {
             http
                 .addFilterBefore(urlEncodedAuthenticationFilter, ChannelProcessingFilter.class)
                 .authorizeRequests()
-                    .antMatchers( "/actuator/**").permitAll()
+                    .antMatchers( "/actuator/**","/addClient","/deleteClient").permitAll()
                     .anyRequest().authenticated();
             // @formatter:on
         }
@@ -185,9 +185,9 @@ public class OAuth2ServerConfig {
         public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
             oauthServer
                     .allowFormAuthenticationForClients()
-                    // url:/oauth/token_key,exposes public key for token verification if using JWT tokens
+                    // url:/oauth/token_key,exposes public key for token verification if using JWT tokens 提供公有密匙的端点，如果使用JWT令牌的话
                     .tokenKeyAccess("permitAll()")
-                    // url:/oauth/check_token allow check token
+                    // url:/oauth/check_token allow check token 用于资源服务访问的令牌解析端点
                     .checkTokenAccess("isAuthenticated()");
         }
     }
