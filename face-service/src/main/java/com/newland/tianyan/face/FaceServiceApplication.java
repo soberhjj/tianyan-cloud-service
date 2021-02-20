@@ -1,5 +1,6 @@
 package com.newland.tianyan.face;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -17,11 +18,12 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @EnableDiscoveryClient
 @SpringBootApplication
 @EnableAspectJAutoProxy
-@EnableFeignClients(basePackages = "com.newland.tianyan.face.remote")
+@EnableFeignClients
 @EnableOAuth2Client
+@Slf4j
 public class FaceServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(FaceServiceApplication.class, args);
-        System.out.println("人脸服务启动成功！");
+        log.info("人脸服务启动成功！");
     }
 }

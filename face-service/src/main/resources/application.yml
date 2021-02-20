@@ -14,7 +14,7 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: classpath:mapper/*.xml
-  type-aliases-package: com.newland.tianyan.face.domain
+  type-aliases-package: com.newland.tianyan.face.domain.entity
 
 security:
   oauth2:

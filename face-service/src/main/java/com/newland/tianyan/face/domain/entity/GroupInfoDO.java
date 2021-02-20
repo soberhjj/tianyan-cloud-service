@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.persistence.Table;
+
 /**
  * @Author: huangJunJie  2020-11-02 14:15
  */
@@ -13,6 +15,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "group_info")
 public class GroupInfoDO extends BaseEntity {
 
     private Long id;

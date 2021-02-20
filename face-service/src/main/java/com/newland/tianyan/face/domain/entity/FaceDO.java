@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 /**
@@ -15,6 +16,7 @@ import javax.persistence.Transient;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Table(name = "face")
 public class FaceDO extends BaseEntity {
     @Id
     private Long id;

@@ -2,11 +2,14 @@ package com.newland.tianyan.face.domain.entity;
 
 import lombok.*;
 
+import javax.persistence.Table;
+
 @Data
 @Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "user_info")
 public class UserInfoDO extends BaseEntity {
 
     private Long id;
