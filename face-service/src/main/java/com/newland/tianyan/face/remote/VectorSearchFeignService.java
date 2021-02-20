@@ -1,6 +1,7 @@
 package com.newland.tianyan.face.remote;
 
 
+import com.newland.tianyan.common.model.vectorSearchService.dto.*;
 import com.newland.tianyan.face.remote.fallback.AuthServiceFeignClientFallbackImpl;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,26 +19,26 @@ import java.util.List;
 public interface VectorSearchFeignService {
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
-    Long insert( InsertReq insertReq);
+    Long insert( InsertReqDTO insertReq);
 
     @RequestMapping(value = "/query", method = RequestMethod.POST)
-    List<QueryRes> query(QueryReq queryReq);
+    List<QueryResDTO> query(QueryReqDTO queryReq);
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    void delete( DeleteReq deleteReq);
+    void delete( DeleteReqDTO deleteReq);
 
     @RequestMapping(value = "/createCol", method = RequestMethod.POST)
-    void createCollection( CreateColReq createColReq);
+    void createCollection( CreateColReqDTO createColReq);
 
     @RequestMapping(value = "/dropCol", method = RequestMethod.POST)
-    void dropCollection( DeleteColReq deleteReq);
+    void dropCollection( DeleteColReqDTO deleteReq);
 
     @RequestMapping(value = "/batchInsert", method = RequestMethod.POST)
-    List<Long> batchInsert( BatchInsertReq batchInsertReq);
+    List<Long> batchInsert( BatchInsertReqDTO batchInsertReq);
 
     @RequestMapping(value = "/batchQuery", method = RequestMethod.POST)
-    List<List<QueryRes>> batchQuery( BatchQueryReq batchQueryReq);
+    List<List<QueryResDTO>> batchQuery( BatchQueryReqDTO batchQueryReq);
 
     @RequestMapping(value = "/batchDelete", method = RequestMethod.POST)
-    void batchDelete( BatchDeleteReq batchDeleteReq);
+    void batchDelete( BatchDeleteReqDTO batchDeleteReq);
 }

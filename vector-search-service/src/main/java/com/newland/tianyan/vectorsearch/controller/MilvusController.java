@@ -1,6 +1,7 @@
 package com.newland.tianyan.vectorsearch.controller;
 
-import com.newland.tianyan.vectorsearch.vo.*;
+import com.newland.tianyan.common.model.vectorSearchService.IMilvusApi;
+import com.newland.tianyan.common.model.vectorSearchService.dto.*;
 import com.newland.tianyan.vectorsearch.service.MilvusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,47 +17,55 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/backend/search/milvus")
-public class MilvusController {
+public class MilvusController implements IMilvusApi {
     @Autowired
     private MilvusService milvusService;
 
+    @Override
     @PostMapping("/insert")
-    public Long insert(@RequestBody InsertReq insertReq) {
+    public Long insert(@RequestBody InsertReqDTO insertReq) {
         return milvusService.insert(insertReq.getAppId(), insertReq.getFeature(), insertReq.getEntityId());
     }
 
+    @Override
     @PostMapping("/query")
-    public List<QueryRes> query(@RequestBody QueryReq queryReq) {
+    public List<QueryResDTO> query(@RequestBody QueryReqDTO queryReq) {
         return milvusService.query(queryReq.getAppId(), queryReq.getFeature(), queryReq.getTopK());
     }
 
+    @Override
     @PostMapping("/delete")
-    public void delete(@RequestBody DeleteReq deleteReq) {
-        milvusService.delete(deleteReq.getAppId(),deleteReq.getEntityId());
+    public void delete(@RequestBody DeleteReqDTO deleteReq) {
+        milvusService.delete(deleteReq.getAppId(), deleteReq.getEntityId());
     }
 
+    @Override
     @PostMapping("/createCol")
-    public void createCollection(@RequestBody CreateColReq createColReq) {
+    public void createCollection(@RequestBody CreateColReqDTO createColReq) {
         milvusService.createCollection(createColReq.getAppId());
     }
 
+    @Override
     @PostMapping("/dropCol")
-    public void dropCollection(@RequestBody DeleteColReq deleteReq) {
+    public void dropCollection(@RequestBody DeleteColReqDTO deleteReq) {
         milvusService.dropCollection(deleteReq.getAppId());
     }
 
+    @Override
     @PostMapping("/batchInsert")
-    public List<Long> batchInsert(@RequestBody BatchInsertReq batchInsertReq) {
-        return milvusService.batchInsert(batchInsertReq.getAppId(),batchInsertReq.getFeatures(),batchInsertReq.getEntityIds());
+    public List<Long> batchInsert(@RequestBody BatchInsertReqDTO batchInsertReq) {
+        return milvusService.batchInsert(batchInsertReq.getAppId(), batchInsertReq.getFeatures(), batchInsertReq.getEntityIds());
     }
 
+    @Override
     @PostMapping("/batchQuery")
-    public List<List<QueryRes>> batchQuery(@RequestBody BatchQueryReq batchQueryReq) {
-        return milvusService.batchQuery(batchQueryReq.getAppId(),batchQueryReq.getFeatures(),batchQueryReq.getTopK());
+    public List<List<QueryResDTO>> batchQuery(@RequestBody BatchQueryReqDTO batchQueryReq) {
+        return milvusService.batchQuery(batchQueryReq.getAppId(), batchQueryReq.getFeatures(), batchQueryReq.getTopK());
     }
 
+    @Override
     @PostMapping("/batchDelete")
-    public void batchDelete(@RequestBody BatchDeleteReq batchDeleteReq) {
-       milvusService.batchDelete(batchDeleteReq.getAppId(),batchDeleteReq.getEntityIds());
+    public void batchDelete(@RequestBody BatchDeleteReqDTO batchDeleteReq) {
+        milvusService.batchDelete(batchDeleteReq.getAppId(), batchDeleteReq.getEntityIds());
     }
 }

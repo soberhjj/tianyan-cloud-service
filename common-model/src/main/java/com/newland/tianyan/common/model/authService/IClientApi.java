@@ -2,6 +2,7 @@ package com.newland.tianyan.common.model.authService;
 
 import com.newland.tianyan.common.model.authService.dto.AuthClientReqDTO;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * @author: RojiaHuang
@@ -10,8 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
  */
 public interface IClientApi {
     @PostMapping("/addClient")
-    void addClient(AuthClientReqDTO request);
+    void addClient(@RequestBody AuthClientReqDTO request);
 
     @PostMapping("/deleteClient")
-    void deleteClient(AuthClientReqDTO request);
+    void deleteClient(@RequestBody AuthClientReqDTO request);
 }

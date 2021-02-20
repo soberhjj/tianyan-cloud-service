@@ -30,6 +30,11 @@
             <artifactId>common-utils</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.newland.tianyan</groupId>
+            <artifactId>common-model</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <!--milvus-->
         <dependency>
             <groupId>io.milvus</groupId>

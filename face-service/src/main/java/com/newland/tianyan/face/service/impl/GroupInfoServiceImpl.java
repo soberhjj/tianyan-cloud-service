@@ -2,7 +2,7 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.utils.exception.CommonException;
+import com.newland.tianyan.common.model.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.model.proto.ProtobufUtils;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;

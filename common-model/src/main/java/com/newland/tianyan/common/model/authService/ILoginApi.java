@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 public interface ILoginApi {
     @PostMapping(value = "/checkUnique")
-    Object checkUnique(LoginCheckUniqueReqDTO receive);
+    Object checkUnique(@RequestBody LoginCheckUniqueReqDTO receive);
 
     @RequestMapping(value = "/getInfo", method = RequestMethod.POST)
     Object getInfo(@RequestBody LoginGetInfoReqDTO receive);

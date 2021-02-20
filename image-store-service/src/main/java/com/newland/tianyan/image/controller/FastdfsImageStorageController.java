@@ -1,9 +1,10 @@
 package com.newland.tianyan.image.controller;
 
-import com.newland.tianyan.image.vo.DownloadReq;
-import com.newland.tianyan.image.vo.DownloadRes;
-import com.newland.tianyan.image.vo.UploadReq;
-import com.newland.tianyan.image.vo.UploadRes;
+import com.newland.tianyan.common.model.imageStoreService.IFastdfsImageStorageApi;
+import com.newland.tianyan.common.model.imageStoreService.dto.DownloadReqDTO;
+import com.newland.tianyan.common.model.imageStoreService.dto.DownloadResDTO;
+import com.newland.tianyan.common.model.imageStoreService.dto.UploadReqDTO;
+import com.newland.tianyan.common.model.imageStoreService.dto.UploadResDTO;
 import com.newland.tianyan.image.service.FastdfsImageStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,29 +17,33 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/backend/image")
-public class FastdfsImageStorageController {
+public class FastdfsImageStorageController implements IFastdfsImageStorageApi {
 
     @Autowired
-    FastdfsImageStorageService fastdfsImageStorageService;
+    private FastdfsImageStorageService fastdfsImageStorageService;
 
+    @Override
     @PostMapping("/upload")
-    public UploadRes upload(@RequestBody UploadReq uploadReq) {
-        UploadRes res = new UploadRes();
+    public UploadResDTO upload(@RequestBody UploadReqDTO uploadReq) {
+        UploadResDTO res = new UploadResDTO();
         res.setImagePath(fastdfsImageStorageService.uploadImage(uploadReq.getImage()));
         return res;
     }
 
+    @Override
     @PostMapping("/uploadV2")
-    public UploadRes uploadV2(@RequestBody UploadReq uploadReq) {
-        UploadRes res = new UploadRes();
+    public UploadResDTO uploadV2(@RequestBody UploadReqDTO uploadReq) {
+        UploadResDTO res = new UploadResDTO();
         res.setImagePath(fastdfsImageStorageService.uploadImageV2(uploadReq.getImage()));
         return res;
     }
 
+    @Override
     @PostMapping("/download")
-    public DownloadRes download(@RequestBody DownloadReq downloadReq) {
-        DownloadRes res=new DownloadRes();
+    public DownloadResDTO download(@RequestBody DownloadReqDTO downloadReq) {
+        DownloadResDTO res=new DownloadResDTO();
         res.setImage(fastdfsImageStorageService.downloadImage(downloadReq.getImagePath()));
         return res;
     }
+
 }

@@ -1,8 +1,9 @@
 package com.newland.tianyan.face.controller;
 
 
-import com.newland.tianyan.common.feign.VectorSearchFeignService;
-import com.newland.tianyan.common.feign.vo.milvus.CreateColReq;
+
+import com.newland.tianyan.common.model.vectorSearchService.dto.CreateColReqDTO;
+import com.newland.tianyan.face.remote.VectorSearchFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class DemoController {
     private VectorSearchFeignService imageStoreFeignService;
 
     @PostMapping("/addClient")
-    public void addClient(@RequestBody CreateColReq req) {
+    public void addClient(@RequestBody CreateColReqDTO req) {
         imageStoreFeignService.createCollection(req);
     }
 

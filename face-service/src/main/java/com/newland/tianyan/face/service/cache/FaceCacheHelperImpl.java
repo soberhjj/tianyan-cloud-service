@@ -1,10 +1,11 @@
 package com.newland.tianyan.face.service.cache;
 
 
-import com.newland.tianyan.common.feign.VectorSearchFeignService;
+import com.newland.tianyan.common.model.vectorSearchService.dto.*;
+import com.newland.tianyan.common.utils.utils.FeaturesTool;
 import com.newland.tianyan.face.entity.Face;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
-import com.newland.tianyan.face.utils.FeaturesTool;
+import com.newland.tianyan.face.remote.VectorSearchFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -26,8 +27,8 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
         return "FACE_" + appId;
     }
 
-    public List<QueryRes> query(Long appId, List<Float> feature, List<Long> gids, Integer topK) {
-        QueryReq queryReq = QueryReq.builder()
+    public List<QueryResDTO> query(Long appId, List<Float> feature, List<Long> gids, Integer topK) {
+        QueryReqDTO queryReq = QueryReqDTO.builder()
                 .appId(getCollectionName(appId))
                 .feature(feature)
                 .topK(topK)
@@ -43,7 +44,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
 
         int result = 1;
         try {
-            DeleteReq deleteReq = DeleteReq.builder()
+            DeleteReqDTO deleteReq = DeleteReqDTO.builder()
                     .appId(getCollectionName(collectionId))
                     .entityId(id)
                     .build();
@@ -63,7 +64,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
 
         int result = 1;
         try {
-            BatchDeleteReq batchDeleteReq = BatchDeleteReq.builder()
+            BatchDeleteReqDTO batchDeleteReq = BatchDeleteReqDTO.builder()
                     .appId(getCollectionName(collectionId))
                     .entityIds(idList)
                     .build();
@@ -80,7 +81,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
 
         Face dto = (Face) entity;
         List<Float> feature = this.convertByteArrayToList(dto);
-        InsertReq insertReq = InsertReq.builder()
+        InsertReqDTO insertReq = InsertReqDTO.builder()
                 .appId(getCollectionName(dto.getAppId()))
                 .entityId(dto.getId())
                 .feature(feature)
@@ -110,7 +111,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
             uids.add(face.getUid());
         });
 
-        BatchInsertReq batchInsertReq = BatchInsertReq.builder()
+        BatchInsertReqDTO batchInsertReq = BatchInsertReqDTO.builder()
                 .appId(getCollectionName(appId))
                 .entityIds(entityIds)
                 .features(features)
@@ -130,7 +131,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
     public Integer createCollection(Long collectionId) {
         int result = 1;
         try {
-            CreateColReq createColReq = CreateColReq.builder()
+            CreateColReqDTO createColReq = CreateColReqDTO.builder()
                     .appId(getCollectionName(collectionId))
                     .build();
             milvusService.createCollection(createColReq);
@@ -145,7 +146,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
     public Integer deleteCollection(Long collectionId) {
         int result = 1;
         try {
-            DeleteColReq deleteColReq = DeleteColReq.builder()
+            DeleteColReqDTO deleteColReq = DeleteColReqDTO.builder()
                     .appId(getCollectionName(collectionId))
                     .build();
             milvusService.dropCollection(deleteColReq);

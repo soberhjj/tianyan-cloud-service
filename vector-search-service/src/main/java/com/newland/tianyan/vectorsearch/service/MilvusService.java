@@ -1,8 +1,8 @@
 package com.newland.tianyan.vectorsearch.service;
 
 import com.google.gson.JsonObject;
+import com.newland.tianyan.common.model.vectorSearchService.dto.QueryResDTO;
 import com.newland.tianyan.common.utils.utils.CosineDistanceTool;
-import com.newland.tianyan.vectorsearch.vo.QueryRes;
 import io.milvus.client.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -65,7 +65,7 @@ public class MilvusService {
         return insertEntityIds.get(0);
     }
 
-    public List<QueryRes> query(String appId, List<Float> feature, Integer topK) {
+    public List<QueryResDTO> query(String appId, List<Float> feature, Integer topK) {
         MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
         List<List<Float>> features = new ArrayList<>();
@@ -91,9 +91,9 @@ public class MilvusService {
             transDistances.add(CosineDistanceTool.convertEur2CosUp(distance));
         }
 
-        List<QueryRes> res = new LinkedList<>();
+        List<QueryResDTO> res = new LinkedList<>();
         for (int i = 0; i < ids.size(); i++) {
-            QueryRes temp = new QueryRes();
+            QueryResDTO temp = new QueryResDTO();
             temp.setEntityId(ids.get(i));
             temp.setDistance(transDistances.get(i));
             res.add(temp);
@@ -124,7 +124,7 @@ public class MilvusService {
         return ids;
     }
 
-    public List<List<QueryRes>> batchQuery(String appId, List<List<Float>> features, Integer topK) {
+    public List<List<QueryResDTO>> batchQuery(String appId, List<List<Float>> features, Integer topK) {
         MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
         JsonObject searchParamsJson = new JsonObject();
@@ -143,7 +143,7 @@ public class MilvusService {
         List<List<Float>> resultDistancesList = searchResponse.getResultDistancesList();
 
         int batchSize = resultIdsList.size();
-        List<List<QueryRes>> batchRes = new LinkedList<>();
+        List<List<QueryResDTO>> batchRes = new LinkedList<>();
 
         for (int i = 0; i < batchSize; i++) {
             List<Long> ids = resultIdsList.get(i);
@@ -154,9 +154,9 @@ public class MilvusService {
                 transDistances.add(CosineDistanceTool.convertEur2CosUp(distance));
             }
 
-            List<QueryRes> res = new LinkedList<>();
+            List<QueryResDTO> res = new LinkedList<>();
             for (int j = 0; j < ids.size(); j++) {
-                QueryRes temp = new QueryRes();
+                QueryResDTO temp = new QueryResDTO();
                 temp.setEntityId(ids.get(j));
                 temp.setDistance(transDistances.get(j));
                 res.add(temp);

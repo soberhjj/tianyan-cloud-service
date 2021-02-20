@@ -2,7 +2,7 @@ package com.newland.tianyan.auth.service;
 
 
 import com.newland.tianyan.auth.entity.Account;
-import com.newland.tianyan.auth.mapper.account.AccountMapper;
+import com.newland.tianyan.auth.dao.AccountMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

@@ -1,6 +1,6 @@
 package com.newland.tianyan.auth.service;
 
-import com.newland.tianyan.auth.mapper.app.AppInfoMapper;
+import com.newland.tianyan.auth.dao.AppInfoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

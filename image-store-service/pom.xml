@@ -24,9 +24,11 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+        <!--项目公共组件-->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>com.newland.tianyan</groupId>
+            <artifactId>common-model</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.tobato</groupId>

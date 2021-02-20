@@ -1,14 +1,14 @@
 package com.newland.tianyan.face.service.impl;
 
 import com.googlecode.protobuf.format.JsonFormat;
-import com.newland.tianyan.common.feign.ImageStoreFeignService;
-import com.newland.tianyan.common.feign.vo.image.UploadReq;
-import com.newland.tianyan.common.feign.vo.milvus.QueryRes;
-import com.newland.tianyan.common.utils.exception.CommonException;
+import com.newland.tianyan.common.model.exception.CommonException;
+import com.newland.tianyan.common.model.imageStoreService.dto.UploadReqDTO;
+import com.newland.tianyan.common.model.vectorSearchService.dto.QueryResDTO;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.CosineDistanceTool;
 import com.newland.tianyan.common.model.proto.LogUtils;
 import com.newland.tianyan.common.model.proto.ProtobufUtils;
+import com.newland.tianyan.common.utils.utils.FeaturesTool;
 import com.newland.tianyan.face.config.RabbitMQSender;
 import com.newland.tianyan.face.constant.RabbitMqQueueName;
 import com.newland.tianyan.face.constant.StatusConstants;
@@ -17,10 +17,10 @@ import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.entity.Face;
 import com.newland.tianyan.face.entity.GroupInfo;
 import com.newland.tianyan.face.entity.UserInfo;
+import com.newland.tianyan.face.remote.ImageStoreFeignService;
 import com.newland.tianyan.face.service.FacesetFaceService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import com.newland.tianyan.face.service.cache.MilvusKey;
-import com.newland.tianyan.face.utils.FeaturesTool;
 import com.newland.tianyan.face.vo.FaceDetectReq;
 import com.newland.tianyan.face.vo.FaceSetFaceCompareReq;
 import com.newland.tianyan.face.vo.FaceSetFaceDetectReq;
@@ -81,14 +81,14 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                 amqpHelper(fileName, request.getMaxFaceNum(), TASK_TYPE.get("feature"));
         List<Float> featureRaw = FeaturesTool.normalizeConvertToList(feature.getFeatureResultList().get(0).getFeaturesList());
         //从缓存中拿到符合向量TopN个的用户
-        List<QueryRes> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw, groupList, request.getMaxUserNum());
+        List<QueryResDTO> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw, groupList, request.getMaxUserNum());
 
         //封装结果集
         NLFace.CloudFaceSendMessage.Builder resultBuilder = NLFace.CloudFaceSendMessage.newBuilder();
         resultBuilder.setLogId(UUID.randomUUID().toString());
         resultBuilder.setFaceNum(feature.getFaceNum());
         //结果集.UserResult
-        for (QueryRes milvusQueryRes : queryFaceList) {
+        for (QueryResDTO milvusQueryRes : queryFaceList) {
             //拆解根据规则拼接的向量id获得gid、uid
             Long vectorId = milvusQueryRes.getEntityId();
             Long gid = MilvusKey.splitGid(vectorId);
@@ -195,9 +195,9 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String image1 = request.getFirstImage();
         String image2 = request.getSecondImage();
         String logId = UUID.randomUUID().toString();
-        UploadReq uploadReq1 = UploadReq.builder().image(image1).build();
+        UploadReqDTO uploadReq1 = UploadReqDTO.builder().image(image1).build();
         imageStorageService.uploadImageV2(uploadReq1);
-        UploadReq uploadReq2 = UploadReq.builder().image(image1).build();
+        UploadReqDTO uploadReq2 = UploadReqDTO.builder().image(image1).build();
         imageStorageService.uploadImageV2(uploadReq2);
 
         NLFace.CloudFaceSendMessage feature1 = amqpHelper(image1, 1, (Integer) TASK_TYPE.get("feature"));
@@ -220,7 +220,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReq vo) {
         String image = vo.getImage();
         String logId = UUID.randomUUID().toString();
-        UploadReq uploadReq = UploadReq.builder().image(image).build();
+        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
         imageStorageService.uploadImageV2(uploadReq);
 
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
@@ -247,7 +247,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     public NLFace.CloudFaceSendMessage liveness(FaceDetectReq vo) {
         String image = vo.getImage();
         String logId = UUID.randomUUID().toString();
-        UploadReq uploadReq = UploadReq.builder().image(image).build();
+        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
         imageStorageService.uploadImageV2(uploadReq);
 
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
@@ -274,7 +274,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     public NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectReq request) {
         String image = request.getImage();
         String logId = UUID.randomUUID().toString();
-        UploadReq uploadReq = UploadReq.builder().image(image).build();
+        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
         imageStorageService.uploadImageV2(uploadReq);
 
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
@@ -448,7 +448,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     public Face getByImage(String image, int model) {
-        UploadReq uploadReq = UploadReq.builder().image(image).build();
+        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
         String imagePath = imageStorageService.uploadImageV2(uploadReq).getImagePath();
 
         NLFace.CloudFaceSendMessage feature = amqpHelper(image, 1, model);

@@ -3,12 +3,13 @@ package com.newland.tianyan.face.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.googlecode.protobuf.format.JsonFormat;
-import com.newland.tianyan.common.feign.ImageStoreFeignService;
-import com.newland.tianyan.common.feign.vo.image.DownloadReq;
-import com.newland.tianyan.common.feign.vo.image.UploadReq;
-import com.newland.tianyan.common.utils.exception.CommonException;
+import com.newland.tianyan.common.model.exception.CommonException;
+import com.newland.tianyan.common.model.imageStoreService.dto.DownloadReqDTO;
+import com.newland.tianyan.common.model.imageStoreService.dto.UploadReqDTO;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.model.proto.ProtobufUtils;
+import com.newland.tianyan.common.utils.utils.FeaturesTool;
+import com.newland.tianyan.face.remote.ImageStoreFeignService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import com.newland.tianyan.face.service.cache.MilvusKey;
 import com.newland.tianyan.face.config.RabbitMQSender;
@@ -26,7 +27,6 @@ import com.newland.tianyan.face.event.group.GroupCreateEvent;
 import com.newland.tianyan.face.event.user.UserCreateEvent;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
-import com.newland.tianyan.face.utils.FeaturesTool;
 import lombok.extern.slf4j.Slf4j;
 import newlandFace.NLFace;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -345,7 +345,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
     private void uploadImage(Face face, String image) {
         //提交至指定服务器路径
-        UploadReq uploadReq = UploadReq.builder().image(image).build();
+        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
         String imagePath = imageStorageService.uploadImageV2(uploadReq).getImagePath();
         face.setImagePath(imagePath);
     }
@@ -382,7 +382,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         }
         for (Face face : faces) {
             if (face.getImagePath() != null) {
-                DownloadReq downloadReq = DownloadReq.builder().imagePath(face.getImagePath()).build();
+                DownloadReqDTO downloadReq = DownloadReqDTO.builder().imagePath(face.getImagePath()).build();
                 face.setImage(imageStorageService.downloadImage(downloadReq).getImage());
             }
             face.setFaceId(face.getId().toString());

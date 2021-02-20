@@ -2,7 +2,7 @@ package com.newland.tianyan.face.controller;
 
 
 import com.newland.tianyan.common.utils.constans.TaskType;
-import com.newland.tianyan.common.utils.exception.CommonException;
+import com.newland.tianyan.common.model.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.model.proto.LogUtils;
 import com.newland.tianyan.common.model.proto.ProtobufUtils;

@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.exception;
 
 
-import com.newland.tianyan.common.utils.exception.CommonException;
+import com.newland.tianyan.common.model.exception.CommonException;
 
 /**
  * @author: RojiaHuang
