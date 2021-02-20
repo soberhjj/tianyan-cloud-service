@@ -3,7 +3,7 @@ package com.newland.tianyan.face.service.cache;
 
 import com.newland.tianyan.common.model.vectorSearchService.dto.*;
 import com.newland.tianyan.common.utils.utils.FeaturesTool;
-import com.newland.tianyan.face.entity.Face;
+import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
 import com.newland.tianyan.face.remote.VectorSearchFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +79,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
     @Override
     public Long add(T entity) {
 
-        Face dto = (Face) entity;
+        FaceDO dto = (FaceDO) entity;
         List<Float> feature = this.convertByteArrayToList(dto);
         InsertReqDTO insertReq = InsertReqDTO.builder()
                 .appId(getCollectionName(dto.getAppId()))
@@ -96,8 +96,8 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
             throw new IllegalArgumentException("mainDataList must not be empty");
         }
         int size = entityList.size();
-        List<Face> insertSourceList = new ArrayList<>();
-        entityList.forEach(mainDataItem -> insertSourceList.add((Face) mainDataItem));
+        List<FaceDO> insertSourceList = new ArrayList<>();
+        entityList.forEach(mainDataItem -> insertSourceList.add((FaceDO) mainDataItem));
 
         Long appId = insertSourceList.get(0).getAppId();
         List<List<Float>> features = new ArrayList<>(size);
@@ -119,7 +119,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
         return milvusService.batchInsert(batchInsertReq);
     }
 
-    public List<Float> convertByteArrayToList(Face entity) {
+    public List<Float> convertByteArrayToList(FaceDO entity) {
         if (entity == null || entity.getFeatures() == null) {
             throw ApiReturnErrorCode.ILLEGAL_ARGUMENT.toException("feature must not be null");
         }

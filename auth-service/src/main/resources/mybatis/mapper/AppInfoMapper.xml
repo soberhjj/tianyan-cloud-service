@@ -4,10 +4,10 @@
 
     <update id="update">
         UPDATE ${tableName}
-        SET APP_NAME = #{appInfo.appName},
-            APP_INFO = #{appInfo.appInfo},
-            API_LIST = #{appInfo.apiList}
-        WHERE APP_ID = #{appInfo.appId}
+        SET APP_NAME = #{appInfoDO.appName},
+            APP_INFO = #{appInfoDO.appInfoDO},
+            API_LIST = #{appInfoDO.apiList}
+        WHERE APP_ID = #{appInfoDO.appId}
     </update>
 
     <update id="createTable" parameterType="string">

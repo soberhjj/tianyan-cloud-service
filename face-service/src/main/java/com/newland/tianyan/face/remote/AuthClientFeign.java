@@ -6,6 +6,6 @@ import com.newland.tianyan.face.remote.fallback.AuthServiceFeignClientFallbackIm
 import org.springframework.cloud.openfeign.FeignClient;
 
 @FeignClient(name = "auth-service", fallbackFactory = AuthServiceFeignClientFallbackImpl.class)
-public interface ClientFeign extends IClientApi {
+public interface AuthClientFeign extends IClientApi {
 
 }

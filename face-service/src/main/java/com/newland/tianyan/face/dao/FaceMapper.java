@@ -1,12 +1,11 @@
 package com.newland.tianyan.face.dao;
 
 
-import com.newland.tianyan.face.entity.Face;
+import com.newland.tianyan.face.domain.entity.FaceDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -14,14 +13,7 @@ import java.util.List;
  */
 @Mapper
 @Component
-public interface FaceMapper extends CommonMapper<Face> {
-
-    List<Face> selectByGroupId(HashMap<String, Object> map);
-
-    /**
-     * 插入face并且face.id被赋予自增Id
-     */
-    void insertGetId(Face face);
+public interface FaceMapper extends CommonMapper<FaceDO> {
 
     /**
      * @param userId 用户标识号
@@ -38,5 +30,5 @@ public interface FaceMapper extends CommonMapper<Face> {
     /**
      * 批量插入
      */
-    void insertBatch(@Param("faceList") List<Face> faceList);
+    void insertBatch(@Param("faceList") List<FaceDO> faceDODOList);
 }

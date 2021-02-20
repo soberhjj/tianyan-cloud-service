@@ -9,6 +9,8 @@ import com.newland.tianyan.common.model.imageStoreService.dto.UploadReqDTO;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.model.proto.ProtobufUtils;
 import com.newland.tianyan.common.utils.utils.FeaturesTool;
+import com.newland.tianyan.face.domain.entity.FaceDO;
+import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.remote.ImageStoreFeignService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import com.newland.tianyan.face.service.cache.MilvusKey;
@@ -18,9 +20,7 @@ import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.dao.UserInfoMapper;
-import com.newland.tianyan.face.entity.Face;
-import com.newland.tianyan.face.entity.GroupInfo;
-import com.newland.tianyan.face.entity.UserInfo;
+import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.event.face.FaceCreateEvent;
 import com.newland.tianyan.face.event.face.FaceDeleteEvent;
 import com.newland.tianyan.face.event.group.GroupCreateEvent;
@@ -52,7 +52,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Autowired
     private UserInfoMapper userInfoMapper;
     @Autowired
-    private FaceCacheHelperImpl<Face> faceCacheHelper;
+    private FaceCacheHelperImpl<FaceDO> faceCacheHelper;
     @Autowired
     private FaceMapper faceMapper;
     @Autowired
@@ -64,19 +64,19 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
     @Override
     //@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public Face create(NLBackend.BackendAllRequest receive) {
+    public FaceDO create(NLBackend.BackendAllRequest receive) {
         int qualityControl = receive.getQualityControl();
         if (qualityControl != 0) {
             this.handleImageQualityControl(qualityControl, receive.getImage());
         }
-        Face query = ProtobufUtils.parseTo(receive, Face.class);
-        Face insertFace = new Face();
+        FaceDO query = ProtobufUtils.parseTo(receive, FaceDO.class);
+        FaceDO insertFaceDODO = new FaceDO();
         //图片提交至服务器
-        this.uploadImage(insertFace, receive.getImage());
+        this.uploadImage(insertFaceDODO, receive.getImage());
         //note 处理特征值
-        this.handleFeatures(insertFace, receive.getImage());
-        insertFace.setAppId(receive.getAppId());
-        insertFace.setUserId(receive.getUserId());
+        this.handleFeatures(insertFaceDODO, receive.getImage());
+        insertFaceDODO.setAppId(receive.getAppId());
+        insertFaceDODO.setUserId(receive.getUserId());
 
         String[] groups = receive.getGroupId().split(",");
         //去重
@@ -84,13 +84,13 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         for (String groupId : groupIdSet) {
             query.setGroupId(groupId);
             //如果group_info表中不存在该用户组，则往group_info表中插入一条新记录表示新增了该用户组
-            GroupInfo groupInfo = new GroupInfo();
-            groupInfo.setAppId(query.getAppId());
-            groupInfo.setGroupId(query.getGroupId());
-            groupInfo.setIsDelete(StatusConstants.NOT_DELETE);
-            groupInfo = groupInfoMapper.selectOne(groupInfo);
-            if (groupInfo == null) {
-                GroupInfo insertGroup = new GroupInfo();
+            GroupInfoDO groupInfoDO = new GroupInfoDO();
+            groupInfoDO.setAppId(query.getAppId());
+            groupInfoDO.setGroupId(query.getGroupId());
+            groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+            groupInfoDO = groupInfoMapper.selectOne(groupInfoDO);
+            if (groupInfoDO == null) {
+                GroupInfoDO insertGroup = new GroupInfoDO();
                 insertGroup.setAppId(query.getAppId());
                 insertGroup.setGroupId(query.getGroupId());
                 insertGroup.setIsDelete(StatusConstants.NOT_DELETE);
@@ -98,50 +98,50 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 insertGroup.setFaceNumber(0);
                 groupInfoMapper.insertGetId(insertGroup);
                 publisher.publishEvent(new GroupCreateEvent(query.getAppId(), query.getGroupId()));
-                groupInfo = insertGroup;
+                groupInfoDO = insertGroup;
             }
-            insertFace.setGroupId(groupId);
+            insertFaceDODO.setGroupId(groupId);
 
             //如果user_info表中不存在该用户，那么在添加人脸后，往user_info表中插入一条新记录表示新增了该用户。
-            UserInfo queryUser = new UserInfo();
+            UserInfoDO queryUser = new UserInfoDO();
             queryUser.setAppId(query.getAppId());
-            queryUser.setGid(groupInfo.getId());
+            queryUser.setGid(groupInfoDO.getId());
             queryUser.setGroupId(groupId);
             queryUser.setUserId(receive.getUserId());
-            UserInfo sourceUser = userInfoMapper.selectOne(queryUser);
+            UserInfoDO sourceUser = userInfoMapper.selectOne(queryUser);
             if (sourceUser == null) {
                 //往user_info表中插入一条新记录
-                UserInfo userInfo = new UserInfo();
-                userInfo.setAppId(query.getAppId());
-                userInfo.setGid(groupInfo.getId());
-                userInfo.setGroupId(query.getGroupId());
-                userInfo.setUserId(receive.getUserId());
+                UserInfoDO userInfoDO = new UserInfoDO();
+                userInfoDO.setAppId(query.getAppId());
+                userInfoDO.setGid(groupInfoDO.getId());
+                userInfoDO.setGroupId(query.getGroupId());
+                userInfoDO.setUserId(receive.getUserId());
                 if (!receive.getUserName().isEmpty()) {
-                    userInfo.setUserName(receive.getUserName());
+                    userInfoDO.setUserName(receive.getUserName());
                 } else {
-                    userInfo.setUserName(receive.getUserId());
+                    userInfoDO.setUserName(receive.getUserId());
                 }
-                userInfo.setUserInfo(receive.getUserInfo());
+                userInfoDO.setUserInfo(receive.getUserInfo());
                 //此时就是在进行添加人脸的操作，所以直接将人脸数的初始值设置为1
-                userInfo.setFaceNumber(1);
+                userInfoDO.setFaceNumber(1);
                 try {
-                    userInfoMapper.insertGetId(userInfo);
+                    userInfoMapper.insertGetId(userInfoDO);
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new EntityNotFoundException("add user wrong: user_id" + receive.getUserId() + "!");
                 }
 
                 //添加人脸
-                insertFace.setUid(userInfo.getId());
-                insertFace.setGid(groupInfo.getId());
-                insertFace.setId(MilvusKey.generatedKey(insertFace.getGid(), insertFace.getUid(), userInfo.getFaceNumber() + 1));
+                insertFaceDODO.setUid(userInfoDO.getId());
+                insertFaceDODO.setGid(groupInfoDO.getId());
+                insertFaceDODO.setId(MilvusKey.generatedKey(insertFaceDODO.getGid(), insertFaceDODO.getUid(), userInfoDO.getFaceNumber() + 1));
                 //note 缓存中添加用户的人脸
-                if (faceCacheHelper.add(insertFace) < 0) {
-                    log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
+                if (faceCacheHelper.add(insertFaceDODO) < 0) {
+                    log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFaceDODO.getAppId() + "GroupId" + insertFaceDODO.getGroupId() + "userId" + insertFaceDODO.getUserId());
                     throw ApiReturnErrorCode.CACHE_INSERT_ERROR.toException("[人脸新增]");
                 }
-                if (faceMapper.insertSelective(insertFace) <= 0) {
-                    log.info("[人脸新增DBMS失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
+                if (faceMapper.insertSelective(insertFaceDODO) <= 0) {
+                    log.info("[人脸新增DBMS失败],参数{}", "AppId:" + insertFaceDODO.getAppId() + "GroupId" + insertFaceDODO.getGroupId() + "userId" + insertFaceDODO.getUserId());
                     throw ApiReturnErrorCode.DB_INSERT_ERROR.toException("[人脸新增]");
                 }
                 //发布事件。由于新增了用户，所以要在group_info表中将该用户对应的那个用户组的记录进行更新（更新的字段是user_number和face_number）
@@ -150,49 +150,49 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             //如果user表中已存在该用户，那么根据action_type的值来进行相应操作。action_type取值有两种("append"和"replace")。
             //下面只实现了当action_type取值为"append"时的执行逻辑，而当action_type取值为"replace"时的执行逻辑这里暂不实现。
             else {
-                insertFace.setUid(sourceUser.getId());
-                insertFace.setGid(sourceUser.getGid());
+                insertFaceDODO.setUid(sourceUser.getId());
+                insertFaceDODO.setGid(sourceUser.getGid());
                 if ("append".equals(receive.getActionType())) {
                     //note 缓存中添加用户的人脸
-                    insertFace.setId(MilvusKey.generatedKey(insertFace.getGid(), insertFace.getUid(), sourceUser.getFaceNumber() + 1));
-                    if (faceCacheHelper.add(insertFace) < 0) {
-                        log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
+                    insertFaceDODO.setId(MilvusKey.generatedKey(insertFaceDODO.getGid(), insertFaceDODO.getUid(), sourceUser.getFaceNumber() + 1));
+                    if (faceCacheHelper.add(insertFaceDODO) < 0) {
+                        log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFaceDODO.getAppId() + "GroupId" + insertFaceDODO.getGroupId() + "userId" + insertFaceDODO.getUserId());
                         throw ApiReturnErrorCode.CACHE_INSERT_ERROR.toException("[人脸新增]");
                     }
                     //添加人脸
-                    if (faceMapper.insertSelective(insertFace) <= 0) {
-                        log.info("[人脸新增DBMS失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
+                    if (faceMapper.insertSelective(insertFaceDODO) <= 0) {
+                        log.info("[人脸新增DBMS失败],参数{}", "AppId:" + insertFaceDODO.getAppId() + "GroupId" + insertFaceDODO.getGroupId() + "userId" + insertFaceDODO.getUserId());
                         throw ApiReturnErrorCode.DB_INSERT_ERROR.toException("[人脸新增]");
                     }
                     //发布事件。已存在的用户添加了人脸，所以要在user_info中将该用户对应的那条记录进行更新（更新的字段是face_number）,也要在group_info表中将该用户对应的那个用户组的记录进行更新（更新的字段同样是face_number）
                     publisher.publishEvent(new FaceCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
                 } else if ("replace".equals(receive.getActionType())) {
-                    insertFace.setId(MilvusKey.generatedKey(insertFace.getGid(), insertFace.getUid(), 1));
+                    insertFaceDODO.setId(MilvusKey.generatedKey(insertFaceDODO.getGid(), insertFaceDODO.getUid(), 1));
                     //删除face表中该用户原本的人脸（用户在一个组中可能有多张人脸）
-                    Face face = new Face();
-                    face.setGroupId(groupId);
-                    face.setUserId(query.getUserId());
-                    face.setAppId(query.getAppId());
+                    FaceDO faceDO = new FaceDO();
+                    faceDO.setGroupId(groupId);
+                    faceDO.setUserId(query.getUserId());
+                    faceDO.setAppId(query.getAppId());
                     List<Long> faceIdList = faceMapper.selectIdByGroupId(groupId);
                     //note 删除原本缓存中的人脸，添加新的人脸
                     if ((!CollectionUtils.isEmpty(faceIdList)) && faceCacheHelper.deleteBatch(query.getAppId(), faceIdList) < 0) {
-                        log.info("[人脸删除向量失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
+                        log.info("[人脸删除向量失败],参数{}", "AppId:" + insertFaceDODO.getAppId() + "GroupId" + insertFaceDODO.getGroupId() + "userId" + insertFaceDODO.getUserId());
                         throw ApiReturnErrorCode.CACHE_DELETE_ERROR.toException("[人脸新增]");
                     }
                     int deleteCount;
                     try {
-                        deleteCount = faceMapper.delete(face);
+                        deleteCount = faceMapper.delete(faceDO);
                     } catch (Exception e) {
                         e.printStackTrace();
                         throw ApiReturnErrorCode.DB_DELETE_ERROR.toException("[人脸新增]");
                     }
                     //添加该用户新的人脸（只有一张）
-                    if (faceCacheHelper.add(insertFace) < 0) {
-                        log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
+                    if (faceCacheHelper.add(insertFaceDODO) < 0) {
+                        log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFaceDODO.getAppId() + "GroupId" + insertFaceDODO.getGroupId() + "userId" + insertFaceDODO.getUserId());
                         throw ApiReturnErrorCode.CACHE_INSERT_ERROR.toException("[人脸新增]");
                     }
-                    if (faceMapper.insertSelective(insertFace) <= 0) {
-                        log.info("[人脸新增DBMS失败],参数{}", "AppId:" + insertFace.getAppId() + "GroupId" + insertFace.getGroupId() + "userId" + insertFace.getUserId());
+                    if (faceMapper.insertSelective(insertFaceDODO) <= 0) {
+                        log.info("[人脸新增DBMS失败],参数{}", "AppId:" + insertFaceDODO.getAppId() + "GroupId" + insertFaceDODO.getGroupId() + "userId" + insertFaceDODO.getUserId());
                         throw ApiReturnErrorCode.DB_INSERT_ERROR.toException("[人脸新增]");
                     }
                     //人脸替换后更新user_info表中该用户的face_number,也要更新group_info表中该用户对在的用户组对应的那条记录中的face_number
@@ -203,7 +203,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 }
             }
         }
-        return insertFace;
+        return insertFaceDODO;
     }
 
     private void handleImageQualityControl(int qualityControl, String image) {
@@ -343,51 +343,51 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         return build;
     }
 
-    private void uploadImage(Face face, String image) {
+    private void uploadImage(FaceDO faceDO, String image) {
         //提交至指定服务器路径
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
-        String imagePath = imageStorageService.uploadImageV2(uploadReq).getImagePath();
-        face.setImagePath(imagePath);
+        String imagePath = imageStorageService.uploadV2(uploadReq).getImagePath();
+        faceDO.setImagePath(imagePath);
     }
 
-    private void handleFeatures(Face face, String image) {
+    private void handleFeatures(FaceDO faceDO, String image) {
         NLFace.CloudFaceSendMessage feature =
                 amqpHelper(image, 1, 2);
         NLFace.CloudFaceSendMessage.Builder builder = feature.toBuilder();
         List<Float> featureList = builder.getFeatureResult(0).getFeaturesList();
-        face.setFeatures(FeaturesTool.normalizeConvertToByte(featureList));
+        faceDO.setFeatures(FeaturesTool.normalizeConvertToByte(featureList));
     }
 
     @Override
-    public List<Face> getList(NLBackend.BackendAllRequest receive) {
-        Face query = ProtobufUtils.parseTo(receive, Face.class);
+    public List<FaceDO> getList(NLBackend.BackendAllRequest receive) {
+        FaceDO query = ProtobufUtils.parseTo(receive, FaceDO.class);
         if (!StringUtils.isEmpty(query.getGroupId())) {
-            GroupInfo groupInfo = new GroupInfo();
-            groupInfo.setAppId(query.getAppId());
-            groupInfo.setGroupId(query.getGroupId());
-            groupInfo.setIsDelete(StatusConstants.NOT_DELETE);
-            if (groupInfoMapper.selectCount(groupInfo) <= 0) {
+            GroupInfoDO groupInfoDO = new GroupInfoDO();
+            groupInfoDO.setAppId(query.getAppId());
+            groupInfoDO.setGroupId(query.getGroupId());
+            groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+            if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
                 return new ArrayList<>();
             }
         }
 
-        PageInfo<Face> facePageInfo = PageHelper.offsetPage(query.getStartIndex(), query.getLength())
+        PageInfo<FaceDO> facePageInfo = PageHelper.offsetPage(query.getStartIndex(), query.getLength())
                 .setOrderBy("create_time desc")
                 .doSelectPageInfo(
                         () -> faceMapper.select(query));
 
-        List<Face> faces = facePageInfo.getList();
-        if (CollectionUtils.isEmpty(faces)) {
-            return faces;
+        List<FaceDO> faceDOS = facePageInfo.getList();
+        if (CollectionUtils.isEmpty(faceDOS)) {
+            return faceDOS;
         }
-        for (Face face : faces) {
-            if (face.getImagePath() != null) {
-                DownloadReqDTO downloadReq = DownloadReqDTO.builder().imagePath(face.getImagePath()).build();
-                face.setImage(imageStorageService.downloadImage(downloadReq).getImage());
+        for (FaceDO faceDO : faceDOS) {
+            if (faceDO.getImagePath() != null) {
+                DownloadReqDTO downloadReq = DownloadReqDTO.builder().imagePath(faceDO.getImagePath()).build();
+                faceDO.setImage(imageStorageService.download(downloadReq).getImage());
             }
-            face.setFaceId(face.getId().toString());
+            faceDO.setFaceId(faceDO.getId().toString());
         }
-        return faces;
+        return faceDOS;
     }
 
     /**
@@ -395,39 +395,39 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
      */
     @Override
     public void delete(NLBackend.BackendAllRequest receive) {
-        Face query = ProtobufUtils.parseTo(receive, Face.class);
+        FaceDO query = ProtobufUtils.parseTo(receive, FaceDO.class);
         query.setId(Long.parseLong(query.getFaceId()));
 
         //检查group_info表中是否存在该group_id
         if (!StringUtils.isEmpty(receive.getGroupId())) {
-            GroupInfo groupInfo = new GroupInfo();
-            groupInfo.setAppId(groupInfo.getAppId());
-            groupInfo.setGroupId(groupInfo.getGroupId());
-            groupInfo.setIsDelete(StatusConstants.NOT_DELETE);
-            if (groupInfoMapper.selectCount(groupInfo) <= 0) {
+            GroupInfoDO groupInfoDO = new GroupInfoDO();
+            groupInfoDO.setAppId(groupInfoDO.getAppId());
+            groupInfoDO.setGroupId(groupInfoDO.getGroupId());
+            groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+            if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
                 throw new EntityNotFoundException("group_id " + query.getGroupId() + " doesn't exist!");
             }
         }
 
         //检查user_info表中是否存在该user_id
-        UserInfo userInfo = new UserInfo();
-        userInfo.setAppId(receive.getAppId());
-        userInfo.setGroupId(receive.getGroupId());
-        userInfo.setUserId(receive.getUserId());
-        if (userInfoMapper.selectCount(userInfo) <= 0) {
+        UserInfoDO userInfoDO = new UserInfoDO();
+        userInfoDO.setAppId(receive.getAppId());
+        userInfoDO.setGroupId(receive.getGroupId());
+        userInfoDO.setUserId(receive.getUserId());
+        if (userInfoMapper.selectCount(userInfoDO) <= 0) {
             throw new EntityNotFoundException("user_id " + query.getUserId() + " doesn't exist!");
         }
 
         //然后直接去face表中查询是否存在这张人脸图片的记录，若不存在则抛出异常，存在则删除该人脸
-        Face face = faceMapper.selectOne(query);
-        if (face == null) {
+        FaceDO faceDO = faceMapper.selectOne(query);
+        if (faceDO == null) {
             return;
         }
 
         //note 缓存中删除用户指定的人脸
-        if (faceCacheHelper.delete(query.getAppId(), face.getId()) < 0) {
-            log.info("[人脸删除],参数{}", "AppId:" + face.getAppId() + "GroupId" + face.getGroupId() + "userId" + face.getUserId());
-            throw ApiReturnErrorCode.CACHE_DELETE_ERROR.toException("[人脸删除]", "faceId:" + face.getId());
+        if (faceCacheHelper.delete(query.getAppId(), faceDO.getId()) < 0) {
+            log.info("[人脸删除],参数{}", "AppId:" + faceDO.getAppId() + "GroupId" + faceDO.getGroupId() + "userId" + faceDO.getUserId());
+            throw ApiReturnErrorCode.CACHE_DELETE_ERROR.toException("[人脸删除]", "faceId:" + faceDO.getId());
         }
         //物理删除人脸
         try {

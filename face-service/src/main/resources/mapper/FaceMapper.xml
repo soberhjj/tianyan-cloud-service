@@ -1,39 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.newland.tianyan.face.dao.FaceMapper">
-
-
-    <select id="selectByGroupId" resultType="com.newland.tianyan.face.entity.Face" parameterType="map">
-        select *
-        from face
-        where app_id = ${appId}
-        and group_id in
-        <foreach collection="groupIds" index="index" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
-        <if test="userId != null and !userId.isEmpty()">
-            and user_id = #{userId}
-        </if>
-    </select>
-
-    <insert id="insertGetId" parameterType="com.newland.tianyan.face.entity.Face" useGeneratedKeys="true" keyProperty="id"
-            keyColumn="id">
-        INSERT INTO face  ( app_id,gid,uid,group_id,user_id,image_path,features )
-        VALUES( #{appId},#{gid},#{uid},#{groupId},#{userId},#{imagePath},#{features} )
-    </insert>
+<mapper namespace="com.newland.tianyan.faceDO.dao.FaceMapper">
 
     <select id="selectIdByUserId" resultType="Long">
-        SELECT id FROM face a WHERE a.user_id = #{userId}
+        SELECT id FROM faceDO a WHERE a.user_id = #{userId}
     </select>
 
     <select id="selectIdByGroupId" resultType="Long">
-        SELECT id FROM face a WHERE a.group_id = #{groupId}
+        SELECT id FROM faceDO a WHERE a.group_id = #{groupId}
     </select>
 
     <insert id="insertBatch">
-        INSERT INTO face ( id,app_id,gid,uid,group_id,user_id,image_path,features )
+        INSERT INTO faceDO ( id,app_id,gid,uid,group_id,user_id,image_path,features )
         VALUES
-        <foreach collection="faceList" item="item" separator=",">
+        <foreach collection="faceDODOList" item="item" separator=",">
             ( #{item.id},#{item.appId},#{item.gid},#{item.uid},#{item.groupId},#{item.userId},#{item.imagePath},#{item.features} )
         </foreach>
     </insert>

@@ -10,10 +10,10 @@ import com.newland.tianyan.common.model.proto.ProtobufUtils;
 
 import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.AppInfoMapper;
-import com.newland.tianyan.face.entity.AppInfo;
-import com.newland.tianyan.face.entity.Face;
+import com.newland.tianyan.face.domain.entity.AppInfoDO;
+import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
-import com.newland.tianyan.face.remote.ClientFeign;
+import com.newland.tianyan.face.remote.AuthClientFeign;
 import com.newland.tianyan.face.service.AppInfoService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -32,11 +32,11 @@ import javax.persistence.EntityNotFoundException;
 public class AppInfoServiceImpl implements AppInfoService {
 
     @Autowired
-    private ClientFeign clientService;
+    private AuthClientFeign clientService;
     @Autowired
     private AppInfoMapper appInfoMapper;
     @Autowired
-    private FaceCacheHelperImpl<Face> faceFaceCacheHelper;
+    private FaceCacheHelperImpl<FaceDO> faceFaceCacheHelper;
 
     /**
      * 新增一条appinfo
@@ -49,38 +49,38 @@ public class AppInfoServiceImpl implements AppInfoService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void insert(NLBackend.BackendAllRequest receive) {
-        AppInfo appInfo = ProtobufUtils.parseTo(receive, AppInfo.class);
+        AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         // (未逻辑删除的数据集)检查account和appNames是否已经存在
-        appInfo.setIsDelete(StatusConstants.NOT_DELETE);
-        if (appInfoMapper.selectCount(appInfo) > 0) {
+        appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        if (appInfoMapper.selectCount(appInfoDO) > 0) {
             throw new EntityNotFoundException("account: " + receive.getAccount() + " exits app with name: " + receive.getAppName());
         }
         // 数据插入
-        appInfo.setApiKey(AppUtils.generateApiKey());
-        appInfo.setSecretKey(AppUtils.generateSecretKey());
-        appInfoMapper.insertSelective(appInfo);
+        appInfoDO.setApiKey(AppUtils.generateApiKey());
+        appInfoDO.setSecretKey(AppUtils.generateSecretKey());
+        appInfoMapper.insertSelective(appInfoDO);
         // 建立缓存库,milvus创建collection
-        if (faceFaceCacheHelper.createCollection(appInfoMapper.selectOne(appInfo).getAppId()) < 0) {
+        if (faceFaceCacheHelper.createCollection(appInfoMapper.selectOne(appInfoDO).getAppId()) < 0) {
             throw ApiReturnErrorCode.CACHE_CREATE_ERROR.toException();
         }
         // 查询app的主键
-        Long appId = appInfoMapper.select(appInfo).get(0).getAppId();
-        appInfo.setAppId(appId);
+        Long appId = appInfoMapper.select(appInfoDO).get(0).getAppId();
+        appInfoDO.setAppId(appId);
 
         // 远程调用
-        AuthClientReqDTO clientRequest = new AuthClientReqDTO(receive.getAccount(), appInfo.getAppId(),
-                appInfo.getApiKey(), appInfo.getSecretKey());
+        AuthClientReqDTO clientRequest = new AuthClientReqDTO(receive.getAccount(), appInfoDO.getAppId(),
+                appInfoDO.getApiKey(), appInfoDO.getSecretKey());
         clientService.addClient(clientRequest);
     }
 
     @Override
-    public AppInfo getInfo(NLBackend.BackendAllRequest receive) {
-        AppInfo appInfo = ProtobufUtils.parseTo(receive, AppInfo.class);
-        if (appInfo.getAppId() == null) {
+    public AppInfoDO getInfo(NLBackend.BackendAllRequest receive) {
+        AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
+        if (appInfoDO.getAppId() == null) {
             throw new CommonException(36, "not enough param");
         }
-        appInfo.setIsDelete(StatusConstants.NOT_DELETE);
-        AppInfo query = appInfoMapper.selectOne(appInfo);
+        appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        AppInfoDO query = appInfoMapper.selectOne(appInfoDO);
         if (query == null) {
             throw new CommonException(6110, "app_id doesn't exist");
         }
@@ -88,21 +88,21 @@ public class AppInfoServiceImpl implements AppInfoService {
     }
 
     @Override
-    public PageInfo<AppInfo> getList(NLBackend.BackendAllRequest receive) {
-        AppInfo appInfo = ProtobufUtils.parseTo(receive, AppInfo.class);
-        return PageHelper.offsetPage(appInfo.getStartIndex(), appInfo.getLength())
+    public PageInfo<AppInfoDO> getList(NLBackend.BackendAllRequest receive) {
+        AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
+        return PageHelper.offsetPage(appInfoDO.getStartIndex(), appInfoDO.getLength())
                 .doSelectPageInfo(
                         () -> {
-                            Example example = new Example(AppInfo.class);
+                            Example example = new Example(AppInfoDO.class);
                             Example.Criteria criteria = example.createCriteria();
                             // set dynamic table name
-                            example.setTableName(AppInfo.TABLE_NAME);
+                            example.setTableName(AppInfoDO.TABLE_NAME);
 
-                            criteria.andEqualTo("account", appInfo.getAccount());
+                            criteria.andEqualTo("account", appInfoDO.getAccount());
                             criteria.andEqualTo("isDelete", StatusConstants.NOT_DELETE);
                             // dynamic sql
-                            if (StringUtils.isNotBlank(appInfo.getAppName())) {
-                                criteria.andLike("appName", "%" + appInfo.getAppName() + "%");
+                            if (StringUtils.isNotBlank(appInfoDO.getAppName())) {
+                                criteria.andLike("appName", "%" + appInfoDO.getAppName() + "%");
                             }
 
                             // execute select
@@ -121,29 +121,29 @@ public class AppInfoServiceImpl implements AppInfoService {
      */
     @Override
     public void update(NLBackend.BackendAllRequest receive) {
-        AppInfo appInfo = ProtobufUtils.parseTo(receive, AppInfo.class);
+        AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         //是否存在且状态有效
-        AppInfo queryAppInfo = new AppInfo();
-        queryAppInfo.setAppId(appInfo.getAppId());
-        queryAppInfo.setIsDelete(StatusConstants.NOT_DELETE);
-        if (appInfoMapper.selectCount(queryAppInfo) <= 0) {
+        AppInfoDO queryAppInfoDODO = new AppInfoDO();
+        queryAppInfoDODO.setAppId(appInfoDO.getAppId());
+        queryAppInfoDODO.setIsDelete(StatusConstants.NOT_DELETE);
+        if (appInfoMapper.selectCount(queryAppInfoDODO) <= 0) {
             throw new EntityNotFoundException("app_id doesn't exists!");
         }
         //是否存在同名应用
-        Example example = new Example(AppInfo.class);
+        Example example = new Example(AppInfoDO.class);
         Example.Criteria criteria = example.createCriteria();
-        example.setTableName(AppInfo.TABLE_NAME);
-        criteria.andEqualTo("account", appInfo.getAccount());
-        if (StringUtils.isNotBlank(appInfo.getAppName())) {
-            criteria.andEqualTo("appName", appInfo.getAppName());
+        example.setTableName(AppInfoDO.TABLE_NAME);
+        criteria.andEqualTo("account", appInfoDO.getAccount());
+        if (StringUtils.isNotBlank(appInfoDO.getAppName())) {
+            criteria.andEqualTo("appName", appInfoDO.getAppName());
         }
         criteria.andEqualTo("isDelete", StatusConstants.NOT_DELETE);
-        criteria.andNotEqualTo("appId", appInfo.getAppId());
+        criteria.andNotEqualTo("appId", appInfoDO.getAppId());
         if (appInfoMapper.selectCountByExample(example) > 0) {
             throw new EntityNotFoundException("exits app with name: " + receive.getAppName());
         }
         try {
-            appInfoMapper.update(appInfo);
+            appInfoMapper.update(appInfoDO);
         } catch (Exception e) {
             throw new CommonException(6100, "invalid param");
         }
@@ -161,23 +161,23 @@ public class AppInfoServiceImpl implements AppInfoService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void delete(NLBackend.BackendAllRequest receive) {
-        AppInfo appInfo = ProtobufUtils.parseTo(receive, AppInfo.class);
-        if (appInfo.getAppId() == null) {
+        AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
+        if (appInfoDO.getAppId() == null) {
             throw new CommonException(6101, "not enough param");
         }
 
-        appInfo.setIsDelete(StatusConstants.NOT_DELETE);
-        AppInfo appToDelete = appInfoMapper.selectOne(appInfo);
+        appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        AppInfoDO appToDelete = appInfoMapper.selectOne(appInfoDO);
         if (appToDelete == null) {
             throw new EntityNotFoundException("app_id doesn't exists!");
         }
         //milvus删除人脸集合
-        if (faceFaceCacheHelper.deleteCollection(appInfo.getAppId()) < 0) {
+        if (faceFaceCacheHelper.deleteCollection(appInfoDO.getAppId()) < 0) {
             throw ApiReturnErrorCode.CACHE_DROP_ERROR.toException();
         }
         // app逻辑删除
         try {
-            appInfoMapper.updateToDelete(StatusConstants.DELETE, appInfo.getAppId());
+            appInfoMapper.updateToDelete(StatusConstants.DELETE, appInfoDO.getAppId());
         } catch (Exception e) {
             throw new CommonException(6100, "invalid param");
         }

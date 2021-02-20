@@ -35,15 +35,15 @@
             <version>2.1.4.RELEASE</version>
         </dependency>
         <!--引入相关依赖-->
-        <dependency>
-            <groupId>com.newland.tianyan</groupId>
-            <artifactId>common-utils</artifactId>
-            <version>1.0.0</version>
-            <scope>compile</scope>
-        </dependency>
+        <!--项目公共组件-->
         <dependency>
             <groupId>com.newland.tianyan</groupId>
             <artifactId>common-model</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.newland.tianyan</groupId>
+            <artifactId>common-utils</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>

@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.dao;
 
 
-import com.newland.tianyan.face.entity.AppInfo;
+import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -12,13 +12,11 @@ import org.springframework.stereotype.Component;
  **/
 @Mapper
 @Component
-public interface AppInfoMapper extends CommonMapper<AppInfo> {
+public interface AppInfoMapper extends CommonMapper<AppInfoDO> {
 
-    int update(@Param("appInfo") AppInfo appInfo);
+    int update(@Param("appInfo") AppInfoDO appInfoDO);
 
     int updateToDelete(@Param("isDelete") Byte isDelete, @Param("id") Long id);
 
     int groupNumberIncrease(@Param("appId") Long appId, @Param("count") int count);
-
-    Long queryAutoIncrementId();
 }

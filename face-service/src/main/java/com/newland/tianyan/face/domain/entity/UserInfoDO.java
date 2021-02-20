@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.entity;
+package com.newland.tianyan.face.domain.entity;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserInfo extends BaseEntity {
+public class UserInfoDO extends BaseEntity {
 
     private Long id;
     private Long appId;
