@@ -35,7 +35,7 @@
         </where>
     </select>
 
-    <insert id="insertGetId" parameterType="com.newland.tianyan.face.domain.UserInfo" useGeneratedKeys="true" keyProperty="id"
+    <insert id="insertGetId" parameterType="com.newland.tianyan.face.entity.UserInfo" useGeneratedKeys="true" keyProperty="id"
             keyColumn="id">
         INSERT INTO user_info  ( app_id,gid,group_id,user_id,user_name,face_number,user_info )
         VALUES( #{appId},#{gid},#{groupId},#{userId},#{userName},#{faceNumber},#{userInfo})

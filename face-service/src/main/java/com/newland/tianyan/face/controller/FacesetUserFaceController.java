@@ -6,7 +6,7 @@ import com.newland.tianyan.common.utils.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.LogUtils;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
-import com.newland.tianyan.face.domain.Face;
+import com.newland.tianyan.face.entity.Face;
 import com.newland.tianyan.face.vo.FaceSetFaceAddReq;
 import com.newland.tianyan.face.vo.FaceSetFaceDeleteReq;
 import com.newland.tianyan.face.vo.FaceSetUserFaceGetListReq;

@@ -2,7 +2,7 @@ package com.newland.tianyan.face.service;
 
 
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.face.domain.Face;
+import com.newland.tianyan.face.entity.Face;
 
 import java.util.List;
 

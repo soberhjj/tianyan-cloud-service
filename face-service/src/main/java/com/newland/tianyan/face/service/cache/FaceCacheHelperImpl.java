@@ -2,8 +2,7 @@ package com.newland.tianyan.face.service.cache;
 
 
 import com.newland.tianyan.common.feign.VectorSearchFeignService;
-import com.newland.tianyan.common.feign.vo.milvus.*;
-import com.newland.tianyan.face.domain.Face;
+import com.newland.tianyan.face.entity.Face;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
 import com.newland.tianyan.face.utils.FeaturesTool;
 import org.springframework.beans.factory.annotation.Autowired;

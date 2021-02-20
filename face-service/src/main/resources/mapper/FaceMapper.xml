@@ -3,7 +3,7 @@
 <mapper namespace="com.newland.tianyan.face.dao.FaceMapper">
 
 
-    <select id="selectByGroupId" resultType="com.newland.tianyan.face.domain.Face" parameterType="map">
+    <select id="selectByGroupId" resultType="com.newland.tianyan.face.entity.Face" parameterType="map">
         select *
         from face
         where app_id = ${appId}
@@ -16,7 +16,7 @@
         </if>
     </select>
 
-    <insert id="insertGetId" parameterType="com.newland.tianyan.face.domain.Face" useGeneratedKeys="true" keyProperty="id"
+    <insert id="insertGetId" parameterType="com.newland.tianyan.face.entity.Face" useGeneratedKeys="true" keyProperty="id"
             keyColumn="id">
         INSERT INTO face  ( app_id,gid,uid,group_id,user_id,image_path,features )
         VALUES( #{appId},#{gid},#{uid},#{groupId},#{userId},#{imagePath},#{features} )

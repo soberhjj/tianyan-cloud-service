@@ -6,7 +6,7 @@ import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
 import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.AppInfoMapper;
-import com.newland.tianyan.face.domain.AppInfo;
+import com.newland.tianyan.face.entity.AppInfo;
 import com.newland.tianyan.face.service.FacesetService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.dao;
 
 
-import com.newland.tianyan.face.domain.UserInfo;
+import com.newland.tianyan.face.entity.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;

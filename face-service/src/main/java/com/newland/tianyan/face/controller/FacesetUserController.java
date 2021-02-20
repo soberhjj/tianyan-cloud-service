@@ -5,7 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.newland.tianyan.common.utils.constans.TaskType;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
-import com.newland.tianyan.face.domain.UserInfo;
+import com.newland.tianyan.face.entity.UserInfo;
 import com.newland.tianyan.face.vo.FaceSetUserCopyReq;
 import com.newland.tianyan.face.vo.FaceSetUserDeleteReq;
 import com.newland.tianyan.face.vo.FaceSetUserGetListReq;

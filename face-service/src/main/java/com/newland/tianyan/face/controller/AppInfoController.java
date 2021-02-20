@@ -5,7 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.newland.tianyan.common.utils.constans.TaskType;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
-import com.newland.tianyan.face.domain.AppInfo;
+import com.newland.tianyan.face.entity.AppInfo;
 import com.newland.tianyan.face.service.AppInfoService;
 import com.newland.tianyan.face.vo.*;
 import lombok.extern.slf4j.Slf4j;

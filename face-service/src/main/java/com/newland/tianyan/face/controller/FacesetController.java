@@ -5,7 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.newland.tianyan.common.utils.constans.TaskType;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.ProtobufUtils;
-import com.newland.tianyan.face.domain.AppInfo;
+import com.newland.tianyan.face.entity.AppInfo;
 import com.newland.tianyan.face.vo.FaceSetGetListReq;
 import com.newland.tianyan.face.service.FacesetService;
 import org.springframework.beans.factory.annotation.Autowired;

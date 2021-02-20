@@ -3,7 +3,7 @@ package com.newland.tianyan.face.service;
 
 import com.github.pagehelper.PageInfo;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.face.domain.UserInfo;
+import com.newland.tianyan.face.entity.UserInfo;
 
 import java.util.List;
 

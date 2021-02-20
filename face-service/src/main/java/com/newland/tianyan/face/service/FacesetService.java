@@ -3,7 +3,7 @@ package com.newland.tianyan.face.service;
 
 import com.github.pagehelper.PageInfo;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.face.domain.AppInfo;
+import com.newland.tianyan.face.entity.AppInfo;
 
 /**
  * @Author: huangJunJie  2020-11-06 14:08

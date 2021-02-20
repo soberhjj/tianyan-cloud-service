@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.dao;
 
 
-import com.newland.tianyan.face.domain.GroupInfo;
+import com.newland.tianyan.face.entity.GroupInfo;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

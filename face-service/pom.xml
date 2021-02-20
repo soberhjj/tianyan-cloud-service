@@ -25,19 +25,24 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+        <!--微服务调用-->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <!--项目公共组件-->
         <dependency>
             <groupId>com.newland.tianyan</groupId>
-            <artifactId>common-tools</artifactId>
+            <artifactId>common-utils</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.newland.tianyan</groupId>
-            <artifactId>common-service</artifactId>
+            <artifactId>common-model</artifactId>
             <version>1.0.0</version>
         </dependency>
         <!--分页-->
