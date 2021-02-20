@@ -5,12 +5,12 @@ import com.github.pagehelper.PageInfo;
 import com.newland.tianyan.common.model.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.model.proto.ProtobufUtils;
+import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
-import com.newland.tianyan.face.entity.Face;
-import com.newland.tianyan.face.entity.GroupInfo;
+import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.event.group.GroupCreateEvent;
 import com.newland.tianyan.face.event.group.GroupDeleteEvent;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
@@ -37,23 +37,23 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     @Autowired
     private FaceMapper faceMapper;
     @Autowired
-    private FaceCacheHelperImpl<Face> faceCacheHelper;
+    private FaceCacheHelperImpl<FaceDO> faceCacheHelper;
 
 
     @Override
     public void create(NLBackend.BackendAllRequest receive) {
-        GroupInfo groupInfo = ProtobufUtils.parseTo(receive, GroupInfo.class);
+        GroupInfoDO groupInfoDO = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
         //判断用户组是否存在
-        groupInfo.setIsDelete(StatusConstants.NOT_DELETE);
-        if (groupInfoMapper.selectCount(groupInfo) > 0) {
+        groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        if (groupInfoMapper.selectCount(groupInfoDO) > 0) {
             throw new EntityExistsException("same group_id exist in app:" + receive.getGroupId());
         }
 
         //添加用户组
-        groupInfo.setIsDelete(StatusConstants.NOT_DELETE);
-        groupInfo.setFaceNumber(0);
-        groupInfo.setUserNumber(0);
-        groupInfoMapper.insertSelective(groupInfo);
+        groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        groupInfoDO.setFaceNumber(0);
+        groupInfoDO.setUserNumber(0);
+        groupInfoMapper.insertSelective(groupInfoDO);
 
         //发布事件。由于新增了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值加1
         publisher.publishEvent(new GroupCreateEvent(receive.getAppId(), receive.getGroupId()));
@@ -61,12 +61,12 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     }
 
     @Override
-    public PageInfo<GroupInfo> getList(NLBackend.BackendAllRequest receive) {
-        GroupInfo query = ProtobufUtils.parseTo(receive, GroupInfo.class);
+    public PageInfo<GroupInfoDO> getList(NLBackend.BackendAllRequest receive) {
+        GroupInfoDO query = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
         return PageHelper.offsetPage(query.getStartIndex(), query.getLength())
                 .doSelectPageInfo(
                         () -> {
-                            Example example = new Example(GroupInfo.class);
+                            Example example = new Example(GroupInfoDO.class);
                             Example.Criteria criteria = example.createCriteria();
 
                             criteria.andEqualTo("appId", query.getAppId());
@@ -87,16 +87,16 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      */
     @Override
     public void delete(NLBackend.BackendAllRequest receive) {
-        GroupInfo groupInfo = ProtobufUtils.parseTo(receive, GroupInfo.class);
-        groupInfo.setIsDelete(StatusConstants.NOT_DELETE);
-        GroupInfo groupToDelete = groupInfoMapper.selectOne(groupInfo);
+        GroupInfoDO groupInfoDO = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
+        groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        GroupInfoDO groupToDelete = groupInfoMapper.selectOne(groupInfoDO);
         if (groupToDelete == null) {
             throw new EntityExistsException("group_id not exist in app:" + receive.getGroupId());
         }
 
         //todo 删除该组所有用户的所有人脸-可以做个闲时的人脸删除
         List<Long> faceIdList = faceMapper.selectIdByGroupId(groupToDelete.getGroupId());
-        if (faceCacheHelper.deleteBatch(groupInfo.getAppId(),faceIdList) < 0) {
+        if (faceCacheHelper.deleteBatch(groupInfoDO.getAppId(),faceIdList) < 0) {
             throw ApiReturnErrorCode.CACHE_DELETE_ERROR.toException("[人脸管理]-移除用户组", "faceId:" + JsonUtils.toJson(faceIdList));
         }
 

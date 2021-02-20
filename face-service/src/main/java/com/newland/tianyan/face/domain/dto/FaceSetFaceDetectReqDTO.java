@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.vo;
+package com.newland.tianyan.face.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +13,9 @@ import javax.validation.constraints.NotBlank;
  **/
 @Getter
 @Setter
-public class FaceDetectReq {
+public class FaceSetFaceDetectReqDTO {
+    @NotBlank
+    private String account;
 
     @NotBlank
     private String image;
@@ -23,5 +25,6 @@ public class FaceDetectReq {
 
     private String faceFields;
 
+    private int qualityControl;
 
 }

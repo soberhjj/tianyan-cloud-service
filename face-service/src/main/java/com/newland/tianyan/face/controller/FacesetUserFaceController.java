@@ -6,10 +6,10 @@ import com.newland.tianyan.common.model.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.model.proto.LogUtils;
 import com.newland.tianyan.common.model.proto.ProtobufUtils;
-import com.newland.tianyan.face.entity.Face;
-import com.newland.tianyan.face.vo.FaceSetFaceAddReq;
-import com.newland.tianyan.face.vo.FaceSetFaceDeleteReq;
-import com.newland.tianyan.face.vo.FaceSetUserFaceGetListReq;
+import com.newland.tianyan.face.domain.entity.FaceDO;
+import com.newland.tianyan.face.domain.dto.FaceSetFaceAddReqDTO;
+import com.newland.tianyan.face.domain.dto.FaceSetFaceDeleteReqDTO;
+import com.newland.tianyan.face.domain.dto.FaceSetUserFaceGetListReqDTO;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
 import newlandFace.NLFace;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,18 +41,18 @@ public class FacesetUserFaceController {
      * 添加人脸
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddReq receive) {
+    public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
-        Face face = facesetUserFaceService.create(request);
+        FaceDO faceDO = facesetUserFaceService.create(request);
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
         result.setLogId(LogUtils.getLogId());
-        result.setFaceId(face.getId().toString());
+        result.setFaceId(faceDO.getId().toString());
 
         if (receive.getType() == 101) {
             ObjectInputStream in;
             float[] features = new float[512];
             try {
-                in = new ObjectInputStream(new ByteArrayInputStream(face.getFeatures()));
+                in = new ObjectInputStream(new ByteArrayInputStream(faceDO.getFeatures()));
                 features = (float[]) in.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -73,9 +73,9 @@ public class FacesetUserFaceController {
      * 获取人脸列表
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage getList(@RequestBody @Validated FaceSetUserFaceGetListReq receive) {
+    public NLBackend.BackendFacesetSendMessage getList(@RequestBody @Validated FaceSetUserFaceGetListReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
-        List<Face> list = facesetUserFaceService.getList(request);
+        List<FaceDO> list = facesetUserFaceService.getList(request);
         return ProtobufUtils.buildFacesetSendMessage(list, list.size());
     }
 
@@ -83,7 +83,7 @@ public class FacesetUserFaceController {
      * 删除人脸
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated FaceSetFaceDeleteReq receive) {
+    public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated FaceSetFaceDeleteReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         facesetUserFaceService.delete(request);
         return ProtobufUtils.buildFacesetSendMessage();

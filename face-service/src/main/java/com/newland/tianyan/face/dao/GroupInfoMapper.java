@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.dao;
 
 
-import com.newland.tianyan.face.entity.GroupInfo;
+import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  */
 @Mapper
 @Component
-public interface GroupInfoMapper extends CommonMapper<GroupInfo> {
+public interface GroupInfoMapper extends CommonMapper<GroupInfoDO> {
 
     int userNumberIncrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("count") int count);
 
@@ -33,5 +33,5 @@ public interface GroupInfoMapper extends CommonMapper<GroupInfo> {
     /**
      * 插入groupInfo并且groupInfo.id被赋予自增Id
      */
-    int insertGetId(GroupInfo groupInfo);
+    int insertGetId(GroupInfoDO groupInfoDO);
 }

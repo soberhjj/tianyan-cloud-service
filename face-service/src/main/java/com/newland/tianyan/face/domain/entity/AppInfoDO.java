@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.entity;
+package com.newland.tianyan.face.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,7 @@ import javax.persistence.Column;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AppInfo extends BaseEntity {
+public class AppInfoDO extends BaseEntity {
 
     @Column(name = "id")
     private Long appId;

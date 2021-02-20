@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.vo;
+package com.newland.tianyan.face.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
  **/
 @Getter
 @Setter
-public class FaceSetFaceSearchReq {
+public class FaceSetFaceSearchReqDTO {
 
     @NotNull
     private Long appId;

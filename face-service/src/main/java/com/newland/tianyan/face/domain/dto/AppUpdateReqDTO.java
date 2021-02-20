@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.vo;
+package com.newland.tianyan.face.domain.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import javax.validation.constraints.Pattern;
 
 @Getter
 @Setter
-public class AppUpdateReq {
+public class AppUpdateReqDTO {
 
     @NotEmpty
     private String account;

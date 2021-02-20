@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.newland.tianyan.face.dao.AppInfoMapper">
+<mapper namespace="com.newland.tianyan.faceDO.dao.AppInfoMapper">
 
     <update id="update">
         UPDATE `app_info`
-        SET app_name = #{appInfo.appName},
-            app_info = #{appInfo.appInfo},
-            api_list = #{appInfo.apiList}
-        WHERE id = #{appInfo.appId}
+        SET app_name = #{appInfoDO.appName},
+            app_info = #{appInfoDO.appInfoDO},
+            api_list = #{appInfoDO.apiList}
+        WHERE id = #{appInfoDO.appId}
     </update>
 
     <update id="updateToDelete">

@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.entity;
+package com.newland.tianyan.face.domain.entity;
 
 import javax.persistence.Transient;
 

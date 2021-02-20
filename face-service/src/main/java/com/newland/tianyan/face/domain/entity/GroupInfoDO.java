@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.entity;
+package com.newland.tianyan.face.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupInfo extends BaseEntity {
+public class GroupInfoDO extends BaseEntity {
 
     private Long id;
     private Long appId;

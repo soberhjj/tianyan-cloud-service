@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.entity;
+package com.newland.tianyan.face.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +15,7 @@ import javax.persistence.Transient;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Face extends BaseEntity  {
+public class FaceDO extends BaseEntity {
     @Id
     private Long id;
     private Long appId;

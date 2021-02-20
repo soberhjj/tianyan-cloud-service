@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.newland.tianyan.face.dao.GroupInfoMapper">
+<mapper namespace="com.newland.tianyan.faceDO.dao.GroupInfoMapper">
 
     <update id="userNumberIncrease">
         UPDATE `group_info`
@@ -30,7 +30,7 @@
         AND group_id = #{groupId}
     </update>
 
-    <insert id="insertGetId" parameterType="com.newland.tianyan.face.entity.UserInfo" useGeneratedKeys="true" keyProperty="id"
+    <insert id="insertGetId" parameterType="com.newland.tianyan.faceDO.domain.entity.UserInfo" useGeneratedKeys="true" keyProperty="id"
             keyColumn="id">
         INSERT INTO group_info ( app_id,group_id,user_number,face_number,is_delete )
         VALUES( #{appId},#{groupId},#{userNumber},#{faceNumber},#{isDelete})
