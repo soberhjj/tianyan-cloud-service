@@ -1,14 +1,12 @@
 package com.newland.tianyan.vectorsearch.controller;
 
-import com.newland.tianyan.common.model.vectorsearchservice.*;
 import com.newland.tianyan.common.api.IVectorSearchApi;
+import com.newland.tianyan.common.model.vectorsearchservice.*;
 import com.newland.tianyan.vectorsearch.service.MilvusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 import java.util.List;
 
@@ -16,7 +14,6 @@ import java.util.List;
  * @Author: huangJunJie  2021-02-04 14:59
  */
 @RestController
-@RequestMapping("/backend/search/milvus")
 public class VectorSearchController implements IVectorSearchApi {
     @Autowired
     private MilvusService milvusService;

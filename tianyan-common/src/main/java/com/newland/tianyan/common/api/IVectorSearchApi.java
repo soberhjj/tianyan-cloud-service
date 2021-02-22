@@ -12,7 +12,7 @@ import java.util.List;
  * @description:
  * @date: 2021/2/20
  */
-@RequestMapping("/backend/search/milvus")
+@RequestMapping("/vectorsearch/v1")
 public interface IVectorSearchApi {
     @PostMapping("/insert")
     Long insert(@RequestBody InsertReqDTO insertReqDTO);

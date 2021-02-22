@@ -13,12 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @description:
  * @date: 2021/2/20
  */
-@RequestMapping("/backend/image")
+@RequestMapping("/imagestore/v1")
 public interface IImageStorageApi {
 
     @PostMapping("/upload")
     UploadResDTO upload(@RequestBody UploadReqDTO uploadReq);
-
 
     @PostMapping("/uploadV2")
     UploadResDTO uploadV2(@RequestBody UploadReqDTO uploadReq);

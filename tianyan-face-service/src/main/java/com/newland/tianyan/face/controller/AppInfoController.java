@@ -23,7 +23,7 @@ import java.util.Collections;
  **/
 @RestController
 @Slf4j
-@RequestMapping({"/app", "/backend/app"})
+@RequestMapping({"/app", "/backend/app","/faceset","/backend/faceset"})
 public class AppInfoController {
 
     @Autowired
