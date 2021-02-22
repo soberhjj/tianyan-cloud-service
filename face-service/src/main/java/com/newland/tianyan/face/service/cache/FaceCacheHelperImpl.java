@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.service.cache;
 
 
-import com.newland.tianyan.common.model.vectorSearchService.dto.*;
+import com.newland.tianyan.common.model.vectorsearchservice.dto.*;
 import com.newland.tianyan.common.utils.utils.FeaturesTool;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;

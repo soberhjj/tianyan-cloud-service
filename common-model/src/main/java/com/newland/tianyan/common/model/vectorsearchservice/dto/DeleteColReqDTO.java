@@ -1,11 +1,9 @@
-package com.newland.tianyan.common.model.vectorSearchService.dto;
+package com.newland.tianyan.common.model.vectorsearchservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 /**
  * @author: RojiaHuang
@@ -16,10 +14,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InsertReqDTO {
+public class DeleteColReqDTO {
 
     private String appId;
-    private List<Float> feature;
-    private Long entityId;
+
 
 }

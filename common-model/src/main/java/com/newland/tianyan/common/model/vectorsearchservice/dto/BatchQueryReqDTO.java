@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.model.vectorSearchService.dto;
+package com.newland.tianyan.common.model.vectorsearchservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

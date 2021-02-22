@@ -1,6 +1,6 @@
-package com.newland.tianyan.common.model.authService;
+package com.newland.tianyan.common.model.authservice;
 
-import com.newland.tianyan.common.model.authService.dto.AuthClientReqDTO;
+import com.newland.tianyan.common.model.authservice.dto.AuthClientReqDTO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 

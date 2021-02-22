@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.model.authService.dto;
+package com.newland.tianyan.common.model.authservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.model.vectorSearchService.dto;
+package com.newland.tianyan.common.model.imagestoreservice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,10 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class QueryResDTO {
-    Long entityId;
-    Float distance;
+public class UploadResDTO {
 
-    Long uid;
-    Long gid;
+    String imagePath;
+
 }

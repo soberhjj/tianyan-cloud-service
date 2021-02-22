@@ -1,10 +1,9 @@
 package com.newland.tianyan.face.remote;
 
 
-import com.newland.tianyan.common.model.vectorSearchService.IMilvusApi;
+import com.newland.tianyan.common.model.vectorsearchservice.IMilvusApi;
 import com.newland.tianyan.face.remote.fallback.AuthServiceFeignClientFallbackImpl;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * @author: RojiaHuang

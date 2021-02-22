@@ -1,7 +1,7 @@
 package com.newland.tianyan.vectorsearch.service;
 
 import com.google.gson.JsonObject;
-import com.newland.tianyan.common.model.vectorSearchService.dto.QueryResDTO;
+import com.newland.tianyan.common.model.vectorsearchservice.dto.QueryResDTO;
 import com.newland.tianyan.common.utils.utils.CosineDistanceTool;
 import io.milvus.client.*;
 import org.springframework.beans.factory.annotation.Value;

@@ -2,10 +2,10 @@ package com.newland.tianyan.auth.controller;
 
 import com.newland.tianyan.auth.entity.Account;
 import com.newland.tianyan.auth.service.LoginService;
-import com.newland.tianyan.common.model.authService.ILoginApi;
-import com.newland.tianyan.common.model.authService.dto.LoginCheckUniqueReqDTO;
-import com.newland.tianyan.common.model.authService.dto.LoginGetInfoReqDTO;
-import com.newland.tianyan.common.model.authService.dto.LoginRegisterReqDTO;
+import com.newland.tianyan.common.model.authservice.ILoginApi;
+import com.newland.tianyan.common.model.authservice.dto.LoginCheckUniqueReqDTO;
+import com.newland.tianyan.common.model.authservice.dto.LoginGetInfoReqDTO;
+import com.newland.tianyan.common.model.authservice.dto.LoginRegisterReqDTO;
 import com.newland.tianyan.common.utils.constans.TaskType;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.JsonErrorObject;

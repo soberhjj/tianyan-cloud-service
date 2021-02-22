@@ -2,8 +2,8 @@ package com.newland.tianyan.face.service.impl;
 
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianyan.common.model.exception.CommonException;
-import com.newland.tianyan.common.model.imageStoreService.dto.UploadReqDTO;
-import com.newland.tianyan.common.model.vectorSearchService.dto.QueryResDTO;
+import com.newland.tianyan.common.model.imagestoreservice.dto.UploadReqDTO;
+import com.newland.tianyan.common.model.vectorsearchservice.dto.QueryResDTO;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.CosineDistanceTool;
 import com.newland.tianyan.common.model.proto.LogUtils;

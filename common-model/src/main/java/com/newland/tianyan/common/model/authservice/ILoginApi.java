@@ -1,8 +1,8 @@
-package com.newland.tianyan.common.model.authService;
+package com.newland.tianyan.common.model.authservice;
 
-import com.newland.tianyan.common.model.authService.dto.LoginCheckUniqueReqDTO;
-import com.newland.tianyan.common.model.authService.dto.LoginGetInfoReqDTO;
-import com.newland.tianyan.common.model.authService.dto.LoginRegisterReqDTO;
+import com.newland.tianyan.common.model.authservice.dto.LoginCheckUniqueReqDTO;
+import com.newland.tianyan.common.model.authservice.dto.LoginGetInfoReqDTO;
+import com.newland.tianyan.common.model.authservice.dto.LoginRegisterReqDTO;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,10 +1,10 @@
 package com.newland.tianyan.image.controller;
 
-import com.newland.tianyan.common.model.imageStoreService.IFastdfsImageStorageApi;
-import com.newland.tianyan.common.model.imageStoreService.dto.DownloadReqDTO;
-import com.newland.tianyan.common.model.imageStoreService.dto.DownloadResDTO;
-import com.newland.tianyan.common.model.imageStoreService.dto.UploadReqDTO;
-import com.newland.tianyan.common.model.imageStoreService.dto.UploadResDTO;
+import com.newland.tianyan.common.model.imagestoreservice.IFastdfsImageStorageApi;
+import com.newland.tianyan.common.model.imagestoreservice.dto.DownloadReqDTO;
+import com.newland.tianyan.common.model.imagestoreservice.dto.DownloadResDTO;
+import com.newland.tianyan.common.model.imagestoreservice.dto.UploadReqDTO;
+import com.newland.tianyan.common.model.imagestoreservice.dto.UploadResDTO;
 import com.newland.tianyan.image.service.FastdfsImageStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

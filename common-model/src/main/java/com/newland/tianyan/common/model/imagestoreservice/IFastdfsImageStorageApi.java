@@ -1,9 +1,9 @@
-package com.newland.tianyan.common.model.imageStoreService;
+package com.newland.tianyan.common.model.imagestoreservice;
 
-import com.newland.tianyan.common.model.imageStoreService.dto.DownloadReqDTO;
-import com.newland.tianyan.common.model.imageStoreService.dto.DownloadResDTO;
-import com.newland.tianyan.common.model.imageStoreService.dto.UploadReqDTO;
-import com.newland.tianyan.common.model.imageStoreService.dto.UploadResDTO;
+import com.newland.tianyan.common.model.imagestoreservice.dto.DownloadReqDTO;
+import com.newland.tianyan.common.model.imagestoreservice.dto.DownloadResDTO;
+import com.newland.tianyan.common.model.imagestoreservice.dto.UploadReqDTO;
+import com.newland.tianyan.common.model.imagestoreservice.dto.UploadResDTO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -2,7 +2,7 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.model.authService.dto.AuthClientReqDTO;
+import com.newland.tianyan.common.model.authservice.dto.AuthClientReqDTO;
 import com.newland.tianyan.common.model.exception.CommonException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.utils.AppUtils;

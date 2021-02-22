@@ -1,6 +1,7 @@
-package com.newland.tianyan.common.model.imageStoreService.dto;
+package com.newland.tianyan.common.model.vectorsearchservice.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,8 +13,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UploadResDTO {
-
-    String imagePath;
+@Builder
+public class CreateColReqDTO {
+    private String appId;
 
 }
+
