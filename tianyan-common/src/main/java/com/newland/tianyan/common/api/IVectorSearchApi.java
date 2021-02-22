@@ -1,6 +1,6 @@
 package com.newland.tianyan.common.api;
 
-import com.newland.tianyan.common.model.vectorsearchservice.*;
+import com.newland.tianyan.common.model.vectorsearch.*;
 import com.newland.tianyan.common.version.ApiVersion;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

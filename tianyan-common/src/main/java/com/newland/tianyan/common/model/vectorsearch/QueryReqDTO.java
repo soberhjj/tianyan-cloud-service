@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.model.vectorsearchservice;
+package com.newland.tianyan.common.model.vectorsearch;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,10 +16,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BatchInsertReqDTO {
+public class QueryReqDTO {
 
     private String appId;
-    private List<List<Float>> features;
-    private List<Long> entityIds;
+    private List<Float> feature;
+    private Integer topK;
 
 }

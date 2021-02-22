@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.model.authservice;
+package com.newland.tianyan.common.model.auth;
 
 
 import lombok.Getter;
@@ -7,11 +7,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginCheckUniqueReqDTO {
+public class LoginGetInfoReqDTO {
 
     private String account;
 
     private String mailbox;
+
 
 
 }

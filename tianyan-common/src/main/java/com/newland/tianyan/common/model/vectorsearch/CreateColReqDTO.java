@@ -1,6 +1,7 @@
-package com.newland.tianyan.common.model.vectorsearchservice;
+package com.newland.tianyan.common.model.vectorsearch;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,10 +13,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class QueryResDTO {
-    Long entityId;
-    Float distance;
+@Builder
+public class CreateColReqDTO {
+    private String appId;
 
-    Long uid;
-    Long gid;
 }
+

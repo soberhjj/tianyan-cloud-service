@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.model.vectorsearchservice;
+package com.newland.tianyan.common.model.vectorsearch;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,10 +16,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BatchQueryReqDTO {
+public class BatchDeleteReqDTO {
 
     private String appId;
-    private List<List<Float>> features;
-    private Integer topK;
+    private List<Long> entityIds;
 
 }
