@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @date: 2021/2/8
  */
 @FeignClient(name = "vector-search-service", fallbackFactory = AuthServiceFeignClientFallbackImpl.class)
-@RequestMapping("/backend/search/milvus")
 public interface VectorSearchFeignService extends IMilvusApi {
 
 }
