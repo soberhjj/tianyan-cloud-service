@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Slf4j
-@RequestMapping({"/face/group", "/backend/faceset/group", "/face/faceset/group"})
+@RequestMapping({"/face/group", "/backend/faceset/group", "/face/faceset/group","/backend/faceset/group/{version}", "/face/faceset/group/{version}"})
 public class GroupInfoController {
 
     @Autowired

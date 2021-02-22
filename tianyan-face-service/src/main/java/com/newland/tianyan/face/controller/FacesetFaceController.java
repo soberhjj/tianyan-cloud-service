@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
  * @Author: huangJunJie  2020-11-06 11:04
  */
 @RestController
-@RequestMapping("/face")
+@RequestMapping({"/face","/face/{version}"})
 public class FacesetFaceController {
 
     @Autowired
