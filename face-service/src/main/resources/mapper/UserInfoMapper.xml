@@ -38,6 +38,6 @@
     <insert id="insertGetId" parameterType="com.newland.tianyan.face.domain.entity.UserInfoDO" useGeneratedKeys="true" keyProperty="id"
             keyColumn="id">
         INSERT INTO user_info  ( app_id,gid,group_id,user_id,user_name,face_number,user_info )
-        VALUES( #{appId},#{gid},#{groupId},#{userId},#{userName},#{faceNumber},#{userInfoDO})
+        VALUES( #{appId},#{gid},#{groupId},#{userId},#{userName},#{faceNumber},#{userInfo})
     </insert>
 </mapper>

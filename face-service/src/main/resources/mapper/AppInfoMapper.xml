@@ -6,7 +6,7 @@
     <update id="update">
         UPDATE `app_info`
         SET app_name = #{appInfoDO.appName},
-            app_info = #{appInfoDO.appInfoDO},
+            app_info = #{appInfoDO.appInfo},
             api_list = #{appInfoDO.apiList}
         WHERE id = #{appInfoDO.appId}
     </update>

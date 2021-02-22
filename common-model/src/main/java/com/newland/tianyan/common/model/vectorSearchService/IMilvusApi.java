@@ -3,6 +3,7 @@ package com.newland.tianyan.common.model.vectorSearchService;
 import com.newland.tianyan.common.model.vectorSearchService.dto.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
  * @description:
  * @date: 2021/2/20
  */
+@RequestMapping("/backend/search/milvus")
 public interface IMilvusApi {
     @PostMapping("/insert")
     Long insert(@RequestBody InsertReqDTO insertReqDTO);

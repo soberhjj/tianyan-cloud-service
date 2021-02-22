@@ -6,12 +6,14 @@ import com.newland.tianyan.common.model.imageStoreService.dto.UploadReqDTO;
 import com.newland.tianyan.common.model.imageStoreService.dto.UploadResDTO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * @author: RojiaHuang
  * @description:
  * @date: 2021/2/20
  */
+@RequestMapping("/backend/image")
 public interface IFastdfsImageStorageApi {
 
     @PostMapping("/upload")
