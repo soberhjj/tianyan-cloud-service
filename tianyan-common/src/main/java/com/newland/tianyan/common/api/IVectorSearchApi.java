@@ -32,14 +32,18 @@ public interface IVectorSearchApi {
     void createCollection(@RequestBody CreateColReqDTO createColReqDTO);
 
     @PostMapping("/dropCol")
+    @ApiVersion(1)
     void dropCollection(@RequestBody DeleteColReqDTO deleteReq);
 
     @PostMapping("/batchInsert")
+    @ApiVersion(1)
     List<Long> batchInsert(@RequestBody BatchInsertReqDTO batchInsertReq);
 
     @PostMapping("/batchQuery")
+    @ApiVersion(1)
     List<List<QueryResDTO>> batchQuery(@RequestBody BatchQueryReqDTO batchQueryReqDTO);
 
     @PostMapping("/batchDelete")
+    @ApiVersion(1)
     void batchDelete(@RequestBody BatchDeleteReqDTO batchDeleteReq);
 }
