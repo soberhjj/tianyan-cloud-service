@@ -19,13 +19,12 @@
     <packaging>pom</packaging>
     <version>1.0.0</version>
     <modules>
-        <module>face-service</module>
-        <module>auth-service</module>
-        <module>image-store-service</module>
-        <module>vector-search-service</module>
-        <module>gateway-service</module>
-        <module>common-model</module>
-        <module>common-utils</module>
+        <module>tianyan-auth-service</module>
+        <module>tianyan-common</module>
+        <module>tianyan-face-service</module>
+        <module>tianyan-gateway-service</module>
+        <module>tianyan-image-store-service</module>
+        <module>tianyan-vector-search-service</module>
     </modules>
 
     <dependencies>
