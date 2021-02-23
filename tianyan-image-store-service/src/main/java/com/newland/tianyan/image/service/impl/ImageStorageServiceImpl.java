@@ -77,13 +77,13 @@ public class ImageStorageServiceImpl implements IImageStoreService {
             //todo 抛异常
         }
 
-        String imageFormat = "";
-        //判断图片是否是png格式，不是png格式则为jpg格式
-        if (0x8950 == ((bytes[0] & 0xff) << 8 | (bytes[1] & 0xff))) {
-            imageFormat = "png";
-        } else {
-            imageFormat = "jpg";
-        }
+        String imageFormat = "jpg";
+//        //判断图片是否是png格式，不是png格式则为jpg格式
+//        if (0x8950 == ((bytes[0] & 0xff) << 8 | (bytes[1] & 0xff))) {
+//            imageFormat = "png";
+//        } else {
+//            imageFormat = "jpg";
+//        }
 
         StorePath storePath = null;
         if (bytes != null) {
