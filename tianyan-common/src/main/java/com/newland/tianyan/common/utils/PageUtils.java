@@ -6,9 +6,7 @@ import org.springframework.data.domain.Pageable;
 public class PageUtils {
 
     public static Pageable getPageable(int start, int length) {
-        if (start == 0)
-            return PageRequest.of(0, length);
-        else
-            return PageRequest.of(start / length, length);
+
+        return start == 0 ? PageRequest.of(0, length) : PageRequest.of(start / length, length);
     }
 }
