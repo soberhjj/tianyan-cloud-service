@@ -18,7 +18,7 @@ import java.util.*;
 public class ProtobufUtils {
 
     private static SerializeConfig config = null;
-    private static final Map<Class<?>, Method> methodCache = new ConcurrentReferenceHashMap<>();
+    private static final Map<Class<?>, Method> METHOD_CACHE = new ConcurrentReferenceHashMap<>();
 
     private static SerializeConfig getConfig() {
         if (config == null) {
@@ -49,10 +49,10 @@ public class ProtobufUtils {
 
     private static Message.Builder getMessageBuilder(Class<? extends Message> clazz) throws Exception {
         try {
-            Method method = methodCache.get(clazz);
+            Method method = METHOD_CACHE.get(clazz);
             if (method == null) {
                 method = clazz.getMethod("newBuilder");
-                methodCache.put(clazz, method);
+                METHOD_CACHE.put(clazz, method);
             }
             return (Message.Builder) method.invoke(clazz);
         } catch (Exception ex) {
@@ -188,11 +188,11 @@ public class ProtobufUtils {
         return result;
     }
 
-    public static NLBackend.BackendErrorMessage buildErrorMessage(String lodId, int error_code, String error_msg) {
+    public static NLBackend.BackendErrorMessage buildErrorMessage(String lodId, int errorCode, String errorMsg) {
         NLBackend.BackendErrorMessage.Builder builder = NLBackend.BackendErrorMessage.newBuilder();
         builder.setLogId(lodId);
-        builder.setErrorCode(error_code);
-        builder.setErrorMsg(error_msg);
+        builder.setErrorCode(errorCode);
+        builder.setErrorMsg(errorMsg);
         return builder.build();
     }
 
@@ -266,10 +266,10 @@ public class ProtobufUtils {
         return buildFacesetSendMessage(LogUtils.getLogId(), results, count);
     }
 
-    public static NLBackend.BackendFacesetSendMessage buildFacesetSendMessage(String face_id) {
+    public static NLBackend.BackendFacesetSendMessage buildFacesetSendMessage(String faceId) {
         NLBackend.BackendFacesetSendMessage.Builder builder = NLBackend.BackendFacesetSendMessage.newBuilder();
         builder.setLogId(LogUtils.getLogId());
-        builder.setFaceId(face_id);
+        builder.setFaceId(faceId);
         return builder.build();
     }
 

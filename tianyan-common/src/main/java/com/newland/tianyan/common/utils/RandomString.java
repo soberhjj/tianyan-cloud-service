@@ -7,7 +7,7 @@ import java.util.Random;
 public class RandomString {
 
 
-    private static final String hex = "0123456789abcdef";
+    private static final String HEX = "0123456789abcdef";
 
     private final Random random;
 
@@ -31,7 +31,7 @@ public class RandomString {
      * Create an alphanumeric string generator.
      */
     public RandomString(int length, Random random) {
-        this(length, random, hex);
+        this(length, random, HEX);
     }
 
     /**
