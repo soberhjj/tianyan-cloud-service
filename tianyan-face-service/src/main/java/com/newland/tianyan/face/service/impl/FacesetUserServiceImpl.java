@@ -89,20 +89,20 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         String dstGroupId = receive.getDstGroupId();
 
         // 源用户组与目标用户组的状态有效性检查
-        GroupInfoDO srcGroupInfoDODO = new GroupInfoDO();
-        srcGroupInfoDODO.setAppId(queryUser.getAppId());
-        srcGroupInfoDODO.setGroupId(srcGroupId);
-        srcGroupInfoDODO.setIsDelete(StatusConstants.NOT_DELETE);
-        boolean sourceInvalid = groupInfoMapper.selectCount(srcGroupInfoDODO) > 0;
+        GroupInfoDO srcGroupInfo = new GroupInfoDO();
+        srcGroupInfo.setAppId(queryUser.getAppId());
+        srcGroupInfo.setGroupId(srcGroupId);
+        srcGroupInfo.setIsDelete(StatusConstants.NOT_DELETE);
+        boolean sourceInvalid = groupInfoMapper.selectCount(srcGroupInfo) > 0;
         if (!sourceInvalid) {
             throw new EntityExistsException("group_id " + srcGroupId + " doesn't exist!");
         }
-        GroupInfoDO dstGroupInfoDODO = new GroupInfoDO();
-        dstGroupInfoDODO.setAppId(queryUser.getAppId());
-        dstGroupInfoDODO.setGroupId(dstGroupId);
-        dstGroupInfoDODO.setIsDelete(StatusConstants.NOT_DELETE);
-        dstGroupInfoDODO = groupInfoMapper.selectOne(dstGroupInfoDODO);
-        boolean targetInvalid = dstGroupInfoDODO != null;
+        GroupInfoDO dstGroupInfo = new GroupInfoDO();
+        dstGroupInfo.setAppId(queryUser.getAppId());
+        dstGroupInfo.setGroupId(dstGroupId);
+        dstGroupInfo.setIsDelete(StatusConstants.NOT_DELETE);
+        dstGroupInfo = groupInfoMapper.selectOne(dstGroupInfo);
+        boolean targetInvalid = dstGroupInfo != null;
         if (!targetInvalid) {
             throw new EntityExistsException("group_id " + dstGroupId + " doesn't exist!");
         }
@@ -114,11 +114,11 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             throw new EntityExistsException(userId + " doesn't exist in " + srcGroupId + "!");
         }
         //待复制的源用户的人脸资料
-        List<FaceDO> srcFaceDODOS = this.queryFace(appId, srcGroupId, userId);
-        if (CollectionUtils.isEmpty(srcFaceDODOS)) {
+        List<FaceDO> srcFace = this.queryFace(appId, srcGroupId, userId);
+        if (CollectionUtils.isEmpty(srcFace)) {
             throw new EntityExistsException(userId + " doesn't has faces in " + srcGroupId + "!");
         }
-        List<FaceDO> insertList = new ArrayList<>(srcFaceDODOS.size());
+        List<FaceDO> insertList = new ArrayList<>(srcFace.size());
         //查询目标用户组中是否存在当前用户
         queryUser.setGroupId(dstGroupId);
         UserInfoDO targetUserInfoDO = userInfoMapper.selectOne(queryUser);
@@ -126,57 +126,57 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         //不存在同名用户,直接新建
         if (targetUserInfoDO == null) {
             userNumber = 1;
-            faceNumber = srcFaceDODOS.size();
+            faceNumber = srcFace.size();
             //新建目标用户组中的用户
             UserInfoDO dstUser = new UserInfoDO();
             dstUser.setAppId(sourceUserInfoDO.getAppId());
-            dstUser.setGid(dstGroupInfoDODO.getId());
-            dstUser.setGroupId(dstGroupInfoDODO.getGroupId());
+            dstUser.setGid(dstGroupInfo.getId());
+            dstUser.setGroupId(dstGroupInfo.getGroupId());
             dstUser.setUserId(sourceUserInfoDO.getUserId());
             dstUser.setUserName(sourceUserInfoDO.getUserName());
             dstUser.setUserInfo(sourceUserInfoDO.getUserInfo());
             dstUser.setFaceNumber(sourceUserInfoDO.getFaceNumber());
             userInfoMapper.insertGetId(dstUser);
-            for (FaceDO faceDO : srcFaceDODOS) {
-                FaceDO insertFaceDODO = new FaceDO();
-                insertFaceDODO.setId(IDUtil.getRandomId());
-                insertFaceDODO.setAppId(faceDO.getAppId());
-                insertFaceDODO.setGid(dstGroupInfoDODO.getId());
-                insertFaceDODO.setGroupId(dstGroupInfoDODO.getGroupId());
-                insertFaceDODO.setUid(dstUser.getId());
-                insertFaceDODO.setUserId(dstUser.getUserId());
-                insertFaceDODO.setImagePath(faceDO.getImagePath());
-                insertFaceDODO.setFeatures(faceDO.getFeatures());
-                insertList.add(insertFaceDODO);
+            for (FaceDO faceDO : srcFace) {
+                FaceDO insertFace = new FaceDO();
+                insertFace.setId(IDUtil.getRandomId());
+                insertFace.setAppId(faceDO.getAppId());
+                insertFace.setGid(dstGroupInfo.getId());
+                insertFace.setGroupId(dstGroupInfo.getGroupId());
+                insertFace.setUid(dstUser.getId());
+                insertFace.setUserId(dstUser.getUserId());
+                insertFace.setImagePath(faceDO.getImagePath());
+                insertFace.setFeatures(faceDO.getFeatures());
+                insertList.add(insertFace);
             }
         } else {
             userNumber = 0;
             // 存在同名用户的情况
-            List<FaceDO> dstFaceDODOS = this.queryFace(appId, dstGroupId, userId);
+            List<FaceDO> dstFace = this.queryFace(appId, dstGroupId, userId);
             //过滤相同照片
-            Set<String> srcImages = srcFaceDODOS.stream().map(FaceDO::getImagePath).collect(Collectors.toSet());
-            Set<String> dstImages = dstFaceDODOS.stream().map(FaceDO::getImagePath).collect(Collectors.toSet());
+            Set<String> srcImages = srcFace.stream().map(FaceDO::getImagePath).collect(Collectors.toSet());
+            Set<String> dstImages = dstFace.stream().map(FaceDO::getImagePath).collect(Collectors.toSet());
             srcImages.removeAll(dstImages);
             //目标用户组的资料已和源用户组的资料一致
-            if (CollectionUtils.isEmpty(srcFaceDODOS)) {
+            if (CollectionUtils.isEmpty(srcFace)) {
                 return;
             }
-            faceNumber = srcFaceDODOS.size();
-            for (FaceDO faceDO : srcFaceDODOS) {
+            faceNumber = srcFace.size();
+            for (FaceDO faceDO : srcFace) {
                 //人脸不在已去重的范围内，跳过
                 if (!srcImages.contains(faceDO.getImagePath())) {
                     continue;
                 }
-                FaceDO newFaceDODO = new FaceDO();
-                newFaceDODO.setId(IDUtil.getRandomId());
-                newFaceDODO.setAppId(faceDO.getAppId());
-                newFaceDODO.setGid(dstGroupInfoDODO.getId());
-                newFaceDODO.setGroupId(dstGroupInfoDODO.getGroupId());
-                newFaceDODO.setUid(targetUserInfoDO.getId());
-                newFaceDODO.setUserId(targetUserInfoDO.getUserId());
-                newFaceDODO.setFeatures(faceDO.getFeatures());
-                newFaceDODO.setImagePath(faceDO.getImagePath());
-                insertList.add(newFaceDODO);
+                FaceDO newFace = new FaceDO();
+                newFace.setId(IDUtil.getRandomId());
+                newFace.setAppId(faceDO.getAppId());
+                newFace.setGid(dstGroupInfo.getId());
+                newFace.setGroupId(dstGroupInfo.getGroupId());
+                newFace.setUid(targetUserInfoDO.getId());
+                newFace.setUserId(targetUserInfoDO.getUserId());
+                newFace.setFeatures(faceDO.getFeatures());
+                newFace.setImagePath(faceDO.getImagePath());
+                insertList.add(newFace);
             }
         }
         //note 缓存中向目标用户组插入新的人脸
@@ -198,14 +198,14 @@ public class FacesetUserServiceImpl implements FacesetUserService {
      * 获取人脸库中的人脸信息
      */
     private List<FaceDO> queryFace(Long appId, String groupId, String userId) {
-        FaceDO faceDODOQuery = new FaceDO();
-        faceDODOQuery.setAppId(appId);
-        faceDODOQuery.setGroupId(groupId);
-        faceDODOQuery.setUserId(userId);
-        PageInfo<FaceDO> allFace = PageHelper.offsetPage(faceDODOQuery.getStartIndex(), faceDODOQuery.getLength())
+        FaceDO faceQuery = new FaceDO();
+        faceQuery.setAppId(appId);
+        faceQuery.setGroupId(groupId);
+        faceQuery.setUserId(userId);
+        PageInfo<FaceDO> allFace = PageHelper.offsetPage(faceQuery.getStartIndex(), faceQuery.getLength())
                 .setOrderBy("create_time desc")
                 .doSelectPageInfo(
-                        () -> faceMapper.select(faceDODOQuery));
+                        () -> faceMapper.select(faceQuery));
         return allFace.getList();
     }
 

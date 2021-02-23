@@ -11,8 +11,8 @@ import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
-import com.newland.tianyan.face.event.group.GroupCreateEvent;
-import com.newland.tianyan.face.event.group.GroupDeleteEvent;
+import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
+import com.newland.tianyan.face.event.group.AbstractGroupDeleteEvent;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
 import com.newland.tianyan.face.service.GroupInfoService;
 import com.newland.tianyan.common.utils.JsonUtils;
@@ -56,7 +56,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         groupInfoMapper.insertSelective(groupInfoDO);
 
         //发布事件。由于新增了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值加1
-        publisher.publishEvent(new GroupCreateEvent(receive.getAppId(), receive.getGroupId()));
+        publisher.publishEvent(new AbstractGroupCreateEvent(receive.getAppId(), receive.getGroupId()));
 
     }
 
@@ -108,6 +108,6 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         }
 
         //发布事件。由于删除了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值减1
-        publisher.publishEvent(new GroupDeleteEvent(groupToDelete.getAppId(), groupToDelete.getGroupId()));
+        publisher.publishEvent(new AbstractGroupDeleteEvent(groupToDelete.getAppId(), groupToDelete.getGroupId()));
     }
 }

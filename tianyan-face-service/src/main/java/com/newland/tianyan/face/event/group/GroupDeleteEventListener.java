@@ -28,7 +28,7 @@ public class GroupDeleteEventListener {
      * @param event
      */
     @EventListener
-    public void decreaseGroupNumber(GroupDeleteEvent event) {
+    public void decreaseGroupNumber(AbstractGroupDeleteEvent event) {
         appInfoMapper.groupNumberIncrease(event.getAppId(), -1);
     }
 

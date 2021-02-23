@@ -123,10 +123,10 @@ public class AppInfoServiceImpl implements AppInfoService {
     public void update(NLBackend.BackendAllRequest receive) {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         //是否存在且状态有效
-        AppInfoDO queryAppInfoDODO = new AppInfoDO();
-        queryAppInfoDODO.setAppId(appInfoDO.getAppId());
-        queryAppInfoDODO.setIsDelete(StatusConstants.NOT_DELETE);
-        if (appInfoMapper.selectCount(queryAppInfoDODO) <= 0) {
+        AppInfoDO queryAppInfoDO = new AppInfoDO();
+        queryAppInfoDO.setAppId(appInfoDO.getAppId());
+        queryAppInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        if (appInfoMapper.selectCount(queryAppInfoDO) <= 0) {
             throw new EntityNotFoundException("app_id doesn't exists!");
         }
         //是否存在同名应用

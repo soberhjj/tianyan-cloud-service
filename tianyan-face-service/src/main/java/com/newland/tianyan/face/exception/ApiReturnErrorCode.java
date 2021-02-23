@@ -2,7 +2,7 @@ package com.newland.tianyan.face.exception;
 
 /**
  * @author: RojiaHuang
- * @description:
+ * @description: 业务错误码枚举
  * @date: 2021/1/12
  */
 public enum ApiReturnErrorCode {

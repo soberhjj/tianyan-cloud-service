@@ -9,30 +9,30 @@ import java.text.NumberFormat;
  */
 public class MilvusKey {
 
-    private static final int allpreLong = 18;
+    private static final int ALLPRE_LONG = 18;
 
-    private static final int gLong = 8;
+    private static final int G_LONG = 8;
 
-    private static final int uLong = 8;
+    private static final int U_LONG = 8;
 
-    private static final int fLong = 2;
+    private static final int F_LONG = 2;
 
 
     public static Long generatedKey(Long gid, Long uid, int faceNoLong) {
         //最高位占位1，giddy8位，uid8位，faceNum 2位
-        String key = "1" + lpad(gid, gLong) + lpad(uid, uLong) + lpad(faceNoLong, fLong);
+        String key = "1" + lpad(gid, G_LONG) + lpad(uid, U_LONG) + lpad(faceNoLong, F_LONG);
         return Long.parseLong(key);
     }
 
     public static Long splitGid(Long key) {
         int pre = 1;
-        String gidStr = key.toString().substring(pre, gLong + pre);
+        String gidStr = key.toString().substring(pre, G_LONG + pre);
         return Long.valueOf(gidStr);
     }
 
     public static Long splitUid(Long key) {
-        int pre = allpreLong - 1 - gLong;
-        String uidStr = key.toString().substring(pre, allpreLong - fLong + 1);
+        int pre = ALLPRE_LONG - 1 - G_LONG;
+        String uidStr = key.toString().substring(pre, ALLPRE_LONG - F_LONG + 1);
         return Long.valueOf(uidStr);
     }
 

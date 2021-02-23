@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.constant;
+package com.newland.tianyan.face.mq;
 
 /**
  * @author: RojiaHuang

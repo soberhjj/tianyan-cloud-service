@@ -81,12 +81,12 @@ public class AuthenticationRequestBodyAdvice implements RequestBodyAdvice {
         String grantType = (String) information.get("grant_type");
 
         // 使用客户端模式时,只能获取该客户端对应的 APP_ID（对外接口）
-        if (grantType.equals("client_credentials")) {
+        if ("client_credentials".equals(grantType)) {
             fields.add("appId");
         }
 
         // 密码模式获取account（对内接口）
-        if (grantType.equals("password")) {
+        if ("password".equals(grantType)) {
             information.put("account", authentication.getName());
         }
 

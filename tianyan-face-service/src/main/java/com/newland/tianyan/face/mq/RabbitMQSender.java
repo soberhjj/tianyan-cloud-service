@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.config;
+package com.newland.tianyan.face.mq;
 
 
 import com.newland.tianyan.face.exception.ApiException;

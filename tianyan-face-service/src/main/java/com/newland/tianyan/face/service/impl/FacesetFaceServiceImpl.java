@@ -9,8 +9,8 @@ import com.newland.tianyan.common.utils.CosineDistanceTool;
 import com.newland.tianyan.common.utils.LogUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.FeaturesTool;
-import com.newland.tianyan.face.config.RabbitMQSender;
-import com.newland.tianyan.face.constant.RabbitMqQueueName;
+import com.newland.tianyan.face.mq.RabbitMQSender;
+import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.dao.UserInfoMapper;
@@ -43,7 +43,7 @@ import static java.lang.Math.abs;
 public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     @Autowired
-    private RabbitMQSender rabbitMQSender;
+    private RabbitMQSender rabbitMqSender;
     @Autowired
     private GroupInfoMapper groupInfoMapper;
     @Autowired
@@ -130,23 +130,23 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         amqpRequest.setMaxFaceNum(maxFaceNum);
         byte[] message = amqpRequest.build().toByteArray();
         if (taskType == -20) {
-            return JSONSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V20_OLD, message);
+            return JsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V20_OLD, message);
         }
         if (taskType == 20) {
-            return JSONSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V20, message);
+            return JsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V20, message);
         }
         if (taskType == 36) {
-            return JSONSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V36, message);
+            return JsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V36, message);
         }
         if (taskType == 34) {
-            return JSONSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V34, message);
+            return JsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V34, message);
         }
-        return JSONSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE, message);
+        return JsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE, message);
     }
 
-    private NLFace.CloudFaceSendMessage JSONSendHelper(String routingKey, byte[] msg) {
+    private NLFace.CloudFaceSendMessage JsonSendHelper(String routingKey, byte[] msg) {
         // get message
-        byte[] data = rabbitMQSender.send(routingKey, msg);
+        byte[] data = rabbitMqSender.send(routingKey, msg);
         String json = new String(data);
 
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();

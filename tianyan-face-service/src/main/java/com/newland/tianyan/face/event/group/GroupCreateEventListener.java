@@ -26,7 +26,7 @@ public class GroupCreateEventListener {
      * @param event
      */
     @EventListener
-    public void increaseGroupNumber(GroupCreateEvent event) {
+    public void increaseGroupNumber(AbstractGroupCreateEvent event) {
         appInfoMapper.groupNumberIncrease(event.getAppId(), 1);
     }
 
