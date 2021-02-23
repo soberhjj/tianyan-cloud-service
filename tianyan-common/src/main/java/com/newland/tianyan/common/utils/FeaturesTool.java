@@ -116,7 +116,9 @@ public class FeaturesTool {
         if (source == null || target == null) {
             return false;
         }
-        if (source.length != target.length) {
+        int sourceLength = source.length;
+        int targetLength = target.length;
+        if (sourceLength != targetLength) {
             return false;
         }
         boolean check = true;

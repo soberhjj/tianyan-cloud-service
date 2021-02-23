@@ -1,8 +1,9 @@
-package com.newland.tianyan.vectorsearch.service;
+package com.newland.tianyan.vectorsearch.service.impl;
 
 import com.google.gson.JsonObject;
 import com.newland.tianyan.common.model.vectorsearch.QueryResDTO;
 import com.newland.tianyan.common.utils.CosineDistanceTool;
+import com.newland.tianyan.vectorsearch.service.IMilvusService;
 import io.milvus.client.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -17,21 +18,22 @@ import java.util.List;
  */
 @Service
 @RefreshScope
-public class MilvusService {
+public class MilvusServiceImpl implements IMilvusService {
 
     @Value("${milvus.host}")
-    private String MILVUS_SERVER_HOST;
+    private String milvusServerHost;
 
     @Value("${milvus.port}")
-    private Integer MILVUS_SERVER_PORT;
+    private Integer milvusServerPort;
 
     @Value("${milvus.nprobe}")
-    private Integer NPROBE;
+    private Integer nprobe;
 
     private ConnectParam getConnectParam() {
-        return new ConnectParam.Builder().withHost(MILVUS_SERVER_HOST).withPort(MILVUS_SERVER_PORT).build();
+        return new ConnectParam.Builder().withHost(milvusServerHost).withPort(milvusServerPort).build();
     }
 
+    @Override
     public void createCollection(String appId) {
         MilvusClient client = new MilvusGrpcClient(getConnectParam());
         CollectionMapping collectionMapping =
@@ -43,12 +45,14 @@ public class MilvusService {
         client.close();
     }
 
+    @Override
     public void dropCollection(String appId) {
         MilvusClient client = new MilvusGrpcClient(getConnectParam());
         client.dropCollection(appId);
         client.close();
     }
 
+    @Override
     public Long insert(String appId, List<Float> feature, Long entityId) {
         MilvusClient client = new MilvusGrpcClient(getConnectParam());
         List<List<Float>> features = new ArrayList<>();
@@ -65,6 +69,7 @@ public class MilvusService {
         return insertEntityIds.get(0);
     }
 
+    @Override
     public List<QueryResDTO> query(String appId, List<Float> feature, Integer topK) {
         MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
@@ -72,7 +77,7 @@ public class MilvusService {
         features.add(feature);
 
         JsonObject searchParamsJson = new JsonObject();
-        searchParamsJson.addProperty("nprobe", NPROBE);
+        searchParamsJson.addProperty("nprobe", nprobe);
 
         SearchParam searchParam = new SearchParam.Builder(appId)
                 .withFloatVectors(features)
@@ -102,6 +107,7 @@ public class MilvusService {
         return res;
     }
 
+    @Override
     public void delete(String appId, Long entityId) {
         MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
@@ -113,6 +119,7 @@ public class MilvusService {
         client.close();
     }
 
+    @Override
     public List<Long> batchInsert(String appId, List<List<Float>> features, List<Long> entityIds) {
         MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
@@ -124,11 +131,12 @@ public class MilvusService {
         return ids;
     }
 
+    @Override
     public List<List<QueryResDTO>> batchQuery(String appId, List<List<Float>> features, Integer topK) {
         MilvusClient client = new MilvusGrpcClient(getConnectParam());
 
         JsonObject searchParamsJson = new JsonObject();
-        searchParamsJson.addProperty("nprobe", NPROBE);
+        searchParamsJson.addProperty("nprobe", nprobe);
 
         SearchParam searchParam = new SearchParam.Builder(appId)
                 .withFloatVectors(features)
@@ -166,6 +174,7 @@ public class MilvusService {
         return batchRes;
     }
 
+    @Override
     public void batchDelete(String appId, List<Long> entityIds) {
         MilvusClient client = new MilvusGrpcClient(getConnectParam());
 

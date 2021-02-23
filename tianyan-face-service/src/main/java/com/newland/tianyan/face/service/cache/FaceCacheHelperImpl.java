@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
     @Autowired
-    private VectorSearchFeignService milvusService;
+    private VectorSearchFeignService vectorSearchService;
 
     private String getCollectionName(Long appId) {
         return "FACE_" + appId;
@@ -33,7 +33,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                 .feature(feature)
                 .topK(topK)
                 .build();
-        return milvusService.query(queryReq);
+        return vectorSearchService.query(queryReq);
     }
 
     /**
@@ -48,7 +48,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                     .appId(getCollectionName(collectionId))
                     .entityId(id)
                     .build();
-            milvusService.delete(deleteReq);
+            vectorSearchService.delete(deleteReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;
@@ -68,7 +68,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                     .appId(getCollectionName(collectionId))
                     .entityIds(idList)
                     .build();
-            milvusService.batchDelete(batchDeleteReq);
+            vectorSearchService.batchDelete(batchDeleteReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;
@@ -86,7 +86,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                 .entityId(dto.getId())
                 .feature(feature)
                 .build();
-        return milvusService.insert(insertReq);
+        return vectorSearchService.insert(insertReq);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                 .entityIds(entityIds)
                 .features(features)
                 .build();
-        return milvusService.batchInsert(batchInsertReq);
+        return vectorSearchService.batchInsert(batchInsertReq);
     }
 
     public List<Float> convertByteArrayToList(FaceDO entity) {
@@ -134,7 +134,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
             CreateColReqDTO createColReq = CreateColReqDTO.builder()
                     .appId(getCollectionName(collectionId))
                     .build();
-            milvusService.createCollection(createColReq);
+            vectorSearchService.createCollection(createColReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;
@@ -149,7 +149,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
             DeleteColReqDTO deleteColReq = DeleteColReqDTO.builder()
                     .appId(getCollectionName(collectionId))
                     .build();
-            milvusService.dropCollection(deleteColReq);
+            vectorSearchService.dropCollection(deleteColReq);
         } catch (RuntimeException exception) {
             exception.printStackTrace();
             result = -1;

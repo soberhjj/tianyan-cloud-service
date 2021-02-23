@@ -130,21 +130,21 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         amqpRequest.setMaxFaceNum(maxFaceNum);
         byte[] message = amqpRequest.build().toByteArray();
         if (taskType == -20) {
-            return JsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V20_OLD, message);
+            return jsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V20_OLD, message);
         }
         if (taskType == 20) {
-            return JsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V20, message);
+            return jsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V20, message);
         }
         if (taskType == 36) {
-            return JsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V36, message);
+            return jsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V36, message);
         }
         if (taskType == 34) {
-            return JsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V34, message);
+            return jsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V34, message);
         }
-        return JsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE, message);
+        return jsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE, message);
     }
 
-    private NLFace.CloudFaceSendMessage JsonSendHelper(String routingKey, byte[] msg) {
+    private NLFace.CloudFaceSendMessage jsonSendHelper(String routingKey, byte[] msg) {
         // get message
         byte[] data = rabbitMqSender.send(routingKey, msg);
         String json = new String(data);
