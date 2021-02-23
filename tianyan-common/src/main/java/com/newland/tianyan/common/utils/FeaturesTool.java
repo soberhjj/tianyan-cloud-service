@@ -60,14 +60,14 @@ public class FeaturesTool {
 
     public static float[] normalize(float[] rawFeature){
         double v = 0;
-        for (int i = 0; i < 512; i++) {
+        for (int i = 0; i < SIZE; i++) {
             double temp = rawFeature[i];
             v += temp * temp;
         }
         double sqrtV = Math.sqrt(v);
 
-        float[] afterNormalize = new float[512];
-        for (int i = 0; i < 512; i++) {
+        float[] afterNormalize = new float[SIZE];
+        for (int i = 0; i < SIZE; i++) {
             double temp = rawFeature[i] / sqrtV;
             afterNormalize[i] = Float.parseFloat(String.valueOf(temp));
         }

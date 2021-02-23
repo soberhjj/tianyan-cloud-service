@@ -104,7 +104,8 @@ public class Md5Util {
     private void decode(int[] output, byte[] input, int off, int len) {
         int i = 0;
         int j = 0;
-        for (; j < len; i++, j += 4) {
+        int step = 4;
+        for (; j < len; i++, j += step) {
             output[i] = (input[off + j] & 0xff
                     | ((input[off + j + 1] & 0xff) << 8)
                     | ((input[off + j + 2] & 0xff) << 16) | ((input[off + j + 3] & 0xff) << 24));

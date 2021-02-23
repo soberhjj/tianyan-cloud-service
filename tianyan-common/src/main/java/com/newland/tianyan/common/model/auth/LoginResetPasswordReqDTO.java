@@ -1,12 +1,13 @@
 package com.newland.tianyan.common.model.auth;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 
-@Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
 public class LoginResetPasswordReqDTO {
 
     @NotBlank

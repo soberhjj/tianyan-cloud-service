@@ -1,14 +1,11 @@
 package com.newland.tianyan.common.model.auth;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
+@Builder
 public class AuthClientReqDTO {
 
     private String account;

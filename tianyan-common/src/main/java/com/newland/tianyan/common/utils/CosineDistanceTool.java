@@ -11,12 +11,12 @@ import java.util.List;
  **/
 public class CosineDistanceTool {
 
+    private static final int SIZE = 512;
+
     public static float getConfidence(List<Float> rawFeature, byte[] faceFeature) {
 
-        int size = 512;
-
         float[] rawFeatureArr = ArrayUtils.toPrimitive(rawFeature.toArray(new Float[0]), 0.0F);
-        float[] normalizeFeatureArr = ByteArrayTool.convertByteToArray(faceFeature, size);
+        float[] normalizeFeatureArr = ByteArrayTool.convertByteToArray(faceFeature, SIZE);
 
         return getDistance(rawFeatureArr, normalizeFeatureArr);
     }
@@ -30,7 +30,7 @@ public class CosineDistanceTool {
         float tsum = 0;
         float psum = 0;
 
-        for (int i = 0; i < 512; i++) {
+        for (int i = 0; i < SIZE; i++) {
             tsum += var1[i] * var2[i];
             psum += var1[i] * var1[i];
         }
@@ -50,7 +50,7 @@ public class CosineDistanceTool {
         float psum1 = 0;
         float psum2 = 0;
 
-        for (int i = 0; i < 512; i++) {
+        for (int i = 0; i < SIZE; i++) {
             tsum += var1[i] * var2[i];
             psum1 += var1[i] * var1[i];
             psum2 += var2[i] * var2[i];
@@ -63,7 +63,7 @@ public class CosineDistanceTool {
     public static float getEurDistance(float[] var1, float[] var2) {
         
         float eur = 0;
-        for (int i = 0; i < 512; i++) {
+        for (int i = 0; i < SIZE; i++) {
             eur += Math.pow(var1[i]-var2[i],2);
         }
 

@@ -1,13 +1,14 @@
 package com.newland.tianyan.common.model.auth;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
-@Getter
-@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Builder
 public class LoginRegisterReqDTO {
 
     @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{6,32}$")

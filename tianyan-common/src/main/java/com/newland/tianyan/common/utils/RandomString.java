@@ -19,7 +19,8 @@ public class RandomString {
         if (length < 1) {
             throw new IllegalArgumentException();
         }
-        if (symbols.length() < 2) {
+        int maxLength = 2;
+        if (symbols.length() < maxLength) {
             throw new IllegalArgumentException();
         }
         this.random = Objects.requireNonNull(random);
