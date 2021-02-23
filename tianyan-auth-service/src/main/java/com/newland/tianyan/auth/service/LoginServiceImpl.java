@@ -13,21 +13,21 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 
 @Service
-public class LoginService {
+public class LoginServiceImpl {
 
-    private final AccountService accountService;
+    private final AccountServiceImpl accountServiceImpl;
     private final PasswordEncoder encoder;
 
     @Autowired
-    public LoginService(AccountService accountService, PasswordEncoder encoder) {
-        this.accountService = accountService;
+    public LoginServiceImpl(AccountServiceImpl accountServiceImpl, PasswordEncoder encoder) {
+        this.accountServiceImpl = accountServiceImpl;
         this.encoder=encoder;
     }
 
     public boolean checkUnique(NLBackend.BackendAllRequest request) {
         Account condition = ProtobufUtils.parseTo(request, Account.class);
 
-        Account account = accountService.findOne(condition);
+        Account account = accountServiceImpl.findOne(condition);
 
         if (account == null) {
             // 如果不存在,正确返回
@@ -48,16 +48,16 @@ public class LoginService {
     public void register(NLBackend.BackendAllRequest receive) {
         Account account = ProtobufUtils.parseTo(receive, Account.class);
         // check account exist
-        if (accountService.checkExits("account", account.getAccount())) {
+        if (accountServiceImpl.checkExits("account", account.getAccount())) {
             throw new EntityExistsException("account exist!");
         }
         // check mailbox exist
-        if (accountService.checkExits("mailbox", account.getMailbox())) {
+        if (accountServiceImpl.checkExits("mailbox", account.getMailbox())) {
             throw new EntityExistsException("mailbox exist!");
         }
         account.setPassword(encoder.encode(account.getPassword()));
         // register account
-        if (accountService.insert(account) == 0) {
+        if (accountServiceImpl.insert(account) == 0) {
             throw new RuntimeException("failed to register the account");
         }
     }
@@ -65,8 +65,8 @@ public class LoginService {
     public void restPassword(NLBackend.BackendAllRequest request) {
         Account account = ProtobufUtils.parseTo(request, Account.class);
         //check mailbox
-        if (accountService.checkExits("mailbox", account.getMailbox())) {
-            accountService.ResetPassword(account.getMailbox(), encoder.encode(account.getPassword()));
+        if (accountServiceImpl.checkExits("mailbox", account.getMailbox())) {
+            accountServiceImpl.resetPassword(account.getMailbox(), encoder.encode(account.getPassword()));
         } else {
             throw new EntityExistsException("mailbox doesn't exist!");
         }
@@ -76,11 +76,11 @@ public class LoginService {
         Account account = ProtobufUtils.parseTo(receive, Account.class);
         // check account exist
         if (!StringUtils.isEmpty(account.getAccount())) {
-            account = accountService.findOne(account);
+            account = accountServiceImpl.findOne(account);
         } else {
             // check mailbox exist
             if (!StringUtils.isEmpty(account.getMailbox())) {
-                account = accountService.findOne(account);
+                account = accountServiceImpl.findOne(account);
             }
         }
         if (account == null) {

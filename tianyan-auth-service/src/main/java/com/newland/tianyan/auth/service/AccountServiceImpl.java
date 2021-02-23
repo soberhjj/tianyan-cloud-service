@@ -12,12 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 @Service
-public class AccountService implements UserDetailsService {
+public class AccountServiceImpl implements UserDetailsService {
 
     private final AccountMapper accountMapper;
     private final PasswordEncoder encoder;
 
-    public AccountService(AccountMapper accountMapper, PasswordEncoder encoder) {
+    public AccountServiceImpl(AccountMapper accountMapper, PasswordEncoder encoder) {
         this.accountMapper=accountMapper;
         this.encoder = encoder;
     }
@@ -45,7 +45,7 @@ public class AccountService implements UserDetailsService {
      * @return 成功返回 true, 失败返回 false
      */
     @Transactional
-    public boolean ResetPassword(String mailbox, String password) {
+    public boolean resetPassword(String mailbox, String password) {
         return accountMapper.resetPassword(mailbox, password) != 0;
     }
 

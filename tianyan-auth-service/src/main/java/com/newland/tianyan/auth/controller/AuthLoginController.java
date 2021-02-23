@@ -1,7 +1,7 @@
 package com.newland.tianyan.auth.controller;
 
 import com.newland.tianyan.auth.entity.Account;
-import com.newland.tianyan.auth.service.LoginService;
+import com.newland.tianyan.auth.service.LoginServiceImpl;
 import com.newland.tianyan.common.constans.TaskType;
 import com.newland.tianyan.common.model.auth.LoginCheckUniqueReqDTO;
 import com.newland.tianyan.common.model.auth.LoginGetInfoReqDTO;
@@ -22,11 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/login")
 public class AuthLoginController {
 
-    private final LoginService loginService;
+    private final LoginServiceImpl loginServiceImpl;
 
     @Autowired
-    public AuthLoginController(LoginService loginService) {
-        this.loginService = loginService;
+    public AuthLoginController(LoginServiceImpl loginServiceImpl) {
+        this.loginServiceImpl = loginServiceImpl;
     }
 
     @RequestMapping(value = "/checkUnique", method = RequestMethod.POST)
@@ -36,7 +36,7 @@ public class AuthLoginController {
             return new JsonErrorObject(LogUtils.getLogId(), 6100, "invalid param");
         }
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
-        loginService.checkUnique(request);
+        loginServiceImpl.checkUnique(request);
         return ProtobufUtils.buildLoginSendMessage();
     }
 
@@ -47,7 +47,7 @@ public class AuthLoginController {
             return new JsonErrorObject(LogUtils.getLogId(), 6100, "invalid param");
         }
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
-        Account info = loginService.getInfo(request);
+        Account info = loginServiceImpl.getInfo(request);
         return ProtobufUtils.buildLoginSendMessage(info.getAccount(), info.getMailbox());
 
     }
@@ -55,14 +55,14 @@ public class AuthLoginController {
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public NLBackend.BackendLoginSendMessage update(@RequestBody @Validated LoginRegisterReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
-        loginService.register(request);
+        loginServiceImpl.register(request);
         return ProtobufUtils.buildLoginSendMessage();
     }
 
     @RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
     public NLBackend.BackendLoginSendMessage resetPassword(@RequestBody @Validated LoginRegisterReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
-        loginService.restPassword(request);
+        loginServiceImpl.restPassword(request);
         return ProtobufUtils.buildLoginSendMessage();
     }
 
