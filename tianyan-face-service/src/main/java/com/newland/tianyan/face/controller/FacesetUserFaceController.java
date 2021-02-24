@@ -3,6 +3,7 @@ package com.newland.tianyan.face.controller;
 
 import com.newland.tianyan.common.constans.TaskType;
 import com.newland.tianyan.common.exception.CommonException;
+import com.newland.tianyan.common.utils.ImgFormatConvertUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.LogUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
@@ -42,6 +43,9 @@ public class FacesetUserFaceController {
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddReqDTO receive) {
+        //convert image format to jpg
+        receive.setImage(ImgFormatConvertUtils.convertToJpg(receive.getImage()));
+
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         FaceDO faceDO = facesetUserFaceService.create(request);
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();

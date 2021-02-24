@@ -2,6 +2,7 @@ package com.newland.tianyan.face.controller;
 
 
 import com.newland.tianyan.common.constans.TaskType;
+import com.newland.tianyan.common.utils.ImgFormatConvertUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceCompareReqDTO;
@@ -26,49 +27,59 @@ public class FacesetFaceController {
 
     @PostMapping(value = "/search")
     public NLFace.CloudFaceSendMessage search(@RequestBody @Validated FaceSetFaceSearchReqDTO request) {
+        request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         return facesetFaceService.searchNew(request);
     }
 
     @PostMapping(value = "/compare")
     public NLFace.CloudFaceSendMessage compare(@RequestBody @Validated FaceSetFaceCompareReqDTO request) {
+        request.setFirstImage(ImgFormatConvertUtils.convertToJpg(request.getFirstImage()));
+        request.setSecondImage(ImgFormatConvertUtils.convertToJpg(request.getSecondImage()));
         return facesetFaceService.compare(request);
     }
 
     @RequestMapping(value = "/multiAttribute", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage multiAttribute(@RequestBody @Validated FaceDetectReqDTO vo) {
+        vo.setImage(ImgFormatConvertUtils.convertToJpg(vo.getImage()));
         return facesetFaceService.multiAttribute(vo);
     }
 
     @RequestMapping(value = "/liveness", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage liveness(@RequestBody @Validated FaceDetectReqDTO vo) {
+        vo.setImage(ImgFormatConvertUtils.convertToJpg(vo.getImage()));
         return facesetFaceService.liveness(vo);
     }
 
     @RequestMapping(value = "/detect", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage detect(@RequestBody @Validated FaceSetFaceDetectReqDTO request) {
+        request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         return facesetFaceService.detect(request);
     }
 
     @RequestMapping(value = "/features/v20", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage featuresV20old(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) {
+        request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, -20);
     }
 
     @RequestMapping(value = "/features/v20/new", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage featuresV20(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) {
+        request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive,20);
     }
 
     @RequestMapping(value = "/features/v36/new", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage featuresV36(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) {
+        request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive,36);
     }
 
     @RequestMapping(value = "/features/v34/new", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage featuresV34(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) {
+        request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, 34);
     }
