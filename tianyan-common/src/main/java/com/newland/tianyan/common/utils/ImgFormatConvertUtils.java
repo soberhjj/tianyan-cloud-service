@@ -16,6 +16,14 @@ import java.util.Base64;
  */
 public class ImgFormatConvertUtils {
 
+    /**
+     *
+     * @param imageBase64
+     *        图片base64编码串
+     *
+     * @return  返回JPG格式的图片base64编码串
+     *          若转换异常或原图格式非JPG、PNG、BMP这三种格式，则返回null
+     */
     public static String convertToJpg(String imageBase64) {
         //返回值
         String result = imageBase64;
