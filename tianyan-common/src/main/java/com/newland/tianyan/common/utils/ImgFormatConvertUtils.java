@@ -1,5 +1,7 @@
 package com.newland.tianyan.common.utils;
 
+import com.newland.tianyan.common.constans.ImageType;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -23,12 +25,12 @@ public class ImgFormatConvertUtils {
         //图片解码
         byte[] imageByte = decoder.decode(imageBase64);
         //若图片格式为jpg，则不做任何处理
-        if (0xFFD8 == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))) {
+        if (ImageType.JPG.getRule() == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))) {
             return result;
         }
         //若图片是否是png或bmp格式,转换为jpg格式
-        if (0x8950 == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))
-                || 0x424D == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))) {
+        if (ImageType.PNG.getRule() == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))
+                || ImageType.BMP.getRule() == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))) {
             InputStream is = new ByteArrayInputStream(imageByte);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
