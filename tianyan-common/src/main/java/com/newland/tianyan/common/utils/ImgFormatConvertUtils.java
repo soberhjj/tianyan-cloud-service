@@ -1,5 +1,7 @@
 package com.newland.tianyan.common.utils;
 
+import com.newland.tianyan.common.constans.ImageType;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -14,6 +16,14 @@ import java.util.Base64;
  */
 public class ImgFormatConvertUtils {
 
+    /**
+     *
+     * @param imageBase64
+     *        图片base64编码串
+     *
+     * @return  返回JPG格式的图片base64编码串
+     *          若转换异常或原图格式非JPG、PNG、BMP这三种格式，则返回null
+     */
     public static String convertToJpg(String imageBase64) {
         //返回值
         String result = imageBase64;
@@ -23,12 +33,12 @@ public class ImgFormatConvertUtils {
         //图片解码
         byte[] imageByte = decoder.decode(imageBase64);
         //若图片格式为jpg，则不做任何处理
-        if (0xFFD8 == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))) {
+        if (ImageType.JPG.getRule() == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))) {
             return result;
         }
         //若图片是否是png或bmp格式,转换为jpg格式
-        if (0x8950 == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))
-                || 0x424D == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))) {
+        if (ImageType.PNG.getRule() == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))
+                || ImageType.BMP.getRule() == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))) {
             InputStream is = new ByteArrayInputStream(imageByte);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
