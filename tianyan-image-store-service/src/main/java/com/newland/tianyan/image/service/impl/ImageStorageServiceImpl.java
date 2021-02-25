@@ -4,6 +4,7 @@ import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.domain.proto.storage.DownloadByteArray;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.newland.tianyan.image.service.IImageStoreService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
  * @Author: huangJunJie  2021-02-07 09:36
  */
 @Service
+@Slf4j
 public class ImageStorageServiceImpl implements IImageStoreService {
 
     private final String base64Pattern = "([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?";
@@ -26,6 +28,11 @@ public class ImageStorageServiceImpl implements IImageStoreService {
 
     @Autowired
     private FastFileStorageClient fastFileStorageClient;
+
+    @Override
+    public void mock() {
+        log.info("打印业务数据：{}","XXXX");
+    }
 
     @Override
     public String uploadImage(String image) {

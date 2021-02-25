@@ -12,4 +12,6 @@ public interface IImageStoreService {
     String uploadImageV2(String image);
 
     String downloadImage(String imagePath);
+
+    void mock();
 }
