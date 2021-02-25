@@ -42,8 +42,8 @@ public class ImageStorageController implements IImageStorageApi {
     @PostMapping("/download")
     public DownloadResDTO download(@RequestBody @Valid DownloadReqDTO downloadReq) {
         DownloadResDTO res = new DownloadResDTO();
-        //res.setImage(imageStorageService.downloadImage(downloadReq.getImagePath()));
-        imageStorageService.mock();res.setImage("test");
+        res.setImage(imageStorageService.downloadImage(downloadReq.getImagePath()));
+        //imageStorageService.mock();res.setImage("test");
         return res;
     }
 
