@@ -3,7 +3,7 @@ package com.newland.tianyan.face.controller;
 
 
 import com.newland.tianyan.common.model.vectorsearch.CreateColReqDTO;
-import com.newland.tianyan.face.remote.VectorSearchFeignService;
+import com.newland.tianyan.face.feign.VectorSearchFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

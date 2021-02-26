@@ -1,8 +1,8 @@
-package com.newland.tianyan.face.remote;
+package com.newland.tianyan.face.feign;
 
 
 import com.newland.tianyan.common.api.IVectorSearchApi;
-import com.newland.tianyan.face.remote.fallback.AuthServiceFeignClientFallbackImpl;
+import com.newland.tianyan.face.feign.fallback.AuthServiceFeignClientFallbackImpl;
 import org.springframework.cloud.openfeign.FeignClient;
 
 /**

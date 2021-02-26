@@ -1,8 +1,8 @@
-package com.newland.tianyan.face.remote;
+package com.newland.tianyan.face.feign;
 
 
 import com.newland.tianyan.common.api.IImageStorageApi;
-import com.newland.tianyan.face.remote.fallback.ImageServiceFeignClientFallbackImpl;
+import com.newland.tianyan.face.feign.fallback.ImageServiceFeignClientFallbackImpl;
 import org.springframework.cloud.openfeign.FeignClient;
 
 /**

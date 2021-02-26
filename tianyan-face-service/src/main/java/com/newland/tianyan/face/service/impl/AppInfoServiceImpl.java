@@ -13,7 +13,7 @@ import com.newland.tianyan.face.dao.AppInfoMapper;
 import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
-import com.newland.tianyan.face.remote.AuthAuthClientFeign;
+import com.newland.tianyan.face.feign.AuthAuthClientFeign;
 import com.newland.tianyan.face.service.AppInfoService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import org.apache.commons.lang3.StringUtils;

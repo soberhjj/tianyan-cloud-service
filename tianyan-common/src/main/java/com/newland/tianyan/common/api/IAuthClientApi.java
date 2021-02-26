@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @description:
  * @date: 2021/2/20
  */
-@RequestMapping("/auth/v1}")
+@RequestMapping("/auth/v1")
 public interface IAuthClientApi {
     @PostMapping("/addClient")
     @ApiVersion(1)

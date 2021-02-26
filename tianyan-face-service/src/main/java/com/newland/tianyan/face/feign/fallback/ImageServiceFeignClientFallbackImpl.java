@@ -1,8 +1,8 @@
-package com.newland.tianyan.face.remote.fallback;
+package com.newland.tianyan.face.feign.fallback;
 
 
 
-import com.newland.tianyan.face.remote.ImageStoreFeignService;
+import com.newland.tianyan.face.feign.ImageStoreFeignService;
 import feign.hystrix.FallbackFactory;
 import org.springframework.stereotype.Component;
 

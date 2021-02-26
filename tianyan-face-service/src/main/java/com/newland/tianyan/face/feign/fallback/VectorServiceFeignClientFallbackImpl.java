@@ -1,7 +1,7 @@
-package com.newland.tianyan.face.remote.fallback;
+package com.newland.tianyan.face.feign.fallback;
 
 
-import com.newland.tianyan.face.remote.VectorSearchFeignService;
+import com.newland.tianyan.face.feign.VectorSearchFeignService;
 import feign.hystrix.FallbackFactory;
 
 /**

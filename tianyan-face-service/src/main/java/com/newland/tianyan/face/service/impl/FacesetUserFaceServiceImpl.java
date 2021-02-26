@@ -11,7 +11,7 @@ import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.FeaturesTool;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
-import com.newland.tianyan.face.remote.ImageStoreFeignService;
+import com.newland.tianyan.face.feign.ImageStoreFeignService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import com.newland.tianyan.face.service.cache.MilvusKey;
 import com.newland.tianyan.face.mq.RabbitMQSender;

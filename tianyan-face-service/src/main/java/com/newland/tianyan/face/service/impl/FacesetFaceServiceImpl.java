@@ -17,7 +17,7 @@ import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
-import com.newland.tianyan.face.remote.ImageStoreFeignService;
+import com.newland.tianyan.face.feign.ImageStoreFeignService;
 import com.newland.tianyan.face.service.FacesetFaceService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import com.newland.tianyan.face.service.cache.MilvusKey;

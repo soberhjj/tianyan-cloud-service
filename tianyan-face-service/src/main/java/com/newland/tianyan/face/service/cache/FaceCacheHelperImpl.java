@@ -5,7 +5,7 @@ import com.newland.tianyan.common.model.vectorsearch.*;
 import com.newland.tianyan.common.utils.FeaturesTool;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
-import com.newland.tianyan.face.remote.VectorSearchFeignService;
+import com.newland.tianyan.face.feign.VectorSearchFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
