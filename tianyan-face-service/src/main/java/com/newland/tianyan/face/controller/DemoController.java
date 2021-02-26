@@ -2,6 +2,9 @@ package com.newland.tianyan.face.controller;
 
 
 
+import com.newland.tianyan.common.api.IImageStorageApi;
+import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
+import com.newland.tianyan.common.model.imagestrore.UploadResDTO;
 import com.newland.tianyan.common.model.vectorsearch.CreateColReqDTO;
 import com.newland.tianyan.face.feign.VectorSearchFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class DemoController {
 
     @Autowired
-    private VectorSearchFeignService imageStoreFeignService;
+    private IImageStorageApi imageStorageApi;
 
-    @PostMapping("/addClient")
-    public void addClient(@RequestBody CreateColReqDTO req) {
-        imageStoreFeignService.createCollection(req);
+    @PostMapping("/test")
+    public UploadResDTO addClient(@RequestBody UploadReqDTO req) {
+        return imageStorageApi.upload(req);
     }
 
 }
