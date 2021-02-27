@@ -1,5 +1,7 @@
 package com.newland.tianyan.image.service;
 
+import java.io.IOException;
+
 /**
  * @author: RojiaHuang
  * @description:
@@ -7,11 +9,10 @@ package com.newland.tianyan.image.service;
  */
 public interface IImageStoreService {
 
-    String uploadImage(String image);
+    String uploadImage(String image) throws IOException;
 
-    String uploadImageV2(String image);
+    String uploadImageV2(String image) throws IOException;
 
     String downloadImage(String imagePath);
 
-    void mock();
 }
