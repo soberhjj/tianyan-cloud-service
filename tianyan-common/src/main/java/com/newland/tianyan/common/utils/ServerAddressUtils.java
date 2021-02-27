@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.log;
+package com.newland.tianyan.common.utils;
 
 import org.springframework.boot.web.context.WebServerInitializedEvent;
 import org.springframework.context.ApplicationListener;
@@ -13,7 +13,7 @@ import java.net.UnknownHostException;
  * @date: 2021/2/25
  */
 @Component
-public class ServerAddressHelper implements ApplicationListener<WebServerInitializedEvent> {
+public class ServerAddressUtils implements ApplicationListener<WebServerInitializedEvent> {
 
     private int serverPort;
 

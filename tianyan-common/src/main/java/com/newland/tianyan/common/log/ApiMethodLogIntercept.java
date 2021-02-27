@@ -1,10 +1,13 @@
 package com.newland.tianyan.common.log;
 
-import brave.internal.Nullable;
+import com.newland.tianyan.common.utils.LogFixColumnsUtils;
+import com.newland.tianyan.common.utils.NetworkUtils;
+import com.newland.tianyan.common.utils.ServerAddressUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
@@ -15,19 +18,22 @@ import java.time.LocalDateTime;
  * @date: 2021/2/25
  */
 @Slf4j
-public class ApiMethodLogIntercept implements HandlerInterceptor{
-    private final LogFixColumnsHelper logFixColumnsHelper;
-    private final ServerAddressHelper serverAddressHelper;
+public class ApiMethodLogIntercept implements HandlerInterceptor {
+    private final LogFixColumnsUtils logFixColumnsUtils;
+    private final ServerAddressUtils serverAddressUtils;
 
-    public ApiMethodLogIntercept(LogFixColumnsHelper logFixColumnsHelper, ServerAddressHelper serverAddressHelper) {
-        this.logFixColumnsHelper = logFixColumnsHelper;
-        this.serverAddressHelper = serverAddressHelper;
+    public ApiMethodLogIntercept(LogFixColumnsUtils logFixColumnsUtils, ServerAddressUtils serverAddressUtils) {
+        this.logFixColumnsUtils = logFixColumnsUtils;
+        this.serverAddressUtils = serverAddressUtils;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //定义固定列
-        logFixColumnsHelper.init(request, serverAddressHelper.getServerAddress());
+        String url = request.getRequestURI();
+        String requestIp = NetworkUtils.getClientIpAddress(request);
+        String responseIp = serverAddressUtils.getServerAddress();
+        logFixColumnsUtils.init(url, requestIp, responseIp);
         //输出请求时间
         String requestTime = LocalDateTime.now().toString();
         request.setAttribute("requestTime", requestTime);
@@ -45,6 +51,6 @@ public class ApiMethodLogIntercept implements HandlerInterceptor{
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
-        logFixColumnsHelper.clear();
+        logFixColumnsUtils.clear();
     }
 }

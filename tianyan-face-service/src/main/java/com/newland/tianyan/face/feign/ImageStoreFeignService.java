@@ -10,6 +10,8 @@ import org.springframework.cloud.openfeign.FeignClient;
  * @description:
  * @date: 2021/2/3
  */
-@FeignClient(name = "image-store-service", fallbackFactory = ImageServiceFeignClientFallbackImpl.class)
+@FeignClient(name = "image-store-service",
+        configuration = FeignConfiguration.class,
+        fallbackFactory = ImageServiceFeignClientFallbackImpl.class)
 public interface ImageStoreFeignService extends IImageStorageApi {
 }

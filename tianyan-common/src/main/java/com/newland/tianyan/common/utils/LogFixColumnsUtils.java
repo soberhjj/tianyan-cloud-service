@@ -1,6 +1,5 @@
-package com.newland.tianyan.common.log;
+package com.newland.tianyan.common.utils;
 
-import com.newland.tianyan.common.utils.NetworkUtils;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
@@ -13,11 +12,9 @@ import java.net.UnknownHostException;
  * @date: 2021/2/25
  */
 @Component
-public class LogFixColumnsHelper {
+public class LogFixColumnsUtils {
 
-    public void init(HttpServletRequest request, String serverAddress) throws UnknownHostException {
-        String url = request.getRequestURI();
-        String clientIp = NetworkUtils.getClientIpAddress(request);
+    public void init(String url, String clientIp, String serverAddress) throws UnknownHostException {
         MDC.put("uri", url);
         MDC.put("responseId", serverAddress);
         MDC.put("requestIp", clientIp);
