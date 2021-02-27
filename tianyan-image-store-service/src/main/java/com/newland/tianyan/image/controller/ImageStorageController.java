@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
+import java.io.IOException;
 
 /**
  * @Author: huangJunJie  2021-02-07 10:07
@@ -24,7 +24,7 @@ public class ImageStorageController implements IImageStorageApi {
 
     @Override
     @PostMapping("/upload")
-    public UploadResDTO upload(@RequestBody @Valid UploadReqDTO uploadReq) {
+    public UploadResDTO upload(@RequestBody UploadReqDTO uploadReq) throws IOException {
         UploadResDTO res = new UploadResDTO();
         res.setImagePath(imageStorageService.uploadImage(uploadReq.getImage()));
         return res;
@@ -32,7 +32,7 @@ public class ImageStorageController implements IImageStorageApi {
 
     @Override
     @PostMapping("/uploadV2")
-    public UploadResDTO uploadV2(@RequestBody @Valid UploadReqDTO uploadReq) {
+    public UploadResDTO uploadV2(@RequestBody UploadReqDTO uploadReq) throws IOException {
         UploadResDTO res = new UploadResDTO();
         res.setImagePath(imageStorageService.uploadImageV2(uploadReq.getImage()));
         return res;
@@ -40,10 +40,9 @@ public class ImageStorageController implements IImageStorageApi {
 
     @Override
     @PostMapping("/download")
-    public DownloadResDTO download(@RequestBody @Valid DownloadReqDTO downloadReq) {
+    public DownloadResDTO download(@RequestBody DownloadReqDTO downloadReq) {
         DownloadResDTO res = new DownloadResDTO();
         res.setImage(imageStorageService.downloadImage(downloadReq.getImagePath()));
-        //imageStorageService.mock();res.setImage("test");
         return res;
     }
 

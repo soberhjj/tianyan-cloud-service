@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.io.IOException;
+
 /**
  * @author: RojiaHuang
  * @description:
@@ -19,11 +21,11 @@ public interface IImageStorageApi {
 
     @PostMapping("/upload")
     @ApiVersion(1)
-    UploadResDTO upload(@RequestBody UploadReqDTO uploadReq);
+    UploadResDTO upload(@RequestBody UploadReqDTO uploadReq) throws IOException;
 
     @PostMapping("/uploadV2")
     @ApiVersion(1)
-    UploadResDTO uploadV2(@RequestBody UploadReqDTO uploadReq);
+    UploadResDTO uploadV2(@RequestBody UploadReqDTO uploadReq) throws IOException;
 
     @PostMapping("/download")
     @ApiVersion(1)
