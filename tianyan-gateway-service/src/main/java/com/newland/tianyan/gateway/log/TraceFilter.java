@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import static com.newland.tianyan.gateway.constant.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
-import static com.newland.tianyan.gateway.constant.GlobalTraceConstant.TRACE_MDC;
+import static com.newland.tianyan.gateway.constant.GlobalTraceConstant.*;
 
 /**
  * @author: RojiaHuang
@@ -31,6 +30,7 @@ public class TraceFilter implements GlobalFilter, Ordered {
         ServerHttpRequest serverHttpRequest = exchange.getRequest().mutate()
                 .headers(header -> {
                     header.add(GATEWAY_TRACE_HEAD, traceId);
+                    header.add(SPAN_HEAD, "0");
                 })
                 .build();
         //统一http

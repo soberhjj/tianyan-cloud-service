@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 
+import static com.newland.tianyan.common.constans.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
+
 /**
  * @author: RojiaHuang
  * @description:
@@ -33,7 +35,8 @@ public class ApiMethodLogIntercept implements HandlerInterceptor {
         String url = request.getRequestURI();
         String requestIp = NetworkUtils.getClientIpAddress(request);
         String responseIp = serverAddressUtils.getServerAddress();
-        logFixColumnsUtils.init(url, requestIp, responseIp);
+        String traceId = request.getHeader(GATEWAY_TRACE_HEAD);
+        logFixColumnsUtils.init(traceId,url, requestIp, responseIp);
         //输出请求时间
         String requestTime = LocalDateTime.now().toString();
         request.setAttribute("requestTime", requestTime);
