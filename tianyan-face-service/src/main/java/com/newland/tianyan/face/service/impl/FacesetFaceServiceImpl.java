@@ -191,7 +191,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request) {
+    public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request) throws IOException {
         String image1 = request.getFirstImage();
         String image2 = request.getSecondImage();
         String logId = UUID.randomUUID().toString();
@@ -217,7 +217,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReqDTO vo) {
+    public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReqDTO vo) throws IOException {
         String image = vo.getImage();
         String logId = UUID.randomUUID().toString();
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
@@ -244,7 +244,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage liveness(FaceDetectReqDTO vo) {
+    public NLFace.CloudFaceSendMessage liveness(FaceDetectReqDTO vo) throws IOException {
         String image = vo.getImage();
         String logId = UUID.randomUUID().toString();
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
@@ -271,7 +271,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectReqDTO request) {
+    public NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectReqDTO request) throws IOException {
         String image = request.getImage();
         String logId = UUID.randomUUID().toString();
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
@@ -298,7 +298,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage features(NLBackend.BackendAllRequest receive, int model) {
+    public NLFace.CloudFaceSendMessage features(NLBackend.BackendAllRequest receive, int model) throws IOException {
         int qualityControl = receive.getQualityControl();
         if (qualityControl != 0) {
             NLFace.CloudFaceSendMessage.Builder detectBuilder = NLFace.CloudFaceSendMessage.newBuilder();
@@ -447,7 +447,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         return build;
     }
 
-    public FaceDO getByImage(String image, int model) {
+    public FaceDO getByImage(String image, int model) throws IOException {
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
         String imagePath = imageStorageService.uploadV2(uploadReq).getImagePath();
 

@@ -13,7 +13,7 @@ import com.newland.tianyan.face.dao.AppInfoMapper;
 import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.exception.ApiReturnErrorCode;
-import com.newland.tianyan.face.feign.AuthAuthClientFeign;
+import com.newland.tianyan.face.feign.AuthClientFeign;
 import com.newland.tianyan.face.service.AppInfoService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +32,7 @@ import javax.persistence.EntityNotFoundException;
 public class AppInfoServiceImpl implements AppInfoService {
 
     @Autowired
-    private AuthAuthClientFeign clientService;
+    private AuthClientFeign clientService;
     @Autowired
     private AppInfoMapper appInfoMapper;
     @Autowired

@@ -17,7 +17,6 @@ public class FeignTraceInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate requestTemplate) {
         //获取traceId
-        //String gatewayTrace = TraceContext.traceId();
         String gatewayTrace = MDC.get(TRACE_MDC);
         if (!StringUtils.isEmpty(gatewayTrace)) {
             requestTemplate.header(GATEWAY_TRACE_HEAD, gatewayTrace);

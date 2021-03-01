@@ -36,6 +36,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 import static java.lang.Math.abs;
@@ -64,7 +65,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
     @Override
     //@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public FaceDO create(NLBackend.BackendAllRequest receive) {
+    public FaceDO create(NLBackend.BackendAllRequest receive) throws IOException {
         int qualityControl = receive.getQualityControl();
         if (qualityControl != 0) {
             this.handleImageQualityControl(qualityControl, receive.getImage());
@@ -343,7 +344,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         return build;
     }
 
-    private void uploadImage(FaceDO faceDO, String image) {
+    private void uploadImage(FaceDO faceDO, String image) throws IOException {
         //提交至指定服务器路径
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
         String imagePath = imageStorageService.uploadV2(uploadReq).getImagePath();
