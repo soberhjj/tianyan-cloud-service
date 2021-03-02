@@ -22,7 +22,7 @@
 	<!-- 彩色日志格式 -->
 	<property name="LOG_PATTERN" value="
 	 ${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){red} %clr(|) %highlight(%-5level) %clr(|) %thread %clr(|) %clr(${PID:- }) %clr(|)
-	 %X{traceId} %clr(|) %X{spanId} %clr(|)
+	 %X{traceId} %clr(|)
 	 %X{uri} %clr(|) %X{requestIp} %clr(|) %X{responseId:-} %clr(|)
 	 %C.%M %clr(|)
 	 %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>

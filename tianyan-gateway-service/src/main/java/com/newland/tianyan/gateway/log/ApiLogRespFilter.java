@@ -1,5 +1,6 @@
 package com.newland.tianyan.gateway.log;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -8,6 +9,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Component;
@@ -28,9 +30,15 @@ import java.time.LocalDateTime;
 @Slf4j
 public class ApiLogRespFilter implements GlobalFilter, Ordered {
 
+    @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-//        System.out.println("ApiLogRespFilter");
+        ServerHttpRequest serverHttpRequest = exchange.getRequest();
+        String url = serverHttpRequest.getURI().getPath();
+        String clientIp = ReactiveAddrUtils.getRemoteAddr(serverHttpRequest);
+        String serverIp = ReactiveAddrUtils.getLocalAddr();
+        //日志固定列
+        LogFixColumnsUtils.init(url, clientIp, serverIp);
         //响应时间
         String requestTime = exchange.getAttribute("requestTime");
         String responseTime = LocalDateTime.now().toString();
@@ -56,12 +64,12 @@ public class ApiLogRespFilter implements GlobalFilter, Ordered {
                 return super.writeWith(body);
             }
         };
-
+        LogFixColumnsUtils.clear();
         return chain.filter(exchange.mutate().response(decoratedResponse).build());
     }
 
     @Override
     public int getOrder() {
-        return -2;
+        return -3;
     }
 }
