@@ -1,7 +1,6 @@
 package com.newland.tianyan.common.utils;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Random;
@@ -25,9 +24,10 @@ public class LogUtils {
 //        return tracer.currentSpan().context().traceIdString();
 //    }
 
-        public static String getLogId() {
+    public static String getLogId() {
         return traceId();
     }
+
     /**
      * 生成traceId ，requestId，spanId 类似，设置不同的方法名即可
      */

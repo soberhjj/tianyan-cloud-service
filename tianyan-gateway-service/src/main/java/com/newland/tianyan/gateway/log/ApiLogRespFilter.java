@@ -30,6 +30,7 @@ public class ApiLogRespFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+//        System.out.println("ApiLogRespFilter");
         //响应时间
         String requestTime = exchange.getAttribute("requestTime");
         String responseTime = LocalDateTime.now().toString();

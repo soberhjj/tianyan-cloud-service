@@ -1,6 +1,6 @@
 package com.newland.tianyan.common.log;
 
-import com.newland.tianyan.common.utils.LogFixColumnsUtils;
+import com.newland.tianyan.common.utils.LogFixColumnUtils;
 import com.newland.tianyan.common.utils.NetworkUtils;
 import com.newland.tianyan.common.utils.ServerAddressUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +21,11 @@ import static com.newland.tianyan.common.constans.GlobalTraceConstant.GATEWAY_TR
  */
 @Slf4j
 public class ApiMethodLogIntercept implements HandlerInterceptor {
-    private final LogFixColumnsUtils logFixColumnsUtils;
+    private final LogFixColumnUtils logFixColumnUtils;
     private final ServerAddressUtils serverAddressUtils;
 
-    public ApiMethodLogIntercept(LogFixColumnsUtils logFixColumnsUtils, ServerAddressUtils serverAddressUtils) {
-        this.logFixColumnsUtils = logFixColumnsUtils;
+    public ApiMethodLogIntercept(LogFixColumnUtils logFixColumnUtils, ServerAddressUtils serverAddressUtils) {
+        this.logFixColumnUtils = logFixColumnUtils;
         this.serverAddressUtils = serverAddressUtils;
     }
 
@@ -36,7 +36,7 @@ public class ApiMethodLogIntercept implements HandlerInterceptor {
         String requestIp = NetworkUtils.getClientIpAddress(request);
         String responseIp = serverAddressUtils.getServerAddress();
         String traceId = request.getHeader(GATEWAY_TRACE_HEAD);
-        logFixColumnsUtils.init(traceId,url, requestIp, responseIp);
+        logFixColumnUtils.init(traceId,url, requestIp, responseIp);
         //输出请求时间
         String requestTime = LocalDateTime.now().toString();
         request.setAttribute("requestTime", requestTime);
@@ -54,6 +54,6 @@ public class ApiMethodLogIntercept implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) throws Exception {
-        logFixColumnsUtils.clear();
+        logFixColumnUtils.clear();
     }
 }

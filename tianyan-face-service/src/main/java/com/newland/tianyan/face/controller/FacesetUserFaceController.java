@@ -42,7 +42,7 @@ public class FacesetUserFaceController {
      * 添加人脸
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddReqDTO receive) {
+    public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddReqDTO receive) throws IOException {
         //convert image format to jpg
         receive.setImage(ImgFormatConvertUtils.convertToJpg(receive.getImage()));
 

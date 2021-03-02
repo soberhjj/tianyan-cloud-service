@@ -31,6 +31,7 @@ public class ApiLogReqFilter implements GlobalFilter, Ordered {
     @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+//        System.out.println("ApiLogReqFilter");
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
         String url = serverHttpRequest.getURI().getPath();
         String clientIp = ReactiveAddrUtils.getRemoteAddr(serverHttpRequest);

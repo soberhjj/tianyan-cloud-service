@@ -30,7 +30,6 @@ public class TraceFilter implements GlobalFilter, Ordered {
         ServerHttpRequest serverHttpRequest = exchange.getRequest().mutate()
                 .headers(header -> {
                     header.add(GATEWAY_TRACE_HEAD, traceId);
-                    header.add(SPAN_HEAD, "0");
                 })
                 .build();
         //统一http

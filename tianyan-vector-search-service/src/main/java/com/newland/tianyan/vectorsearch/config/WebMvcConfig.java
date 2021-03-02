@@ -1,7 +1,7 @@
 package com.newland.tianyan.vectorsearch.config;
 
 import com.newland.tianyan.common.log.ApiMethodLogIntercept;
-import com.newland.tianyan.common.utils.LogFixColumnsUtils;
+import com.newland.tianyan.common.utils.LogFixColumnUtils;
 import com.newland.tianyan.common.utils.ServerAddressUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -26,11 +26,11 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ApiMethodLogIntercept(logFixColumnsUtils, serverAddressUtils));
+        registry.addInterceptor(new ApiMethodLogIntercept(logFixColumnUtils, serverAddressUtils));
     }
 
     @Autowired
-    private LogFixColumnsUtils logFixColumnsUtils;
+    private LogFixColumnUtils logFixColumnUtils;
     @Autowired
     private ServerAddressUtils serverAddressUtils;
 }
