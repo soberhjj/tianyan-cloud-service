@@ -23,6 +23,11 @@ security:
         key-uri: http://localhost:18081/oauth/token_key
 
 
+feign:
+  sentinel:
+    enabled: true
+
+
 
 
 

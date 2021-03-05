@@ -6,4 +6,4 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.newland.tianyan.common.log.ApiReqParamsAdvice,\
   com.newland.tianyan.common.log.ApiRespBodyAdvice,\
   com.newland.tianyan.common.log.ApiMethodLogIntercept,\
-  com.newland.tianyan.common.exception.GlobalExceptionHandler
+  com.newland.tianyan.common.aop.GlobalExceptionHandler

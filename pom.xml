@@ -70,18 +70,6 @@
             <artifactId>apm-toolkit-logback-1.x</artifactId>
             <version>6.2.0</version>
         </dependency>
-        <!--sentinel限流熔断-->
-        <dependency>
-            <groupId>com.alibaba.csp</groupId>
-            <artifactId>sentinel-core</artifactId>
-            <version>1.8.1</version>
-        </dependency>
-        <!--sentinel控制台-->
-        <dependency>
-            <groupId>com.alibaba.csp</groupId>
-            <artifactId>sentinel-transport-simple-http</artifactId>
-            <version>1.8.1</version>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>

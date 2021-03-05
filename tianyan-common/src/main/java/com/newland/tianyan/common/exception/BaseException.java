@@ -6,18 +6,18 @@ import java.text.MessageFormat;
  * @description: 公共异常类
  * @author newland
  */
-public class CommonException extends RuntimeException {
+public class BaseException extends RuntimeException {
 
     private int errorCode;
     private String errorMsg;
     private Object[] args;
 
-    public CommonException(int errorCode, String errorMsg) {
+    public BaseException(int errorCode, String errorMsg) {
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
     }
 
-    public CommonException(int errorCode, String errorMsg, Object... args) {
+    public BaseException(int errorCode, String errorMsg, Object... args) {
         this.errorCode = errorCode;
         this.errorMsg = formatMsg(errorMsg, args);
         this.args = args;

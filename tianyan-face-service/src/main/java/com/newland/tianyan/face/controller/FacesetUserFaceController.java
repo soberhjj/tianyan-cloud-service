@@ -2,7 +2,7 @@ package com.newland.tianyan.face.controller;
 
 
 import com.newland.tianyan.common.constans.TaskType;
-import com.newland.tianyan.common.exception.CommonException;
+import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.utils.ImgFormatConvertUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.LogUtils;
@@ -68,7 +68,7 @@ public class FacesetUserFaceController {
         }
         NLFace.CloudFaceSendMessage build = result.build();
         if (!StringUtils.isEmpty(build.getErrorMsg())) {
-            throw new CommonException(build.getErrorCode(), build.getErrorMsg());
+            throw new BaseException(build.getErrorCode(), build.getErrorMsg());
         }
         return build;
     }

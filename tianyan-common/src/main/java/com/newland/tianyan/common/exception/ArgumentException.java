@@ -1,13 +1,11 @@
-package com.newland.tianyan.common.exception.global.argument;
-
-import com.newland.tianyan.common.exception.CommonException;
+package com.newland.tianyan.common.exception;
 
 /**
  * @author: RojiaHuang
  * @description: 参数异常
  * @date: 2021/3/3
  */
-public class ArgumentException extends CommonException {
+public class ArgumentException extends BaseException {
 
     public ArgumentException(int errorCode, String errorMsg) {
         super(errorCode, errorMsg);

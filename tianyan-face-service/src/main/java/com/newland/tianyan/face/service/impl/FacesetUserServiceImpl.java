@@ -2,8 +2,7 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.exception.CommonException;
-import com.newland.tianyan.common.exception.global.system.SystemErrorEnums;
+import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.generator.IDUtil;
 import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
@@ -52,7 +51,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     private ICacheHelper<FaceDO> faceCacheHelper;
 
     @Override
-    public PageInfo<UserInfoDO> getList(NLBackend.BackendAllRequest receive) throws CommonException {
+    public PageInfo<UserInfoDO> getList(NLBackend.BackendAllRequest receive) throws BaseException {
         UserInfoDO query = ProtobufUtils.parseTo(receive, UserInfoDO.class);
 
         //过滤掉用户组不合法的请求
@@ -84,7 +83,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     }
 
     @Override
-    public void copy(NLBackend.BackendAllRequest receive) throws CommonException {
+    public void copy(NLBackend.BackendAllRequest receive) throws BaseException {
         UserInfoDO queryUser = ProtobufUtils.parseTo(receive, UserInfoDO.class);
         Long appId = receive.getAppId();
         String userId = receive.getUserId();
@@ -196,7 +195,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     /**
      * 获取人脸库中的人脸信息
      */
-    private List<FaceDO> queryFace(Long appId, String groupId, String userId) throws CommonException {
+    private List<FaceDO> queryFace(Long appId, String groupId, String userId) throws BaseException {
         FaceDO faceQuery = new FaceDO();
         faceQuery.setAppId(appId);
         faceQuery.setGroupId(groupId);
@@ -212,7 +211,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
      * 删除用户
      */
     @Override
-    public void delete(NLBackend.BackendAllRequest receive) throws CommonException {
+    public void delete(NLBackend.BackendAllRequest receive) throws BaseException {
         UserInfoDO query = ProtobufUtils.parseTo(receive, UserInfoDO.class);
 
         String[] groups = query.getGroupId().split(",");
@@ -235,14 +234,14 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             int userCount;
             userCount = userInfoMapper.delete(query);
             if (userCount < 0) {
-                throw SystemErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
+                throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
             }
             FaceDO faceDO = new FaceDO();
             faceDO.setGroupId(group);
             faceDO.setUserId(userInfoDO.getUserId());
             faceDO.setAppId(receive.getAppId());
             if (faceMapper.delete(faceDO)<0){
-                throw SystemErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
+                throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
             }
 
             publisher.publishEvent(new UserDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId(), userInfoDO.getFaceNumber(), userCount));
@@ -255,7 +254,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
      * 换句话说user_id并不能唯一表示某个app下的某个user。
      */
     @Override
-    public List<UserInfoDO> getInfo(NLBackend.BackendAllRequest receive) throws CommonException {
+    public List<UserInfoDO> getInfo(NLBackend.BackendAllRequest receive) throws BaseException {
         UserInfoDO userQuery = ProtobufUtils.parseTo(receive, UserInfoDO.class);
         //如果传入的参数中没有传入用户组的话，那么就根据传入的app_id去获取该app的所有用户组。
         List<String> groupIds = this.getGroupList(userQuery.getUserId(), userQuery.getAppId());
@@ -280,7 +279,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     /**
      * 根据appId获取group的databaseId列表
      */
-    private List<String> getGroupList(String userId, Long appId) throws CommonException {
+    private List<String> getGroupList(String userId, Long appId) throws BaseException {
         //获取用户所属的组列表
         List<String> groupIdList = userInfoMapper.getGroupIdByUserId(userId, appId);
         //仅返回有效状态的组id信息

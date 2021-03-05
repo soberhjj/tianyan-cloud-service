@@ -1,6 +1,6 @@
 package com.newland.tianyan.face.exception;
 
-import com.newland.tianyan.common.exception.global.system.SysException;
+import com.newland.tianyan.common.exception.SysException;
 
 /**
  * @author: RojiaHuang
@@ -19,10 +19,20 @@ public enum SysErrorEnums {
      * proto异常
      */
     PROTO_PARSE_ERROR(601007, "proto转换失败"),
+
+    RABBIT_MQ_RETURN_NONE(6011111, "消息队列结果为空"),
     /**
      * 其他系统异常
      */
     SYSTEM_ERROR(999999, "系统异常"),
+    /**
+     * 向量集合删除失败
+     **/
+    VECTOR_DROP_ERROR(100000, ""),
+    VECTOR_CREATE_ERROR(100000,""),
+    VECTOR_INSERT_ERROR(100000,""),
+    VECTOR_DELETE_ERROR(100000,""),
+    VECTOR_QUERY_ERROR(100000,""),
     ;
     private int errorCode;
 

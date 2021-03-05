@@ -1,6 +1,6 @@
-package com.newland.tianyan.common.exception.global.argument;
+package com.newland.tianyan.common.constans;
 
-import com.newland.tianyan.common.exception.CommonException;
+import com.newland.tianyan.common.exception.ArgumentException;
 
 /**
  * @author: RojiaHuang

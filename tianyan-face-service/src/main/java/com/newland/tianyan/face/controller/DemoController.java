@@ -1,8 +1,8 @@
 package com.newland.tianyan.face.controller;
 
 
-import com.newland.tianyan.common.exception.CommonException;
-import com.newland.tianyan.common.exception.global.system.SysException;
+import com.newland.tianyan.common.exception.BaseException;
+import com.newland.tianyan.common.exception.SysException;
 import com.newland.tianyan.common.model.auth.AuthClientReqDTO;
 import com.newland.tianyan.face.feign.client.AuthClientFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +33,8 @@ public class DemoController {
         try {
             result = authClientFeignService.test(req);
         }catch (Exception e){
-            if (e instanceof CommonException){
-                throw new SysException(((CommonException) e).getErrorCode(),((CommonException) e).getErrorMsg());
+            if (e instanceof BaseException){
+                throw new SysException(((BaseException) e).getErrorCode(),((BaseException) e).getErrorMsg());
             }
         }
         return result;

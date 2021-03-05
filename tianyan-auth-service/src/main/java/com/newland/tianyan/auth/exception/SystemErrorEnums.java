@@ -1,6 +1,6 @@
 package com.newland.tianyan.auth.exception;
 
-import com.newland.tianyan.common.exception.global.system.SysException;
+import com.newland.tianyan.common.exception.SysException;
 
 /**
  * @author: RojiaHuang

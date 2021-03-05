@@ -38,15 +38,6 @@
             <artifactId>apm-toolkit-trace</artifactId>
             <version>8.4.0</version>
         </dependency>
-        <!--限流熔断gateway支持-->
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba.cloud</groupId>
-            <artifactId>spring-cloud-alibaba-sentinel-gateway</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

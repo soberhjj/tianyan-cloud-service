@@ -1,11 +1,8 @@
-package com.newland.tianyan.common.exception;
+package com.newland.tianyan.common.aop;
 
 
-import com.newland.tianyan.common.exception.global.argument.ArgumentErrorCategory;
-import com.newland.tianyan.common.exception.global.argument.ArgumentException;
-import com.newland.tianyan.common.exception.global.business.BusinessException;
-import com.newland.tianyan.common.exception.global.system.SystemErrorEnums;
-import com.newland.tianyan.common.exception.global.system.SysException;
+import com.newland.tianyan.common.constans.ArgumentErrorEnums;
+import com.newland.tianyan.common.exception.*;
 import com.newland.tianyan.common.utils.JsonErrorObject;
 import com.newland.tianyan.common.utils.LogUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +30,7 @@ public class GlobalExceptionHandler {
     public JsonErrorObject handleArgumentException(MethodArgumentNotValidException e) {
         log.warn("抛出参数异常", e);
         FieldError fieldError = e.getBindingResult().getFieldError();
-        ArgumentException commonException = ArgumentErrorCategory.getError(fieldError.getCode(), fieldError.getField());
+        ArgumentException commonException = getError(fieldError.getCode(), fieldError.getField());
         return new JsonErrorObject(LogUtils.traceId(), commonException.getErrorCode(), commonException.getErrorMsg());
     }
 
@@ -52,12 +49,30 @@ public class GlobalExceptionHandler {
     /**
      * 系统异常(未知)
      */
-    @ExceptionHandler({Exception.class,SysException.class})
+    @ExceptionHandler({Exception.class, SysException.class})
     @ResponseBody
     public JsonErrorObject handleOtherException(Exception e) {
         log.warn("抛出系统异常", e);
         e.printStackTrace();
-        SysException sysException = SystemErrorEnums.SYSTEM_ERROR.toException();
-        return new JsonErrorObject(LogUtils.traceId(), sysException.getErrorCode(), sysException.getErrorMsg());
+        return new JsonErrorObject(LogUtils.traceId(), 6000, "system error");
+    }
+
+    private static ArgumentException getError(String code, String field) {
+        switch (code) {
+            case "NotBlank":
+                return ArgumentErrorEnums.ARGUMENT_NOT_BLANK.toException(field);
+            case "NotNull":
+                return ArgumentErrorEnums.ARGUMENT_NOT_NULL.toException(field);
+            case "NotEmpty":
+                return ArgumentErrorEnums.ARGUMENT_NOT_EMPTY.toException(field);
+            case "Max":
+                return ArgumentErrorEnums.ARGUMENT_SIZE_MAN.toException(field);
+            case "Min":
+                return ArgumentErrorEnums.ARGUMENT_SIZE_MIN.toException(field);
+            case "Pattern":
+                return ArgumentErrorEnums.ARGUMENT_PATTERN.toException(field);
+            default:
+                return ArgumentErrorEnums.ARGUMENT_NOT_VALID.toException(field);
+        }
     }
 }

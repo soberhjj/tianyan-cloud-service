@@ -1,13 +1,11 @@
-package com.newland.tianyan.common.exception.global.business;
-
-import com.newland.tianyan.common.exception.CommonException;
+package com.newland.tianyan.common.exception;
 
 /**
  * @author: RojiaHuang
  * @description: 业务异常
  * @date: 2021/3/3
  */
-public class BusinessException extends CommonException {
+public class BusinessException extends BaseException {
 
     public BusinessException(int errorCode, String errorMsg) {
         super(errorCode, errorMsg);

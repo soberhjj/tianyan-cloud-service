@@ -1,13 +1,11 @@
-package com.newland.tianyan.common.exception.global.system;
-
-import com.newland.tianyan.common.exception.CommonException;
+package com.newland.tianyan.common.exception;
 
 /**
  * @author: RojiaHuang
  * @description: 系统异常
  * @date: 2021/3/3
  */
-public class SysException extends CommonException {
+public class SysException extends BaseException {
 
     public SysException(int errorCode, String errorMsg) {
         super(errorCode, errorMsg);

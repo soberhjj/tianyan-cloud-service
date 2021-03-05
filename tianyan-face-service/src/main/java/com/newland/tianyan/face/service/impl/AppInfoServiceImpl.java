@@ -2,8 +2,7 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.exception.CommonException;
-import com.newland.tianyan.common.exception.global.system.SystemErrorEnums;
+import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.model.auth.AuthClientReqDTO;
 import com.newland.tianyan.common.utils.AppUtils;
 import com.newland.tianyan.common.utils.JsonUtils;
@@ -14,6 +13,7 @@ import com.newland.tianyan.face.dao.AppInfoMapper;
 import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.exception.BusinessErrorEnums;
+import com.newland.tianyan.face.exception.SysErrorEnums;
 import com.newland.tianyan.face.feign.client.AuthClientFeignService;
 import com.newland.tianyan.face.service.AppInfoService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
@@ -47,7 +47,7 @@ public class AppInfoServiceImpl implements AppInfoService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public void insert(NLBackend.BackendAllRequest receive) throws CommonException {
+    public void insert(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         // (未逻辑删除的数据集)检查account和appNames是否已经存在
         appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
@@ -71,7 +71,7 @@ public class AppInfoServiceImpl implements AppInfoService {
     }
 
     @Override
-    public AppInfoDO getInfo(NLBackend.BackendAllRequest receive) throws CommonException {
+    public AppInfoDO getInfo(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
 
         appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
@@ -83,7 +83,7 @@ public class AppInfoServiceImpl implements AppInfoService {
     }
 
     @Override
-    public PageInfo<AppInfoDO> getList(NLBackend.BackendAllRequest receive) throws CommonException {
+    public PageInfo<AppInfoDO> getList(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         return PageHelper.offsetPage(appInfoDO.getStartIndex(), appInfoDO.getLength())
                 .doSelectPageInfo(
@@ -115,7 +115,7 @@ public class AppInfoServiceImpl implements AppInfoService {
      * @Date 2020/10/21 18:32
      */
     @Override
-    public void update(NLBackend.BackendAllRequest receive) throws CommonException {
+    public void update(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         //是否存在且状态有效
         AppInfoDO queryAppInfoDO = new AppInfoDO();
@@ -140,7 +140,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         try {
             appInfoMapper.update(appInfoDO);
         } catch (Exception e) {
-            throw SystemErrorEnums.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
+            throw SysErrorEnums.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
         }
     }
 
@@ -155,7 +155,7 @@ public class AppInfoServiceImpl implements AppInfoService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public void delete(NLBackend.BackendAllRequest receive) throws CommonException {
+    public void delete(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         if (appInfoDO == null) {
             throw BusinessErrorEnums.NOT_EXISTS.toException(receive.getAppId());
@@ -172,7 +172,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         try {
             appInfoMapper.updateToDelete(StatusConstants.DELETE, appInfoDO.getAppId());
         } catch (Exception e) {
-            throw SystemErrorEnums.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
+            throw SysErrorEnums.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
         }
 
         // 远程调用

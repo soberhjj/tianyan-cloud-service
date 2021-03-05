@@ -3,8 +3,7 @@ package com.newland.tianyan.face.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.googlecode.protobuf.format.JsonFormat;
-import com.newland.tianyan.common.exception.CommonException;
-import com.newland.tianyan.common.exception.global.system.SystemErrorEnums;
+import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.model.imagestrore.DownloadReqDTO;
 import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
 import com.newland.tianyan.common.utils.FeaturesTool;
@@ -23,6 +22,7 @@ import com.newland.tianyan.face.event.face.FaceDeleteEvent;
 import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.user.UserCreateEvent;
 import com.newland.tianyan.face.exception.BusinessErrorEnums;
+import com.newland.tianyan.face.exception.SysErrorEnums;
 import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
@@ -135,7 +135,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 //note 缓存中添加用户的人脸
                 faceCacheHelper.add(insertFaceDO);
                 if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                    throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
+                    throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
                 }
                 //发布事件。由于新增了用户，所以要在group_info表中将该用户对应的那个用户组的记录进行更新（更新的字段是user_number和face_number）
                 publisher.publishEvent(new UserCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId(), 1, 1));
@@ -151,7 +151,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     faceCacheHelper.add(insertFaceDO);
                     //添加人脸
                     if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                        throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
+                        throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
                     }
                     //发布事件。已存在的用户添加了人脸，所以要在user_info中将该用户对应的那条记录进行更新（更新的字段是face_number）,也要在group_info表中将该用户对应的那个用户组的记录进行更新（更新的字段同样是face_number）
                     publisher.publishEvent(new FaceCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
@@ -170,12 +170,12 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     int deleteCount;
                     deleteCount = faceMapper.delete(faceDO);
                     if (deleteCount < 0) {
-                        throw SystemErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
+                        throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
                     }
                     //添加该用户新的人脸（只有一张）
                     faceCacheHelper.add(insertFaceDO);
                     if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                        throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
+                        throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
                     }
                     //人脸替换后更新user_info表中该用户的face_number,也要更新group_info表中该用户对在的用户组对应的那条记录中的face_number
                     userInfoMapper.faceNumberIncrease(receive.getAppId(), groupId, receive.getUserId(), 1 - deleteCount);
@@ -196,13 +196,13 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         double eyeDistance = Math.sqrt(Math.pow(detectRe.getFaceInfos(0).getPtx(0) - detectRe.getFaceInfos(0).getPtx(1), 2)
                 + Math.pow(detectRe.getFaceInfos(0).getPty(0) - detectRe.getFaceInfos(0).getPty(1), 2));
         if (qualityControl == 1 && eyeDistance <= 20) {
-            throw new CommonException(6200, "low quality control fail! eye distance < 20 pixels");
+            throw new BaseException(6200, "low quality control fail! eye distance < 20 pixels");
         }
         if (qualityControl == 2 && eyeDistance <= 40) {
-            throw new CommonException(6200, "median quality control fail! eye distance < 40 pixels");
+            throw new BaseException(6200, "median quality control fail! eye distance < 40 pixels");
         }
         if (qualityControl == 3 && eyeDistance <= 60) {
-            throw new CommonException(6200, "high quality control fail! eye distance < 60 pixels");
+            throw new BaseException(6200, "high quality control fail! eye distance < 60 pixels");
         }
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
 
@@ -212,95 +212,95 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         NLFace.CloudFaceSendMessage qualityRe = builder.build();
         if (qualityControl == 1) {
             if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 40) {
-                throw new CommonException(6200, "low quality control fail! abs(pitch) >= 40");
+                throw new BaseException(6200, "low quality control fail! abs(pitch) >= 40");
             }
             if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 40) {
-                throw new CommonException(6200, "low quality control fail! abs(yaw) >= 40");
+                throw new BaseException(6200, "low quality control fail! abs(yaw) >= 40");
             }
             if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 40) {
-                throw new CommonException(6200, "low quality control fail! abs(roll) >= 40");
+                throw new BaseException(6200, "low quality control fail! abs(roll) >= 40");
             }
             if (qualityRe.getFaceAttributes(0).getBlur() >= 0.8) {
-                throw new CommonException(6200, "low quality control fail! blur >= 0.8");
+                throw new BaseException(6200, "low quality control fail! blur >= 0.8");
             }
             if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.8) {
-                throw new CommonException(6200, "low quality control fail! occlusion >= 0.8");
+                throw new BaseException(6200, "low quality control fail! occlusion >= 0.8");
             }
             if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.15 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.95) {
-                throw new CommonException(6200, "low quality control fail! brightness is not in (0.15, 0.95)");
+                throw new BaseException(6200, "low quality control fail! brightness is not in (0.15, 0.95)");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.8) {
-                throw new CommonException(6200, "low quality control fail! brightness side diff >= 0.8");
+                throw new BaseException(6200, "low quality control fail! brightness side diff >= 0.8");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.8) {
-                throw new CommonException(6200, "low quality control fail! brightness updown diff >= 0.8");
+                throw new BaseException(6200, "low quality control fail! brightness updown diff >= 0.8");
             }
             if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.8) {
-                throw new CommonException(6200, "low quality control fail! tone off center >= 0.8");
+                throw new BaseException(6200, "low quality control fail! tone off center >= 0.8");
             }
         }
         if (qualityControl == 2) {
             if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 30) {
-                throw new CommonException(6200, "median quality control fail! abs(pitch) >= 30");
+                throw new BaseException(6200, "median quality control fail! abs(pitch) >= 30");
             }
             if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 30) {
-                throw new CommonException(6200, "median quality control fail! abs(yaw) >= 30");
+                throw new BaseException(6200, "median quality control fail! abs(yaw) >= 30");
             }
             if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 30) {
-                throw new CommonException(6200, "median quality control fail! abs(roll) >= 30");
+                throw new BaseException(6200, "median quality control fail! abs(roll) >= 30");
             }
             if (qualityRe.getFaceAttributes(0).getBlur() >= 0.6) {
-                throw new CommonException(6200, "median quality control fail! blur >= 0.6");
+                throw new BaseException(6200, "median quality control fail! blur >= 0.6");
             }
             if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.6) {
-                throw new CommonException(6200, "median quality control fail! occlusion >= 0.6");
+                throw new BaseException(6200, "median quality control fail! occlusion >= 0.6");
             }
             if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.2 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.9) {
-                throw new CommonException(6200, "median quality control fail! brightness is not in (0.2, 0.9)");
+                throw new BaseException(6200, "median quality control fail! brightness is not in (0.2, 0.9)");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.6) {
-                throw new CommonException(6200, "median quality control fail! brightness side diff >= 0.6");
+                throw new BaseException(6200, "median quality control fail! brightness side diff >= 0.6");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.6) {
-                throw new CommonException(6200, "median quality control fail! brightness updown diff >= 0.6");
+                throw new BaseException(6200, "median quality control fail! brightness updown diff >= 0.6");
             }
             if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.6) {
-                throw new CommonException(6200, "median quality control fail! tone off center >= 0.6");
+                throw new BaseException(6200, "median quality control fail! tone off center >= 0.6");
             }
         }
         if (qualityControl == 3) {
             if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 20) {
-                throw new CommonException(6200, "high quality control fail! abs(pitch) >= 20");
+                throw new BaseException(6200, "high quality control fail! abs(pitch) >= 20");
             }
             if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 20) {
-                throw new CommonException(6200, "high quality control fail! abs(yaw) >= 20");
+                throw new BaseException(6200, "high quality control fail! abs(yaw) >= 20");
             }
             if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 20) {
-                throw new CommonException(6200, "high quality control fail! abs(roll) >= 20");
+                throw new BaseException(6200, "high quality control fail! abs(roll) >= 20");
             }
             if (qualityRe.getFaceAttributes(0).getBlur() >= 0.4) {
-                throw new CommonException(6200, "high quality control fail! blur >= 0.4");
+                throw new BaseException(6200, "high quality control fail! blur >= 0.4");
             }
             if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.4) {
-                throw new CommonException(6200, "high quality control fail! occlusion >= 0.4");
+                throw new BaseException(6200, "high quality control fail! occlusion >= 0.4");
             }
             if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.3 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.8) {
-                throw new CommonException(6200, "high quality control fail! brightness is not in (0.3, 0.8)");
+                throw new BaseException(6200, "high quality control fail! brightness is not in (0.3, 0.8)");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.4) {
-                throw new CommonException(6200, "high quality control fail! brightness side diff >= 0.4");
+                throw new BaseException(6200, "high quality control fail! brightness side diff >= 0.4");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.4) {
-                throw new CommonException(6200, "high quality control fail! brightness updown diff >= 0.4");
+                throw new BaseException(6200, "high quality control fail! brightness updown diff >= 0.4");
             }
             if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.4) {
-                throw new CommonException(6200, "high quality control fail! tone off center >= 0.4");
+                throw new BaseException(6200, "high quality control fail! tone off center >= 0.4");
             }
         }
     }
 
 
-    public NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) throws CommonException {
+    public NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) throws BaseException {
         //封装请求
         NLFace.CloudFaceAllRequest.Builder amqpRequest = NLFace.CloudFaceAllRequest.newBuilder();
         amqpRequest.setLogId(UUID.randomUUID().toString());
@@ -315,7 +315,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         try {
             JsonFormat.merge(json, result);
         } catch (JsonFormat.ParseException e) {
-            throw SystemErrorEnums.PROTO_PARSE_ERROR.toException();
+            throw SysErrorEnums.PROTO_PARSE_ERROR.toException();
         }
         return result.build();
     }
@@ -405,7 +405,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         faceCacheHelper.delete(query.getAppId(), faceDO.getId());
         //物理删除人脸
         if (faceMapper.delete(query) < 0) {
-            throw SystemErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
+            throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
         }
         publisher.publishEvent(new FaceDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
     }

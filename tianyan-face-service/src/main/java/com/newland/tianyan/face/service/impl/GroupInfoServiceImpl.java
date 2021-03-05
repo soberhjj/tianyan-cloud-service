@@ -2,8 +2,7 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.exception.CommonException;
-import com.newland.tianyan.common.exception.global.system.SystemErrorEnums;
+import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
@@ -15,6 +14,7 @@ import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.group.AbstractGroupDeleteEvent;
 import com.newland.tianyan.face.exception.BusinessErrorEnums;
+import com.newland.tianyan.face.exception.SysErrorEnums;
 import com.newland.tianyan.face.service.GroupInfoService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
 
     @Override
-    public void create(NLBackend.BackendAllRequest receive) throws CommonException {
+    public void create(NLBackend.BackendAllRequest receive) throws BaseException {
         GroupInfoDO groupInfoDO = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
         //判断用户组是否存在
         groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
@@ -55,7 +55,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         groupInfoDO.setFaceNumber(0);
         groupInfoDO.setUserNumber(0);
         if (groupInfoMapper.insertSelective(groupInfoDO) < 0) {
-            throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(groupInfoDO));
+            throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(groupInfoDO));
         }
 
         //发布事件。由于新增了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值加1
@@ -64,7 +64,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     }
 
     @Override
-    public PageInfo<GroupInfoDO> getList(NLBackend.BackendAllRequest receive) throws CommonException {
+    public PageInfo<GroupInfoDO> getList(NLBackend.BackendAllRequest receive) throws BaseException {
         GroupInfoDO query = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
         return PageHelper.offsetPage(query.getStartIndex(), query.getLength())
                 .doSelectPageInfo(
@@ -89,7 +89,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * 删除用户组
      */
     @Override
-    public void delete(NLBackend.BackendAllRequest receive) throws CommonException {
+    public void delete(NLBackend.BackendAllRequest receive) throws BaseException {
         GroupInfoDO groupInfoDO = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
         groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
         GroupInfoDO groupToDelete = groupInfoMapper.selectOne(groupInfoDO);
@@ -103,7 +103,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
         //逻辑删除
         if (groupInfoMapper.updateToDelete(StatusConstants.DELETE, groupToDelete.getId()) < 0) {
-            throw SystemErrorEnums.DB_DELETE_ERROR.toException();
+            throw SysErrorEnums.DB_DELETE_ERROR.toException();
         }
 
         //发布事件。由于删除了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值减1
