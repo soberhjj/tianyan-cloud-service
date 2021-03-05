@@ -1,8 +1,8 @@
 package com.newland.tianyan.face.mq;
 
 
-import com.newland.tianyan.face.exception.ApiException;
-import com.newland.tianyan.face.exception.ApiReturnErrorCode;
+import com.newland.tianyan.common.exception.global.system.SysException;
+import com.newland.tianyan.common.exception.global.system.SystemErrorEnums;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ public class RabbitMQSender {
     @Autowired
     private AmqpTemplate rabbitTemplate;
 
-    public byte[] send(String routingKey, Object message) throws ApiException {
+    public byte[] send(String routingKey, Object message) throws SysException {
         Object receive = null;
         try {
             receive = this.rabbitTemplate.convertSendAndReceive(routingKey, message);
@@ -22,7 +22,7 @@ public class RabbitMQSender {
             exception.printStackTrace();
         }
         if (receive == null) {
-            throw ApiReturnErrorCode.RABBIT_MQ_RETURN_NONE.toException();
+            throw SystemErrorEnums.RABBIT_MQ_RETURN_NONE.toException();
         }
         return (byte[]) receive;
     }

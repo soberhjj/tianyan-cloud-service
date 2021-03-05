@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.feign;
+package com.newland.tianyan.face.feign.client;
 
 
 import com.newland.tianyan.common.api.IVectorSearchApi;

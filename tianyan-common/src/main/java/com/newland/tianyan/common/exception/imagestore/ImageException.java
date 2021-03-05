@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.exception.imgexception;
+package com.newland.tianyan.common.exception.imagestore;
 
 /**
  * @Author: huangJunJie  2021-02-26 14:27

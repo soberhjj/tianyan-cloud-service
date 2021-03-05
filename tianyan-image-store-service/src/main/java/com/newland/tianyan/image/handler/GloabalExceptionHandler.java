@@ -1,6 +1,6 @@
 package com.newland.tianyan.image.handler;
 
-import com.newland.tianyan.common.exception.imgexception.ImageException;
+import com.newland.tianyan.common.exception.imagestore.ImageException;
 import com.newland.tianyan.common.utils.JsonErrorObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;

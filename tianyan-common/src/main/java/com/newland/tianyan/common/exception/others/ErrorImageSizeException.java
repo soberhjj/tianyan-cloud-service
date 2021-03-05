@@ -1,18 +1,18 @@
-package com.newland.tianyan.common.exception;
+package com.newland.tianyan.common.exception.others;
 
 /**
  * @program: newland-cloud
  * @description:
  * @author: THE KING
  **/
-public class EmptyImageException extends RuntimeException {
+public class ErrorImageSizeException extends RuntimeException {
 
     private int errorCode;
     private String errorMsg;
 
-    public EmptyImageException() {
-        this.errorCode = 6200;
-        this.errorMsg = "empty image";
+    public ErrorImageSizeException() {
+        this.errorCode = 6202;
+        this.errorMsg = "image size error";
     }
 
     public int getErrorCode() {
@@ -31,4 +31,3 @@ public class EmptyImageException extends RuntimeException {
         this.errorMsg = errorMsg;
     }
 }
-

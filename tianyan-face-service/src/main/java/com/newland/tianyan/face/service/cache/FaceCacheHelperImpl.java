@@ -1,11 +1,13 @@
 package com.newland.tianyan.face.service.cache;
 
 
+import com.newland.tianyan.common.exception.CommonException;
+import com.newland.tianyan.common.exception.global.system.SystemErrorEnums;
 import com.newland.tianyan.common.model.vectorsearch.*;
 import com.newland.tianyan.common.utils.FeaturesTool;
 import com.newland.tianyan.face.domain.entity.FaceDO;
-import com.newland.tianyan.face.exception.ApiReturnErrorCode;
-import com.newland.tianyan.face.feign.VectorSearchFeignService;
+import com.newland.tianyan.face.feign.ReportException;
+import com.newland.tianyan.face.feign.client.VectorSearchFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -27,57 +29,57 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
         return "FACE_" + appId;
     }
 
-    public List<QueryResDTO> query(Long appId, List<Float> feature, List<Long> gids, Integer topK) {
+    public List<QueryResDTO> query(Long appId, List<Float> feature, List<Long> gids, Integer topK) throws CommonException {
         QueryReqDTO queryReq = QueryReqDTO.builder()
                 .appId(getCollectionName(appId))
                 .feature(feature)
                 .topK(topK)
                 .build();
-        return vectorSearchService.query(queryReq);
+        List<QueryResDTO> result;
+        try {
+            result = vectorSearchService.query(queryReq);
+        } catch (ReportException exception) {
+            throw SystemErrorEnums.CACHE_QUERY_ERROR.toException();
+        }
+        return result;
     }
 
     /**
      * 分装faceId值DeleteFaceRequest
      */
     @Override
-    public Integer delete(Long collectionId, Long id) {
+    public void delete(Long collectionId, Long id) throws CommonException {
 
-        int result = 1;
         try {
             DeleteReqDTO deleteReq = DeleteReqDTO.builder()
                     .appId(getCollectionName(collectionId))
                     .entityId(id)
                     .build();
             vectorSearchService.delete(deleteReq);
-        } catch (RuntimeException exception) {
-            exception.printStackTrace();
-            result = -1;
+        } catch (ReportException exception) {
+            throw SystemErrorEnums.CACHE_DELETE_ERROR.toException();
         }
-        return result;
     }
 
     /**
      * 分装faceId值DeleteFaceRequest
      */
     @Override
-    public Integer deleteBatch(Long collectionId, List<Long> idList) {
+    public void deleteBatch(Long collectionId, List<Long> idList) throws CommonException {
 
-        int result = 1;
         try {
             BatchDeleteReqDTO batchDeleteReq = BatchDeleteReqDTO.builder()
                     .appId(getCollectionName(collectionId))
                     .entityIds(idList)
                     .build();
             vectorSearchService.batchDelete(batchDeleteReq);
-        } catch (RuntimeException exception) {
-            exception.printStackTrace();
-            result = -1;
+        } catch (ReportException exception) {
+            throw SystemErrorEnums.CACHE_DELETE_ERROR.toException();
         }
-        return result;
     }
 
     @Override
-    public Long add(T entity) {
+    public Long add(T entity) throws CommonException {
 
         FaceDO dto = (FaceDO) entity;
         List<Float> feature = this.convertByteArrayToList(dto);
@@ -86,11 +88,17 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                 .entityId(dto.getId())
                 .feature(feature)
                 .build();
-        return vectorSearchService.insert(insertReq);
+        Long result;
+        try {
+            result = vectorSearchService.insert(insertReq);
+        } catch (ReportException exception) {
+            throw SystemErrorEnums.CACHE_INSERT_ERROR.toException();
+        }
+        return result;
     }
 
     @Override
-    public List<Long> addBatch(List<T> entityList) {
+    public List<Long> addBatch(List<T> entityList) throws CommonException {
 
         if (CollectionUtils.isEmpty(entityList)) {
             throw new IllegalArgumentException("mainDataList must not be empty");
@@ -102,13 +110,13 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
         Long appId = insertSourceList.get(0).getAppId();
         List<List<Float>> features = new ArrayList<>(size);
         List<Long> entityIds = new ArrayList<>(size);
-        List<Long> gids = new ArrayList<>(size);
-        List<Long> uids = new ArrayList<>(size);
+//        List<Long> gids = new ArrayList<>(size);
+//        List<Long> uids = new ArrayList<>(size);
         insertSourceList.forEach(face -> {
             features.add(this.convertByteArrayToList(face));
             entityIds.add(face.getId());
-            gids.add(face.getGid());
-            uids.add(face.getUid());
+//            gids.add(face.getGid());
+//            uids.add(face.getUid());
         });
 
         BatchInsertReqDTO batchInsertReq = BatchInsertReqDTO.builder()
@@ -116,44 +124,40 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                 .entityIds(entityIds)
                 .features(features)
                 .build();
-        return vectorSearchService.batchInsert(batchInsertReq);
+        List<Long> result;
+        try {
+            result = vectorSearchService.batchInsert(batchInsertReq);
+        } catch (ReportException exception) {
+            throw SystemErrorEnums.CACHE_INSERT_ERROR.toException();
+        }
+        return result;
     }
 
-    public List<Float> convertByteArrayToList(FaceDO entity) {
-        if (entity == null || entity.getFeatures() == null) {
-            throw ApiReturnErrorCode.ILLEGAL_ARGUMENT.toException("feature must not be null");
-        }
-
+    public List<Float> convertByteArrayToList(FaceDO entity) throws CommonException {
         return FeaturesTool.convertByteArrayToList(entity.getFeatures());
     }
 
     @Override
-    public Integer createCollection(Long collectionId) {
-        int result = 1;
+    public void createCollection(Long collectionId) throws CommonException {
         try {
             CreateColReqDTO createColReq = CreateColReqDTO.builder()
                     .appId(getCollectionName(collectionId))
                     .build();
             vectorSearchService.createCollection(createColReq);
-        } catch (RuntimeException exception) {
-            exception.printStackTrace();
-            result = -1;
+        } catch (ReportException exception) {
+            throw SystemErrorEnums.CACHE_CREATE_ERROR.toException();
         }
-        return result;
     }
 
     @Override
-    public Integer deleteCollection(Long collectionId) {
-        int result = 1;
+    public void deleteCollection(Long collectionId) throws CommonException {
         try {
             DeleteColReqDTO deleteColReq = DeleteColReqDTO.builder()
                     .appId(getCollectionName(collectionId))
                     .build();
             vectorSearchService.dropCollection(deleteColReq);
-        } catch (RuntimeException exception) {
-            exception.printStackTrace();
-            result = -1;
+        } catch (ReportException exception) {
+            throw SystemErrorEnums.CACHE_DROP_ERROR.toException();
         }
-        return result;
     }
 }

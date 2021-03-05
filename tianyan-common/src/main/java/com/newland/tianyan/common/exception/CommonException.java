@@ -3,6 +3,7 @@ package com.newland.tianyan.common.exception;
 import java.text.MessageFormat;
 
 /**
+ * @description: 公共异常类
  * @author newland
  */
 public class CommonException extends RuntimeException {

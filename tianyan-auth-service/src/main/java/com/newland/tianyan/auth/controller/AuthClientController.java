@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.Collections;
 
 @RestController
@@ -26,7 +27,7 @@ public class AuthClientController implements IAuthClientApi {
 
     @Override
     @RequestMapping(value = "/addClient", method = RequestMethod.POST)
-    public void addClient(@RequestBody @Validated AuthClientReqDTO request) {
+    public void addClient(@RequestBody @Valid AuthClientReqDTO request) {
         BaseClientDetails details = new BaseClientDetails();
 
         details.setClientId(request.getClientId());
@@ -41,7 +42,7 @@ public class AuthClientController implements IAuthClientApi {
 
     @Override
     @RequestMapping(value = "/deleteClient", method = RequestMethod.POST)
-    public void deleteClient(@RequestBody @Validated AuthClientReqDTO request) {
+    public void deleteClient(@RequestBody @Valid  AuthClientReqDTO request) {
         service.removeClientDetails(request.getClientId());
     }
 

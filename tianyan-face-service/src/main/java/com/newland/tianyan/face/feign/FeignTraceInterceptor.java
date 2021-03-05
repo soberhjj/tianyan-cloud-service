@@ -6,7 +6,6 @@ import org.slf4j.MDC;
 import org.springframework.util.StringUtils;
 
 import static com.newland.tianyan.common.constans.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
-import static com.newland.tianyan.common.constans.GlobalTraceConstant.TRACE_MDC;
 
 /**
  * @author: RojiaHuang
@@ -17,7 +16,7 @@ public class FeignTraceInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate requestTemplate) {
         //获取traceId
-        String gatewayTrace = MDC.get(TRACE_MDC);
+        String gatewayTrace = MDC.get("traceId");
         if (!StringUtils.isEmpty(gatewayTrace)) {
             requestTemplate.header(GATEWAY_TRACE_HEAD, gatewayTrace);
         }

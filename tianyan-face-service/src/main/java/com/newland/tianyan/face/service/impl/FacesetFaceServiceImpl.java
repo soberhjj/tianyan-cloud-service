@@ -2,6 +2,7 @@ package com.newland.tianyan.face.service.impl;
 
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianyan.common.exception.CommonException;
+import com.newland.tianyan.common.exception.global.system.SystemErrorEnums;
 import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
 import com.newland.tianyan.common.model.vectorsearch.QueryResDTO;
 import com.newland.tianyan.common.utils.message.NLBackend;
@@ -17,7 +18,7 @@ import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
-import com.newland.tianyan.face.feign.ImageStoreFeignService;
+import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.service.FacesetFaceService;
 import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import com.newland.tianyan.face.service.cache.MilvusKey;
@@ -52,6 +53,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     private FaceCacheHelperImpl<FaceDO> faceFaceCacheHelper;
     @Autowired
     private ImageStoreFeignService imageStorageService;
+
     private final static Map<String, Integer> TASK_TYPE = new HashMap<String, Integer>() {{
         put("coordinate", 1);
         put("feature", 2);
@@ -60,7 +62,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }};
 
     @Override
-    public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReqDTO request) {
+    public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReqDTO request) throws CommonException{
         String fileName = request.getImage();
         List<String> groupIdList = new ArrayList<>();
         Collections.addAll(groupIdList, request.getGroupId().split(","));
@@ -120,7 +122,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         return resultBuilder.build();
     }
 
-    private NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) {
+    private NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) throws CommonException{
         // get features
         String logId = UUID.randomUUID().toString();
         NLFace.CloudFaceAllRequest.Builder amqpRequest = NLFace.CloudFaceAllRequest.newBuilder();
@@ -153,8 +155,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         try {
             JsonFormat.merge(json, result);
         } catch (JsonFormat.ParseException e) {
-            e.printStackTrace();
-            throw new CommonException(6400, "proto parse exception");
+            throw SystemErrorEnums.PROTO_PARSE_ERROR.toException(e);
         }
         NLFace.CloudFaceSendMessage build = result.build();
         if (!StringUtils.isEmpty(build.getErrorMsg())) {
@@ -165,7 +166,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
 
     public void faceFieldHelper(String faceFieldsStr, NLFace.CloudFaceSendMessage.Builder result,
-                                String fileName) {
+                                String fileName) throws CommonException{
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
@@ -416,7 +417,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         temp.setAppId(receive.getAppId());
         if (model == -20) {
             NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-            result.setLogId(LogUtils.getLogId());
+            result.setLogId(LogUtils.traceId());
             ObjectInputStream in;
             float[] features = new float[512];
             try {
@@ -437,7 +438,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         }
 
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-        result.setLogId(LogUtils.getLogId());
+        result.setLogId(LogUtils.traceId());
         result.setFeature(temp.getFeaturesNew());
         result.setVersion(temp.getVersion());
         NLFace.CloudFaceSendMessage build = result.build();

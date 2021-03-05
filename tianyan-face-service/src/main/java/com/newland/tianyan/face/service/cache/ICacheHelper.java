@@ -1,5 +1,7 @@
 package com.newland.tianyan.face.service.cache;
 
+import com.newland.tianyan.common.exception.CommonException;
+
 import java.util.List;
 
 /**
@@ -13,17 +15,15 @@ public interface ICacheHelper<T> {
      * 删除目标
      *
      * @param id 缓存id
-     * @return 大于0 影响结果多于0个，判定成功
      */
-    Integer delete(Long collectionId,Long id);
+    void delete(Long collectionId,Long id) throws CommonException;
 
     /**
      * 批量删除目标
      *
      * @param idList 缓存idList
-     * @return 大于0 影响结果多于0个，判定成功
      */
-    Integer deleteBatch(Long collectionId,List<Long> idList);
+    void deleteBatch(Long collectionId,List<Long> idList) throws CommonException;
 
     /**
      * 向缓存增加目标
@@ -31,7 +31,7 @@ public interface ICacheHelper<T> {
      * @param entity 插入目标（可以主动指定ID）
      * @return 缓存的主键ID/KEY值
      */
-    Long add(T entity);
+    Long add(T entity) throws CommonException;
 
     /**
      * 批量添加，增加至批量池中
@@ -39,9 +39,9 @@ public interface ICacheHelper<T> {
      * @param entityList 插入目标（可以主动指定ID)
      * @return 缓存的主键ID/KEY值
      */
-    List<Long> addBatch(List<T> entityList);
+    List<Long> addBatch(List<T> entityList) throws CommonException;
 
-    Integer createCollection(Long collectionId);
+    void createCollection(Long collectionId) throws CommonException;
 
-    Integer deleteCollection(Long collectionId);
+    void deleteCollection(Long collectionId) throws CommonException;
 }

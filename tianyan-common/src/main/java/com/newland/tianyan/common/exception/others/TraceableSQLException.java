@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.exception;
+package com.newland.tianyan.common.exception.others;
 
 
 import com.newland.tianyan.common.utils.message.NLBackend;

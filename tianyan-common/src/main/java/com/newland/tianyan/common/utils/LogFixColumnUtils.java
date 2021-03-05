@@ -5,8 +5,6 @@ import org.springframework.stereotype.Component;
 
 import java.net.UnknownHostException;
 
-import static com.newland.tianyan.common.constans.GlobalTraceConstant.TRACE_MDC;
-
 /**
  * @author: RojiaHuang
  * @description:
@@ -16,14 +14,14 @@ import static com.newland.tianyan.common.constans.GlobalTraceConstant.TRACE_MDC;
 public class LogFixColumnUtils {
 
     public void init(String traceId, String url, String clientIp, String serverAddress) throws UnknownHostException {
-        MDC.put(TRACE_MDC, traceId);
+        MDC.put("traceId", traceId);
         MDC.put("uri", url);
         MDC.put("responseId", serverAddress);
         MDC.put("requestIp", clientIp);
     }
 
     public void clear() {
-        MDC.remove("gatewayTraceId");
+        MDC.remove("traceId");
         MDC.remove("uri");
         MDC.remove("responseId");
         MDC.remove("requestIp");

@@ -1,8 +1,8 @@
 package com.newland.tianyan.common.utils;
 
 
-import com.newland.tianyan.common.exception.imgexception.ImageException;
-import com.newland.tianyan.common.exception.imgexception.ImageExceptionReturn;
+import com.newland.tianyan.common.exception.imagestore.ImageException;
+import com.newland.tianyan.common.exception.imagestore.ImageExceptionReturn;
 
 import java.util.regex.Pattern;
 

@@ -21,7 +21,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-        //argumentResolvers.add(new ApiReqArgumentResolver());
+        //argumentResolvers.add(new MethodArgumentResolver());
     }
 
     @Override

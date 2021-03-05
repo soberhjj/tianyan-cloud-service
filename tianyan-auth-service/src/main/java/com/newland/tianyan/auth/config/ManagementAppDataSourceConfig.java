@@ -1,4 +1,4 @@
-package com.newland.tianyan.auth.config.datasource;
+package com.newland.tianyan.auth.config;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -8,7 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import tk.mybatis.spring.annotation.MapperScan;
@@ -16,25 +15,25 @@ import tk.mybatis.spring.annotation.MapperScan;
 import javax.sql.DataSource;
 
 @Configuration
-@MapperScan(basePackages = "com.newland.oauth.mapper.account", sqlSessionTemplateRef = "accountSqlSessionTemplate")
-public class AccountDataSourceConfig {
+@MapperScan(basePackages = "com.newland.oauth.mapper.app", sqlSessionTemplateRef = "managementAppSqlSessionTemplate")
+public class ManagementAppDataSourceConfig {
 
-    @Primary
-    @Bean(name = "accountDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.account")
+//    @Primary
+    @Bean(name = "managementAppDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.management-app")
     public DataSource testDataSource() {
         return DataSourceBuilder.create().build();
     }
 
-    @Primary
-    @Bean(name = "accountTransactionManager")
-    public DataSourceTransactionManager accountTransactionManager(@Qualifier("accountDataSource") DataSource dataSource) {
+//    @Primary
+    @Bean(name = "managementAppTransactionManager")
+    public DataSourceTransactionManager accountTransactionManager(@Qualifier("managementAppDataSource") DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
-    @Primary
-    @Bean(name = "accountSqlSessionFactory")
-    public SqlSessionFactory accountSqlSessionFactory(@Qualifier("accountDataSource") DataSource dataSource) throws Exception {
+//    @Primary
+    @Bean(name = "managementAppSqlSessionFactory")
+    public SqlSessionFactory accountSqlSessionFactory(@Qualifier("managementAppDataSource") DataSource dataSource) throws Exception {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(dataSource);
         bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mybatis/mapper/*.xml"));
@@ -42,9 +41,9 @@ public class AccountDataSourceConfig {
         return bean.getObject();
     }
 
-    @Primary
-    @Bean(name = "accountSqlSessionTemplate")
-    public SqlSessionTemplate accountSqlSessionTemplate(@Qualifier("accountSqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
+//    @Primary
+    @Bean(name = "managementAppSqlSessionTemplate")
+    public SqlSessionTemplate accountSqlSessionTemplate(@Qualifier("managementAppSqlSessionFactory") SqlSessionFactory sqlSessionFactory) throws Exception {
         return new SqlSessionTemplate(sqlSessionFactory);
     }
 }

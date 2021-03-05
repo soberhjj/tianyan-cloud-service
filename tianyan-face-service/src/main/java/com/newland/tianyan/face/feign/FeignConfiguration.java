@@ -11,7 +11,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FeignConfiguration {
     @Bean
-    public FeignTraceInterceptor feignTraceInterceptor(){
+    public FeignTraceInterceptor feignTraceInterceptor() {
         return new FeignTraceInterceptor();
+    }
+
+    @Bean
+    public FeignErrorDecoder feignErrorDecoder() {
+        return new FeignErrorDecoder();
     }
 }
