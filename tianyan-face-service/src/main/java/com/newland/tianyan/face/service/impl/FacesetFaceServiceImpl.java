@@ -20,8 +20,6 @@ import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.service.FacesetFaceService;
-import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
-import com.newland.tianyan.face.service.cache.MilvusKey;
 import com.newland.tianyan.face.domain.dto.FaceDetectReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceCompareReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceDetectReqDTO;

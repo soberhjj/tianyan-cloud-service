@@ -19,7 +19,7 @@ import com.newland.tianyan.face.event.user.UserDeleteEvent;
 import com.newland.tianyan.face.exception.BusinessErrorEnums;
 import com.newland.tianyan.face.exception.SysErrorEnums;
 import com.newland.tianyan.face.service.FacesetUserService;
-import com.newland.tianyan.face.service.cache.ICacheHelper;
+import com.newland.tianyan.face.service.ICacheHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;

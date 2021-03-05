@@ -27,8 +27,6 @@ import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
-import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
-import com.newland.tianyan.face.service.cache.MilvusKey;
 import lombok.extern.slf4j.Slf4j;
 import newlandFace.NLFace;
 import org.springframework.beans.factory.annotation.Autowired;

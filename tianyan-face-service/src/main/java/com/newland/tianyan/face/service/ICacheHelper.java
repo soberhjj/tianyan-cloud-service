@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.service.cache;
+package com.newland.tianyan.face.service;
 
 import com.newland.tianyan.common.exception.BaseException;
 

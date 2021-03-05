@@ -16,7 +16,6 @@ import com.newland.tianyan.face.event.group.AbstractGroupDeleteEvent;
 import com.newland.tianyan.face.exception.BusinessErrorEnums;
 import com.newland.tianyan.face.exception.SysErrorEnums;
 import com.newland.tianyan.face.service.GroupInfoService;
-import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

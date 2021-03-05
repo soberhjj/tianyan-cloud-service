@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.service.cache;
+package com.newland.tianyan.face.service.impl;
 
 
 import com.newland.tianyan.common.exception.BaseException;
@@ -8,6 +8,7 @@ import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.exception.SysErrorEnums;
 import com.newland.tianyan.face.feign.ReportException;
 import com.newland.tianyan.face.feign.client.VectorSearchFeignService;
+import com.newland.tianyan.face.service.ICacheHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;

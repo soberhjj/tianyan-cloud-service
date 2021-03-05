@@ -16,7 +16,6 @@ import com.newland.tianyan.face.exception.BusinessErrorEnums;
 import com.newland.tianyan.face.exception.SysErrorEnums;
 import com.newland.tianyan.face.feign.client.AuthClientFeignService;
 import com.newland.tianyan.face.service.AppInfoService;
-import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
