@@ -33,10 +33,6 @@ public class AuthLoginController {
 
     @RequestMapping(value = "/checkUnique", method = RequestMethod.POST)
     public Object checkUnique(@RequestBody @Valid LoginCheckUniqueReqDTO receive) {
-        boolean unique = StringUtils.isEmpty(receive.getAccount()) ^ StringUtils.isEmpty(receive.getMailbox());
-        if (!unique) {
-            return new JsonErrorObject(LogUtils.traceId(), 6100, "invalid param");
-        }
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         loginServiceImpl.checkUnique(request);
         return ProtobufUtils.buildLoginSendMessage();
@@ -44,10 +40,6 @@ public class AuthLoginController {
 
     @RequestMapping(value = "/getInfo", method = RequestMethod.POST)
     public Object getInfo(@RequestBody @Valid LoginGetInfoReqDTO receive) {
-        boolean unique = StringUtils.isEmpty(receive.getAccount()) ^ StringUtils.isEmpty(receive.getMailbox());
-        if (!unique) {
-            return new JsonErrorObject(LogUtils.traceId(), 6100, "invalid param");
-        }
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         Account info = loginServiceImpl.getInfo(request);
         return ProtobufUtils.buildLoginSendMessage(info.getAccount(), info.getMailbox());

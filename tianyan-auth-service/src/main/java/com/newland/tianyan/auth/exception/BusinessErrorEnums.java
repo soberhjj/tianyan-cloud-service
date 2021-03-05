@@ -12,6 +12,11 @@ public enum BusinessErrorEnums {
      * 测试微服务异常
      */
     DEMO(1, "demo exception"),
+    /**
+     * 存在性验证
+     * */
+    NOT_EXISTS(101001, "[{0}]不存在"),
+    ALREADY_EXISTS(101002, "[{0}]已存在"),
     ;
     private int errorCode;
 

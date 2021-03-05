@@ -50,21 +50,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 系统异常
-     */
-    @ExceptionHandler(SysException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
-    public JsonErrorObject handleSystemException(SysException e) {
-        log.warn("抛出系统异常", e);
-        e.printStackTrace();
-        return new JsonErrorObject(LogUtils.traceId(), e.getErrorCode(), e.getErrorMsg());
-    }
-
-    /**
      * 系统异常(未知)
      */
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler({Exception.class,SysException.class})
     @ResponseBody
     public JsonErrorObject handleOtherException(Exception e) {
         log.warn("抛出系统异常", e);

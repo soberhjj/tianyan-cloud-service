@@ -48,4 +48,12 @@ public enum SysErrorEnums {
     public SysException toException(Object... args) {
         return new SysException(this.getErrorCode(), this.getErrorMsg(), args);
     }
+
+    public SysException toException(Exception e) {
+        return new SysException(this.getErrorCode(), this.getErrorMsg(), e);
+    }
+
+    public SysException toException(Exception e, Object... args) {
+        return new SysException(this.getErrorCode(), this.getErrorMsg(), e, args);
+    }
 }
