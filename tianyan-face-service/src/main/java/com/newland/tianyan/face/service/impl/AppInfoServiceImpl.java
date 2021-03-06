@@ -12,8 +12,8 @@ import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.AppInfoMapper;
 import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import com.newland.tianyan.face.domain.entity.FaceDO;
-import com.newland.tianyan.face.exception.BusinessErrorEnums;
-import com.newland.tianyan.face.exception.SysErrorEnums;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
+import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.feign.client.AuthClientFeignService;
 import com.newland.tianyan.face.service.AppInfoService;
 import org.apache.commons.lang3.StringUtils;
@@ -51,7 +51,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         // (未逻辑删除的数据集)检查account和appNames是否已经存在
         appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
         if (appInfoMapper.selectCount(appInfoDO) > 0) {
-            throw BusinessErrorEnums.ALREADY_EXISTS.toException(receive.getAccount());
+            throw BusinessErrorEnums.APP_ALREADY_EXISTS.toException(appInfoDO.getAppId());
         }
         // 数据插入
         appInfoDO.setApiKey(AppUtils.generateApiKey());
@@ -74,11 +74,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
 
         appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
-        AppInfoDO query = appInfoMapper.selectOne(appInfoDO);
-        if (query == null) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(receive.getAppId());
-        }
-        return query;
+        return appInfoMapper.selectOne(appInfoDO);
     }
 
     @Override
@@ -121,7 +117,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         queryAppInfoDO.setAppId(appInfoDO.getAppId());
         queryAppInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
         if (appInfoMapper.selectCount(queryAppInfoDO) <= 0) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(receive.getAppId());
+            throw BusinessErrorEnums.APP_NOT_FOUND.toException(receive.getAppId());
         }
         //是否存在同名应用
         Example example = new Example(AppInfoDO.class);
@@ -134,7 +130,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         criteria.andEqualTo("isDelete", StatusConstants.NOT_DELETE);
         criteria.andNotEqualTo("appId", appInfoDO.getAppId());
         if (appInfoMapper.selectCountByExample(example) > 0) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(receive.getAppName());
+            throw BusinessErrorEnums.APP_ALREADY_EXISTS.toException(receive.getAppName());
         }
         try {
             appInfoMapper.update(appInfoDO);
@@ -156,14 +152,10 @@ public class AppInfoServiceImpl implements AppInfoService {
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void delete(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
-        if (appInfoDO == null) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(receive.getAppId());
-        }
-
         appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
         AppInfoDO appToDelete = appInfoMapper.selectOne(appInfoDO);
         if (appToDelete == null) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(receive.getAppId());
+            throw BusinessErrorEnums.APP_NOT_FOUND.toException(receive.getAppId());
         }
         //milvus删除人脸集合
         faceFaceCacheHelper.deleteCollection(appInfoDO.getAppId());

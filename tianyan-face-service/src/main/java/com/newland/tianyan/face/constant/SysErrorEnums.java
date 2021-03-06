@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.exception;
+package com.newland.tianyan.face.constant;
 
 import com.newland.tianyan.common.exception.SysException;
 

@@ -2,7 +2,9 @@ package com.newland.tianyan.common.aop;
 
 
 import com.newland.tianyan.common.constans.ArgumentErrorEnums;
-import com.newland.tianyan.common.exception.*;
+import com.newland.tianyan.common.exception.ArgumentException;
+import com.newland.tianyan.common.exception.BusinessException;
+import com.newland.tianyan.common.exception.SysException;
 import com.newland.tianyan.common.utils.JsonErrorObject;
 import com.newland.tianyan.common.utils.LogUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
     /**
-     * 参数异常
+     * 参数异常,hibernate验证参数
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -32,6 +34,18 @@ public class GlobalExceptionHandler {
         FieldError fieldError = e.getBindingResult().getFieldError();
         ArgumentException commonException = getError(fieldError.getCode(), fieldError.getField());
         return new JsonErrorObject(LogUtils.traceId(), commonException.getErrorCode(), commonException.getErrorMsg());
+    }
+
+    /**
+     * 业务异常,非hibernate验证
+     */
+    @ExceptionHandler(ArgumentException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public JsonErrorObject handleArgumentException2(ArgumentException e) {
+        log.warn("抛出参数异常", e);
+        e.printStackTrace();
+        return new JsonErrorObject(LogUtils.traceId(), e.getErrorCode(), e.getErrorMsg());
     }
 
     /**
@@ -66,13 +80,13 @@ public class GlobalExceptionHandler {
             case "NotEmpty":
                 return ArgumentErrorEnums.ARGUMENT_NOT_EMPTY.toException(field);
             case "Max":
-                return ArgumentErrorEnums.ARGUMENT_SIZE_MAN.toException(field);
+                return ArgumentErrorEnums.ARGUMENT_SIZE_MAX.toException(field);
             case "Min":
                 return ArgumentErrorEnums.ARGUMENT_SIZE_MIN.toException(field);
             case "Pattern":
                 return ArgumentErrorEnums.ARGUMENT_PATTERN.toException(field);
             default:
-                return ArgumentErrorEnums.ARGUMENT_NOT_VALID.toException(field);
+                return ArgumentErrorEnums.ARGUMENT_FORMAT_ERROR.toException(field);
         }
     }
 }

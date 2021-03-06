@@ -9,7 +9,8 @@ import com.newland.tianyan.common.utils.CosineDistanceTool;
 import com.newland.tianyan.common.utils.LogUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.FeaturesTool;
-import com.newland.tianyan.face.exception.SysErrorEnums;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
+import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.constant.StatusConstants;
@@ -28,6 +29,7 @@ import newlandFace.NLFace;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
@@ -82,38 +84,51 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         List<Float> featureRaw = FeaturesTool.normalizeConvertToList(feature.getFeatureResultList().get(0).getFeaturesList());
         //从缓存中拿到符合向量TopN个的用户
         List<QueryResDTO> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw, groupList, request.getMaxUserNum());
-
+        if (CollectionUtils.isEmpty(queryFaceList)) {
+            throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
+        }
         //封装结果集
         NLFace.CloudFaceSendMessage.Builder resultBuilder = NLFace.CloudFaceSendMessage.newBuilder();
         resultBuilder.setLogId(UUID.randomUUID().toString());
         resultBuilder.setFaceNum(feature.getFaceNum());
         //结果集.UserResult
+        int unUseResult = 0;
         for (QueryResDTO milvusQueryRes : queryFaceList) {
             //拆解根据规则拼接的向量id获得gid、uid
             Long vectorId = milvusQueryRes.getEntityId();
             Long gid = MilvusKey.splitGid(vectorId);
             Long uid = MilvusKey.splitUid(vectorId);
             NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
-            //用户信息
-            UserInfoDO conditionUser = new UserInfoDO();
-            conditionUser.setId(uid);
-            UserInfoDO queryUser = userInfoMapper.selectOne(conditionUser);
-            if (queryUser == null) {
+            //人脸筛选
+            if (!groupList.contains(gid)) {
+                unUseResult++;
                 continue;
             }
-            builder.setUserId(queryUser.getUserId());
-            builder.setUserName(queryUser.getUserName());
-            builder.setUserInfo(queryUser.getUserInfo());
             //用户组信息
             GroupInfoDO conditionGroup = new GroupInfoDO();
             conditionGroup.setId(gid);
             GroupInfoDO queryGroup = groupInfoMapper.selectOne(conditionGroup);
             if (queryGroup == null) {
+                unUseResult++;
                 continue;
             }
             builder.setGroupId(queryGroup.getGroupId());
+            //用户信息
+            UserInfoDO conditionUser = new UserInfoDO();
+            conditionUser.setId(uid);
+            UserInfoDO queryUser = userInfoMapper.selectOne(conditionUser);
+            if (queryUser == null) {
+                unUseResult++;
+                continue;
+            }
+            builder.setUserId(queryUser.getUserId());
+            builder.setUserName(queryUser.getUserName());
+            builder.setUserInfo(queryUser.getUserInfo());
             //置信度
             builder.setConfidence(String.valueOf(milvusQueryRes.getDistance()));
+        }
+        if (unUseResult == queryFaceList.size()) {
+            throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
         }
         // 如果face_fields有值(coordinate,liveness)，将分析的结果也加进来
         this.faceFieldHelper(request.getFaceFields(), resultBuilder, fileName);
@@ -181,7 +196,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                             result.addLivenessResult(msg3.getLivenessResult(0).toBuilder());
                             break;
                         default: {
-                            break;
+                            throw BusinessErrorEnums.WRONG_FACE_FIELD.toException();
                         }
                     }
                 }
@@ -228,6 +243,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
+                this.checkFaceFields(faceField);
                 if (TASK_TYPE.get(faceField) != null) {
                     NLFace.CloudFaceSendMessage msg =
                             amqpHelper(image, vo.getMaxFaceNum(), (Integer) TASK_TYPE.get(faceField));
@@ -256,6 +272,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
                 if (TASK_TYPE.get(faceField) != null) {
+                    this.checkFaceFields(faceField);
                     NLFace.CloudFaceSendMessage msg =
                             amqpHelper(image, vo.getMaxFaceNum(), (Integer) TASK_TYPE.get(faceField));
                     builder.mergeFrom(msg);
@@ -283,6 +300,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
                 if (TASK_TYPE.get(faceField) != null) {
+                    this.checkFaceFields(faceField);
                     NLFace.CloudFaceSendMessage msg =
                             amqpHelper(image, request.getMaxFaceNum(), (Integer) TASK_TYPE.get(faceField));
                     builder.mergeFrom(msg);
@@ -487,5 +505,13 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         faceDO.setVersion(feature.getVersion());
         faceDO.setImagePath(imagePath);
         return faceDO;
+    }
+
+    private void checkFaceFields(String faceField) {
+        boolean coordinate = "coordinate".equals(faceField);
+        boolean liveNess = "liveness".equals(faceField);
+        if ((!coordinate) && (!liveNess)) {
+            throw BusinessErrorEnums.WRONG_FACE_FIELD.toException();
+        }
     }
 }

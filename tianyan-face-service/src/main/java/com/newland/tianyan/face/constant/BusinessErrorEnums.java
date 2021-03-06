@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.exception;
+package com.newland.tianyan.face.constant;
 
 import com.newland.tianyan.common.exception.BusinessException;
 
@@ -15,9 +15,23 @@ public enum BusinessErrorEnums {
 
     /**
      * 存在性验证
-     * */
-    NOT_EXISTS(101001, "[{0}]不存在"),
-    ALREADY_EXISTS(101002, "[{0}]已存在"),
+     */
+    APP_NOT_FOUND(1000, "app[{0}] not found"),
+    GROUP_NOT_FOUND(1000,"group[{0}] not found"),
+    USER_NOT_FOUND(1000,"user[{0}] not found"),
+    APP_ALREADY_EXISTS(1000, "app[{0}] already exists"),
+    GROUP_ALREADY_EXISTS(1000,"group[{0}] already exists"),
+    USER_ALREADY_EXISTS(1000,"user[{0}] already exists"),
+
+    /**
+     * 业务字段验证
+     */
+    WRONG_ACTION_TYPE(1000, "param [action_type] format error"),
+    WRONG_FACE_FIELD(1000, "param [face_field] format error"),
+    /**
+     * 业务处理结果提示
+     */
+    FACE_NOT_FOUND(1000, "face not found"),
     ;
     private int errorCode;
 

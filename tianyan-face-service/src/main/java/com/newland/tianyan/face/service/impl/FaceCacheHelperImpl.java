@@ -5,7 +5,7 @@ import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.model.vectorsearch.*;
 import com.newland.tianyan.common.utils.FeaturesTool;
 import com.newland.tianyan.face.domain.entity.FaceDO;
-import com.newland.tianyan.face.exception.SysErrorEnums;
+import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.feign.ReportException;
 import com.newland.tianyan.face.feign.client.VectorSearchFeignService;
 import com.newland.tianyan.face.service.ICacheHelper;

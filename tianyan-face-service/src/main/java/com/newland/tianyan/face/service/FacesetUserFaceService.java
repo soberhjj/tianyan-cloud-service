@@ -14,10 +14,6 @@ public interface FacesetUserFaceService {
 
     FaceDO create(NLBackend.BackendAllRequest receive) throws IOException;
 
-//    NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType);
-//
-//    NLFace.CloudFaceSendMessage JSONSendHelper(String routingKey, byte[] msg);
-
     List<FaceDO> getList(NLBackend.BackendAllRequest receive);
 
     void delete(NLBackend.BackendAllRequest receive);

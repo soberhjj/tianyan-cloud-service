@@ -13,8 +13,8 @@ import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.group.AbstractGroupDeleteEvent;
-import com.newland.tianyan.face.exception.BusinessErrorEnums;
-import com.newland.tianyan.face.exception.SysErrorEnums;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
+import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.service.GroupInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -46,7 +46,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         //判断用户组是否存在
         groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
         if (groupInfoMapper.selectCount(groupInfoDO) > 0) {
-            throw BusinessErrorEnums.ALREADY_EXISTS.toException(receive.getGroupId());
+            throw BusinessErrorEnums.GROUP_ALREADY_EXISTS.toException(receive.getGroupId());
         }
 
         //添加用户组

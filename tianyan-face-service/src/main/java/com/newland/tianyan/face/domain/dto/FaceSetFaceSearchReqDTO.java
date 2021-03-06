@@ -3,9 +3,7 @@ package com.newland.tianyan.face.domain.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 
 /**
  * @program: newland-cloud
@@ -26,14 +24,18 @@ public class FaceSetFaceSearchReqDTO {
     private String image;
 
     @NotBlank
+    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
     private String groupId;
 
+    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
     private String userId;
 
     @Min(1)
+    @Max(120)
     private int maxFaceNum = 1;
 
     @Min(1)
+    @Max(10)
     private int maxUserNum = 1;
 
     private String faceFields;

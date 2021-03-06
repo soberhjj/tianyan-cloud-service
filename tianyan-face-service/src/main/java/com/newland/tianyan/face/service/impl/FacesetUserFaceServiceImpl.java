@@ -21,8 +21,8 @@ import com.newland.tianyan.face.event.face.FaceCreateEvent;
 import com.newland.tianyan.face.event.face.FaceDeleteEvent;
 import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.user.UserCreateEvent;
-import com.newland.tianyan.face.exception.BusinessErrorEnums;
-import com.newland.tianyan.face.exception.SysErrorEnums;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
+import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
@@ -65,6 +65,8 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Override
     //@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public FaceDO create(NLBackend.BackendAllRequest receive) throws IOException {
+        String actionType = receive.getActionType();
+        this.checkActionType(actionType);
         int qualityControl = receive.getQualityControl();
         if (qualityControl != 0) {
             this.handleImageQualityControl(qualityControl, receive.getImage());
@@ -73,7 +75,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         FaceDO insertFaceDO = new FaceDO();
         //图片提交至服务器
         this.uploadImage(insertFaceDO, receive.getImage());
-        //note 处理特征值
+        //处理特征值
         this.handleFeatures(insertFaceDO, receive.getImage());
         insertFaceDO.setAppId(receive.getAppId());
         insertFaceDO.setUserId(receive.getUserId());
@@ -143,7 +145,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             else {
                 insertFaceDO.setUid(sourceUser.getId());
                 insertFaceDO.setGid(sourceUser.getGid());
-                if ("append".equals(receive.getActionType())) {
+                if ("append".equals(actionType)) {
                     //note 缓存中添加用户的人脸
                     insertFaceDO.setId(MilvusKey.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), sourceUser.getFaceNumber() + 1));
                     faceCacheHelper.add(insertFaceDO);
@@ -153,7 +155,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     }
                     //发布事件。已存在的用户添加了人脸，所以要在user_info中将该用户对应的那条记录进行更新（更新的字段是face_number）,也要在group_info表中将该用户对应的那个用户组的记录进行更新（更新的字段同样是face_number）
                     publisher.publishEvent(new FaceCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
-                } else if ("replace".equals(receive.getActionType())) {
+                } else if ("replace".equals(actionType)) {
                     insertFaceDO.setId(MilvusKey.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
                     //删除face表中该用户原本的人脸（用户在一个组中可能有多张人脸）
                     FaceDO faceDO = new FaceDO();
@@ -179,11 +181,19 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     userInfoMapper.faceNumberIncrease(receive.getAppId(), groupId, receive.getUserId(), 1 - deleteCount);
                     groupInfoMapper.faceNumberIncrease(receive.getAppId(), groupId, 1 - deleteCount);
                 } else {
-                    throw BusinessErrorEnums.NOT_EXISTS.toException(receive.getUserId());
+                    throw BusinessErrorEnums.USER_NOT_FOUND.toException(receive.getUserId());
                 }
             }
         }
         return insertFaceDO;
+    }
+
+    private void checkActionType(String actionType) {
+        boolean append = "append".equals(actionType);
+        boolean replace = "replace".equals(actionType);
+        if ((!append) && (!replace)) {
+            throw BusinessErrorEnums.WRONG_ACTION_TYPE.toException();
+        }
     }
 
     private void handleImageQualityControl(int qualityControl, String image) {
@@ -380,7 +390,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             groupInfoDO.setGroupId(groupInfoDO.getGroupId());
             groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
             if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
-                throw BusinessErrorEnums.NOT_EXISTS.toException(query.getGroupId());
+                throw BusinessErrorEnums.GROUP_NOT_FOUND.toException(query.getGroupId());
             }
         }
 
@@ -390,16 +400,16 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         userInfoDO.setGroupId(receive.getGroupId());
         userInfoDO.setUserId(receive.getUserId());
         if (userInfoMapper.selectCount(userInfoDO) <= 0) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(query.getUserId());
+            throw BusinessErrorEnums.USER_NOT_FOUND.toException(query.getUserId());
         }
 
         //然后直接去face表中查询是否存在这张人脸图片的记录，若不存在则抛出异常，存在则删除该人脸
         FaceDO faceDO = faceMapper.selectOne(query);
         if (faceDO == null) {
-            return;
+            throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
         }
 
-        //note 缓存中删除用户指定的人脸
+        //缓存中删除用户指定的人脸
         faceCacheHelper.delete(query.getAppId(), faceDO.getId());
         //物理删除人脸
         if (faceMapper.delete(query) < 0) {

@@ -6,6 +6,7 @@ import lombok.Setter;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 @Getter
 @Setter
@@ -18,7 +19,7 @@ public class FaceSetGroupGetListReqDTO {
     @Min(1)
     private Long appId;
 
-    // 指定时为搜索,不指定则返回全部
+    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
     private String groupId;
 
     @Min(0)

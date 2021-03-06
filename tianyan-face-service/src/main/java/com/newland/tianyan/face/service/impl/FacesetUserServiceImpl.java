@@ -16,8 +16,8 @@ import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.event.user.UserCopyEvent;
 import com.newland.tianyan.face.event.user.UserDeleteEvent;
-import com.newland.tianyan.face.exception.BusinessErrorEnums;
-import com.newland.tianyan.face.exception.SysErrorEnums;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
+import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.service.FacesetUserService;
 import com.newland.tianyan.face.service.ICacheHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -97,7 +97,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         srcGroupInfo.setIsDelete(StatusConstants.NOT_DELETE);
         boolean sourceInvalid = groupInfoMapper.selectCount(srcGroupInfo) > 0;
         if (!sourceInvalid) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(srcGroupId);
+            throw BusinessErrorEnums.GROUP_NOT_FOUND.toException(srcGroupId);
         }
         GroupInfoDO dstGroupInfo = new GroupInfoDO();
         dstGroupInfo.setAppId(queryUser.getAppId());
@@ -106,19 +106,19 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         dstGroupInfo = groupInfoMapper.selectOne(dstGroupInfo);
         boolean targetInvalid = dstGroupInfo != null;
         if (!targetInvalid) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(dstGroupId);
+            throw BusinessErrorEnums.GROUP_NOT_FOUND.toException(dstGroupId);
         }
 
         //查询源用户组中是否存在当前用户
         queryUser.setGroupId(srcGroupId);
         UserInfoDO sourceUserInfoDO = userInfoMapper.selectOne(queryUser);
         if (sourceUserInfoDO == null) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(userId);
+            throw BusinessErrorEnums.USER_NOT_FOUND.toException(userId);
         }
         //待复制的源用户的人脸资料
         List<FaceDO> srcFace = this.queryFace(appId, srcGroupId, userId);
         if (CollectionUtils.isEmpty(srcFace)) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(userId);
+            throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
         }
         List<FaceDO> insertList = new ArrayList<>(srcFace.size());
         //查询目标用户组中是否存在当前用户
@@ -224,7 +224,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             userInfoDO.setGroupId(query.getGroupId());
             userInfoDO = userInfoMapper.selectOne(userInfoDO);
             if (userInfoDO == null) {
-                throw BusinessErrorEnums.NOT_EXISTS.toException(userInfoDO);
+                throw BusinessErrorEnums.USER_NOT_FOUND.toException(receive.getUserId());
             }
 
             //note 缓存中删除用户的所有人脸

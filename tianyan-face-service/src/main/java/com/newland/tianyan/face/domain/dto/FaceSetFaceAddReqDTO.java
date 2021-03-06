@@ -22,6 +22,7 @@ public class FaceSetFaceAddReqDTO {
     private String userName;
 
     @NotBlank
+    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
     private String groupId;
 
     @NotNull
