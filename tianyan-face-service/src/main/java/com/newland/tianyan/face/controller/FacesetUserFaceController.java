@@ -43,9 +43,6 @@ public class FacesetUserFaceController {
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddReqDTO receive) throws Exception {
-        //convert image format to jpg
-        receive.setImage(ImgFormatConvertUtils.convertToJpg(receive.getImage()));
-
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         FaceDO faceDO = facesetUserFaceService.create(request);
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
