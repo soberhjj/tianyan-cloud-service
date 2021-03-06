@@ -1,8 +1,8 @@
 package com.newland.tianyan.auth.service;
 
 import com.newland.tianyan.auth.entity.Account;
-import com.newland.tianyan.auth.exception.BusinessErrorEnums;
-import com.newland.tianyan.auth.exception.SystemErrorEnums;
+import com.newland.tianyan.auth.constant.BusinessErrorEnums;
+import com.newland.tianyan.auth.constant.SystemErrorEnums;
 import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.ProtobufUtils;
@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityExistsException;
-import javax.persistence.EntityNotFoundException;
 
 @Service
 public class LoginServiceImpl {
@@ -52,11 +51,11 @@ public class LoginServiceImpl {
         Account account = ProtobufUtils.parseTo(receive, Account.class);
         // check account exist
         if (accountServiceImpl.checkExits("account", account.getAccount())) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(account.getAccount());
+            throw BusinessErrorEnums.ACCOUNT_NOT_FOUND.toException(account.getAccount());
         }
         // check mailbox exist
         if (accountServiceImpl.checkExits("mailbox", account.getMailbox())) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(account.getAccount());
+            throw BusinessErrorEnums.MAIL_BOX_NOT_FOUND.toException(account.getMailbox());
         }
         account.setPassword(encoder.encode(account.getPassword()));
         // register account
@@ -71,7 +70,7 @@ public class LoginServiceImpl {
         if (accountServiceImpl.checkExits("mailbox", account.getMailbox())) {
             accountServiceImpl.resetPassword(account.getMailbox(), encoder.encode(account.getPassword()));
         } else {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(request.getMailbox());
+            throw BusinessErrorEnums.MAIL_BOX_NOT_FOUND.toException(request.getMailbox());
         }
     }
 
@@ -87,7 +86,7 @@ public class LoginServiceImpl {
             }
         }
         if (account == null) {
-            throw BusinessErrorEnums.NOT_EXISTS.toException(receive.getAccount());
+            throw BusinessErrorEnums.ACCOUNT_NOT_FOUND.toException(receive.getAccount());
         }
         return account;
     }

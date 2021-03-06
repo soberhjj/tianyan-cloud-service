@@ -1,4 +1,4 @@
-package com.newland.tianyan.image.exception;
+package com.newland.tianyan.auth.constant;
 
 import com.newland.tianyan.common.exception.BusinessException;
 
@@ -9,12 +9,10 @@ import com.newland.tianyan.common.exception.BusinessException;
  */
 public enum BusinessErrorEnums {
     /**
-     * 测试微服务异常
-     */
-    DEMO(1, "demo exception"),
-    BASE64_FORMAT_ILLEGAL(202100,"非BASE64编码串"),
-    IMAGE_SIZE_OVER_2MB(202101,"图片大小超过2MB"),
-    IMAGE_FORMAT_ILLEGAL(202102,"暂不支持JPG、PNG、BMP以外的图片格式"),
+     * 存在性验证
+     * */
+    ACCOUNT_NOT_FOUND(5150,"account[{0}] not found"),
+    MAIL_BOX_NOT_FOUND(5151,"mailbox[{0}] not found"),
     ;
     private int errorCode;
 
