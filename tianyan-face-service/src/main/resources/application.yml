@@ -17,4 +17,11 @@ mybatis:
   type-aliases-package: com.newland.tianyan.face.domain.entity
 
 
+feign:
+  sentinel:
+    enabled: true
+
+
+
+
 

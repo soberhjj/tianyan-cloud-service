@@ -1,6 +1,9 @@
 package com.newland.tianyan.auth.service;
 
 import com.newland.tianyan.auth.entity.Account;
+import com.newland.tianyan.auth.exception.BusinessErrorEnums;
+import com.newland.tianyan.auth.exception.SystemErrorEnums;
+import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,16 +52,16 @@ public class LoginServiceImpl {
         Account account = ProtobufUtils.parseTo(receive, Account.class);
         // check account exist
         if (accountServiceImpl.checkExits("account", account.getAccount())) {
-            throw new EntityExistsException("account exist!");
+            throw BusinessErrorEnums.NOT_EXISTS.toException(account.getAccount());
         }
         // check mailbox exist
         if (accountServiceImpl.checkExits("mailbox", account.getMailbox())) {
-            throw new EntityExistsException("mailbox exist!");
+            throw BusinessErrorEnums.NOT_EXISTS.toException(account.getAccount());
         }
         account.setPassword(encoder.encode(account.getPassword()));
         // register account
         if (accountServiceImpl.insert(account) == 0) {
-            throw new RuntimeException("failed to register the account");
+           throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(account));
         }
     }
 
@@ -68,7 +71,7 @@ public class LoginServiceImpl {
         if (accountServiceImpl.checkExits("mailbox", account.getMailbox())) {
             accountServiceImpl.resetPassword(account.getMailbox(), encoder.encode(account.getPassword()));
         } else {
-            throw new EntityExistsException("mailbox doesn't exist!");
+            throw BusinessErrorEnums.NOT_EXISTS.toException(request.getMailbox());
         }
     }
 
@@ -84,7 +87,7 @@ public class LoginServiceImpl {
             }
         }
         if (account == null) {
-            throw new EntityNotFoundException("account doesn't exist!");
+            throw BusinessErrorEnums.NOT_EXISTS.toException(receive.getAccount());
         }
         return account;
     }

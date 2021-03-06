@@ -11,4 +11,4 @@ spring:
         jwt:
           jwk-set-uri: http://192.168.2.140:18081/rsa/publicKey
 
-#log-dir: H:\framework\hzsy\hzsy-api\logs\gateway-service
+log-dir: H:\framework\hzsy\hzsy-api\logs\gateway-service

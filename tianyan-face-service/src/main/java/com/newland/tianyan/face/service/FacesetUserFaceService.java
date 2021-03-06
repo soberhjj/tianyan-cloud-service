@@ -4,6 +4,7 @@ package com.newland.tianyan.face.service;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -11,11 +12,7 @@ import java.util.List;
  */
 public interface FacesetUserFaceService {
 
-    FaceDO create(NLBackend.BackendAllRequest receive);
-
-//    NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType);
-//
-//    NLFace.CloudFaceSendMessage JSONSendHelper(String routingKey, byte[] msg);
+    FaceDO create(NLBackend.BackendAllRequest receive) throws IOException;
 
     List<FaceDO> getList(NLBackend.BackendAllRequest receive);
 

@@ -1,8 +1,9 @@
 package com.newland.tianyan.common.utils;
 
 
-import com.newland.tianyan.common.exception.imgexception.ImageException;
-import com.newland.tianyan.common.exception.imgexception.ImageExceptionReturn;
+import com.newland.tianyan.common.constans.ArgumentErrorEnums;
+import com.newland.tianyan.common.exception.imagestore.ImageException;
+import com.newland.tianyan.common.exception.imagestore.ImageExceptionReturn;
 
 import java.util.regex.Pattern;
 
@@ -18,17 +19,17 @@ public class ImageCheckUtils {
     private final static String BMP_BASE64_PREFIX = "Qk0";
 
 
-    public static void imageCheck(String image){
+    public static void imageCheck(String image) {
         String base64 = image.replaceAll("[\\s*\t\n\r]", "");
         if (!Pattern.matches(BASE64_PATTERN, base64)) {
-            throw new ImageException(ImageExceptionReturn.BASE64_FORMAT_ILLEGAL);
+            throw ArgumentErrorEnums.BASE64_FORMAT_ILLEGAL.toException();
         }
         if ((!image.startsWith(JPG_BASE64_PREFIX)) && (!image.startsWith(PNG_BASE64_PREFIX)) && (!image.startsWith(BMP_BASE64_PREFIX))) {
-            throw new ImageException(ImageExceptionReturn.IMAGE_FORMAT_ILLEGAL);
+            throw ArgumentErrorEnums.IMAGE_FORMAT_ILLEGAL.toException();
         }
         int length = image.length();
         if (length > MAX_IMAGE_SIZE) {
-            throw new ImageException(ImageExceptionReturn.IMAGE_SIZE_OVER_2MB);
+            throw ArgumentErrorEnums.IMAGE_SIZE_OVER_2MB.toException();
         }
     }
 

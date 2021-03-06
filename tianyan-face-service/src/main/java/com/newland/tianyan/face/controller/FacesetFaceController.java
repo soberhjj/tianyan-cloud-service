@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 /**
  * @Author: huangJunJie  2020-11-06 11:04
  */
@@ -26,59 +28,59 @@ public class FacesetFaceController {
     FacesetFaceService facesetFaceService;
 
     @PostMapping(value = "/search")
-    public NLFace.CloudFaceSendMessage search(@RequestBody @Validated FaceSetFaceSearchReqDTO request) {
+    public NLFace.CloudFaceSendMessage search(@RequestBody @Validated FaceSetFaceSearchReqDTO request) throws IOException {
         request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         return facesetFaceService.searchNew(request);
     }
 
     @PostMapping(value = "/compare")
-    public NLFace.CloudFaceSendMessage compare(@RequestBody @Validated FaceSetFaceCompareReqDTO request) {
+    public NLFace.CloudFaceSendMessage compare(@RequestBody @Validated FaceSetFaceCompareReqDTO request) throws IOException {
         request.setFirstImage(ImgFormatConvertUtils.convertToJpg(request.getFirstImage()));
         request.setSecondImage(ImgFormatConvertUtils.convertToJpg(request.getSecondImage()));
         return facesetFaceService.compare(request);
     }
 
     @RequestMapping(value = "/multiAttribute", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage multiAttribute(@RequestBody @Validated FaceDetectReqDTO vo) {
+    public NLFace.CloudFaceSendMessage multiAttribute(@RequestBody @Validated FaceDetectReqDTO vo) throws IOException {
         vo.setImage(ImgFormatConvertUtils.convertToJpg(vo.getImage()));
         return facesetFaceService.multiAttribute(vo);
     }
 
     @RequestMapping(value = "/liveness", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage liveness(@RequestBody @Validated FaceDetectReqDTO vo) {
+    public NLFace.CloudFaceSendMessage liveness(@RequestBody @Validated FaceDetectReqDTO vo) throws IOException {
         vo.setImage(ImgFormatConvertUtils.convertToJpg(vo.getImage()));
         return facesetFaceService.liveness(vo);
     }
 
     @RequestMapping(value = "/detect", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage detect(@RequestBody @Validated FaceSetFaceDetectReqDTO request) {
+    public NLFace.CloudFaceSendMessage detect(@RequestBody @Validated FaceSetFaceDetectReqDTO request) throws IOException {
         request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         return facesetFaceService.detect(request);
     }
 
     @RequestMapping(value = "/features/v20", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV20old(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) {
+    public NLFace.CloudFaceSendMessage featuresV20old(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) throws IOException {
         request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, -20);
     }
 
     @RequestMapping(value = "/features/v20/new", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV20(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) {
+    public NLFace.CloudFaceSendMessage featuresV20(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) throws IOException {
         request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive,20);
     }
 
     @RequestMapping(value = "/features/v36/new", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV36(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) {
+    public NLFace.CloudFaceSendMessage featuresV36(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) throws IOException {
         request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive,36);
     }
 
     @RequestMapping(value = "/features/v34/new", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage featuresV34(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) {
+    public NLFace.CloudFaceSendMessage featuresV34(@RequestBody  @Validated FaceSetFaceDetectReqDTO request) throws IOException {
         request.setImage(ImgFormatConvertUtils.convertToJpg(request.getImage()));
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, 34);

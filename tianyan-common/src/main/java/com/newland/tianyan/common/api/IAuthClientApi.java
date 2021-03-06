@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.validation.Valid;
+
 /**
  * @author: RojiaHuang
  * @description:
@@ -15,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface IAuthClientApi {
     @PostMapping("/addClient")
     @ApiVersion(1)
-    void addClient(@RequestBody AuthClientReqDTO request);
+    void addClient(@RequestBody @Valid AuthClientReqDTO request);
 
     @PostMapping("/deleteClient")
     @ApiVersion(1)
-    void deleteClient(@RequestBody AuthClientReqDTO request);
+    void deleteClient(@RequestBody @Valid AuthClientReqDTO request);
 }

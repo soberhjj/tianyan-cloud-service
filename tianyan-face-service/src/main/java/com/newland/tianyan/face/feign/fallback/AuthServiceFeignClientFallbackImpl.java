@@ -2,7 +2,7 @@ package com.newland.tianyan.face.feign.fallback;
 
 
 
-import com.newland.tianyan.face.feign.AuthAuthClientFeign;
+import com.newland.tianyan.face.feign.client.AuthClientFeignService;
 import feign.hystrix.FallbackFactory;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +12,10 @@ import org.springframework.stereotype.Component;
  * @date: 2021/2/2
  */
 @Component
-public class AuthServiceFeignClientFallbackImpl implements FallbackFactory<AuthAuthClientFeign> {
+public class AuthServiceFeignClientFallbackImpl implements FallbackFactory<AuthClientFeignService> {
 
     @Override
-    public AuthAuthClientFeign create(Throwable cause) {
+    public AuthClientFeignService create(Throwable cause) {
         throw new RuntimeException("远程服务器发生错误,请稍后再次尝试");
     }
 }

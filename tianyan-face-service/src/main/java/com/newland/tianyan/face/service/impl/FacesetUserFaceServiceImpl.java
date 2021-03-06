@@ -3,29 +3,29 @@ package com.newland.tianyan.face.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.googlecode.protobuf.format.JsonFormat;
-import com.newland.tianyan.common.exception.CommonException;
+import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.model.imagestrore.DownloadReqDTO;
 import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
-import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.FeaturesTool;
-import com.newland.tianyan.face.domain.entity.FaceDO;
-import com.newland.tianyan.face.domain.entity.UserInfoDO;
-import com.newland.tianyan.face.feign.ImageStoreFeignService;
-import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
-import com.newland.tianyan.face.service.cache.MilvusKey;
-import com.newland.tianyan.face.mq.RabbitMQSender;
-import com.newland.tianyan.face.mq.RabbitMqQueueName;
+import com.newland.tianyan.common.utils.JsonUtils;
+import com.newland.tianyan.common.utils.ProtobufUtils;
+import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.dao.UserInfoMapper;
+import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
+import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.event.face.FaceCreateEvent;
 import com.newland.tianyan.face.event.face.FaceDeleteEvent;
 import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.user.UserCreateEvent;
-import com.newland.tianyan.face.exception.ApiReturnErrorCode;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
+import com.newland.tianyan.face.constant.SysErrorEnums;
+import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
+import com.newland.tianyan.face.mq.RabbitMQSender;
+import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
 import lombok.extern.slf4j.Slf4j;
 import newlandFace.NLFace;
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.util.*;
 
 import static java.lang.Math.abs;
@@ -64,7 +64,9 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
     @Override
     //@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public FaceDO create(NLBackend.BackendAllRequest receive) {
+    public FaceDO create(NLBackend.BackendAllRequest receive) throws IOException {
+        String actionType = receive.getActionType();
+        this.checkActionType(actionType);
         int qualityControl = receive.getQualityControl();
         if (qualityControl != 0) {
             this.handleImageQualityControl(qualityControl, receive.getImage());
@@ -73,7 +75,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         FaceDO insertFaceDO = new FaceDO();
         //图片提交至服务器
         this.uploadImage(insertFaceDO, receive.getImage());
-        //note 处理特征值
+        //处理特征值
         this.handleFeatures(insertFaceDO, receive.getImage());
         insertFaceDO.setAppId(receive.getAppId());
         insertFaceDO.setUserId(receive.getUserId());
@@ -124,25 +126,16 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 userInfoDO.setUserInfo(receive.getUserInfo());
                 //此时就是在进行添加人脸的操作，所以直接将人脸数的初始值设置为1
                 userInfoDO.setFaceNumber(1);
-                try {
-                    userInfoMapper.insertGetId(userInfoDO);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new EntityNotFoundException("add user wrong: user_id" + receive.getUserId() + "!");
-                }
+                userInfoMapper.insertGetId(userInfoDO);
 
                 //添加人脸
                 insertFaceDO.setUid(userInfoDO.getId());
                 insertFaceDO.setGid(groupInfoDO.getId());
                 insertFaceDO.setId(MilvusKey.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber() + 1));
                 //note 缓存中添加用户的人脸
-                if (faceCacheHelper.add(insertFaceDO) < 0) {
-                    log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFaceDO.getAppId() + "GroupId" + insertFaceDO.getGroupId() + "userId" + insertFaceDO.getUserId());
-                    throw ApiReturnErrorCode.CACHE_INSERT_ERROR.toException("[人脸新增]");
-                }
+                faceCacheHelper.add(insertFaceDO);
                 if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                    log.info("[人脸新增DBMS失败],参数{}", "AppId:" + insertFaceDO.getAppId() + "GroupId" + insertFaceDO.getGroupId() + "userId" + insertFaceDO.getUserId());
-                    throw ApiReturnErrorCode.DB_INSERT_ERROR.toException("[人脸新增]");
+                    throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
                 }
                 //发布事件。由于新增了用户，所以要在group_info表中将该用户对应的那个用户组的记录进行更新（更新的字段是user_number和face_number）
                 publisher.publishEvent(new UserCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId(), 1, 1));
@@ -152,21 +145,17 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             else {
                 insertFaceDO.setUid(sourceUser.getId());
                 insertFaceDO.setGid(sourceUser.getGid());
-                if ("append".equals(receive.getActionType())) {
+                if ("append".equals(actionType)) {
                     //note 缓存中添加用户的人脸
                     insertFaceDO.setId(MilvusKey.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), sourceUser.getFaceNumber() + 1));
-                    if (faceCacheHelper.add(insertFaceDO) < 0) {
-                        log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFaceDO.getAppId() + "GroupId" + insertFaceDO.getGroupId() + "userId" + insertFaceDO.getUserId());
-                        throw ApiReturnErrorCode.CACHE_INSERT_ERROR.toException("[人脸新增]");
-                    }
+                    faceCacheHelper.add(insertFaceDO);
                     //添加人脸
                     if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                        log.info("[人脸新增DBMS失败],参数{}", "AppId:" + insertFaceDO.getAppId() + "GroupId" + insertFaceDO.getGroupId() + "userId" + insertFaceDO.getUserId());
-                        throw ApiReturnErrorCode.DB_INSERT_ERROR.toException("[人脸新增]");
+                        throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
                     }
                     //发布事件。已存在的用户添加了人脸，所以要在user_info中将该用户对应的那条记录进行更新（更新的字段是face_number）,也要在group_info表中将该用户对应的那个用户组的记录进行更新（更新的字段同样是face_number）
                     publisher.publishEvent(new FaceCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
-                } else if ("replace".equals(receive.getActionType())) {
+                } else if ("replace".equals(actionType)) {
                     insertFaceDO.setId(MilvusKey.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
                     //删除face表中该用户原本的人脸（用户在一个组中可能有多张人脸）
                     FaceDO faceDO = new FaceDO();
@@ -175,35 +164,36 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     faceDO.setAppId(query.getAppId());
                     List<Long> faceIdList = faceMapper.selectIdByGroupId(groupId);
                     //note 删除原本缓存中的人脸，添加新的人脸
-                    if ((!CollectionUtils.isEmpty(faceIdList)) && faceCacheHelper.deleteBatch(query.getAppId(), faceIdList) < 0) {
-                        log.info("[人脸删除向量失败],参数{}", "AppId:" + insertFaceDO.getAppId() + "GroupId" + insertFaceDO.getGroupId() + "userId" + insertFaceDO.getUserId());
-                        throw ApiReturnErrorCode.CACHE_DELETE_ERROR.toException("[人脸新增]");
+                    if ((!CollectionUtils.isEmpty(faceIdList))) {
+                        faceCacheHelper.deleteBatch(query.getAppId(), faceIdList);
                     }
                     int deleteCount;
-                    try {
-                        deleteCount = faceMapper.delete(faceDO);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        throw ApiReturnErrorCode.DB_DELETE_ERROR.toException("[人脸新增]");
+                    deleteCount = faceMapper.delete(faceDO);
+                    if (deleteCount < 0) {
+                        throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
                     }
                     //添加该用户新的人脸（只有一张）
-                    if (faceCacheHelper.add(insertFaceDO) < 0) {
-                        log.info("[人脸新增向量失败],参数{}", "AppId:" + insertFaceDO.getAppId() + "GroupId" + insertFaceDO.getGroupId() + "userId" + insertFaceDO.getUserId());
-                        throw ApiReturnErrorCode.CACHE_INSERT_ERROR.toException("[人脸新增]");
-                    }
+                    faceCacheHelper.add(insertFaceDO);
                     if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                        log.info("[人脸新增DBMS失败],参数{}", "AppId:" + insertFaceDO.getAppId() + "GroupId" + insertFaceDO.getGroupId() + "userId" + insertFaceDO.getUserId());
-                        throw ApiReturnErrorCode.DB_INSERT_ERROR.toException("[人脸新增]");
+                        throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
                     }
                     //人脸替换后更新user_info表中该用户的face_number,也要更新group_info表中该用户对在的用户组对应的那条记录中的face_number
                     userInfoMapper.faceNumberIncrease(receive.getAppId(), groupId, receive.getUserId(), 1 - deleteCount);
                     groupInfoMapper.faceNumberIncrease(receive.getAppId(), groupId, 1 - deleteCount);
                 } else {
-                    throw new EntityNotFoundException("user_id" + receive.getUserId() + " exists!");
+                    throw BusinessErrorEnums.USER_NOT_FOUND.toException(receive.getUserId());
                 }
             }
         }
         return insertFaceDO;
+    }
+
+    private void checkActionType(String actionType) {
+        boolean append = "append".equals(actionType);
+        boolean replace = "replace".equals(actionType);
+        if ((!append) && (!replace)) {
+            throw BusinessErrorEnums.WRONG_ACTION_TYPE.toException();
+        }
     }
 
     private void handleImageQualityControl(int qualityControl, String image) {
@@ -214,13 +204,13 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         double eyeDistance = Math.sqrt(Math.pow(detectRe.getFaceInfos(0).getPtx(0) - detectRe.getFaceInfos(0).getPtx(1), 2)
                 + Math.pow(detectRe.getFaceInfos(0).getPty(0) - detectRe.getFaceInfos(0).getPty(1), 2));
         if (qualityControl == 1 && eyeDistance <= 20) {
-            throw new CommonException(6200, "low quality control fail! eye distance < 20 pixels");
+            throw new BaseException(6200, "low quality control fail! eye distance < 20 pixels");
         }
         if (qualityControl == 2 && eyeDistance <= 40) {
-            throw new CommonException(6200, "median quality control fail! eye distance < 40 pixels");
+            throw new BaseException(6200, "median quality control fail! eye distance < 40 pixels");
         }
         if (qualityControl == 3 && eyeDistance <= 60) {
-            throw new CommonException(6200, "high quality control fail! eye distance < 60 pixels");
+            throw new BaseException(6200, "high quality control fail! eye distance < 60 pixels");
         }
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
 
@@ -230,95 +220,95 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         NLFace.CloudFaceSendMessage qualityRe = builder.build();
         if (qualityControl == 1) {
             if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 40) {
-                throw new CommonException(6200, "low quality control fail! abs(pitch) >= 40");
+                throw new BaseException(6200, "low quality control fail! abs(pitch) >= 40");
             }
             if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 40) {
-                throw new CommonException(6200, "low quality control fail! abs(yaw) >= 40");
+                throw new BaseException(6200, "low quality control fail! abs(yaw) >= 40");
             }
             if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 40) {
-                throw new CommonException(6200, "low quality control fail! abs(roll) >= 40");
+                throw new BaseException(6200, "low quality control fail! abs(roll) >= 40");
             }
             if (qualityRe.getFaceAttributes(0).getBlur() >= 0.8) {
-                throw new CommonException(6200, "low quality control fail! blur >= 0.8");
+                throw new BaseException(6200, "low quality control fail! blur >= 0.8");
             }
             if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.8) {
-                throw new CommonException(6200, "low quality control fail! occlusion >= 0.8");
+                throw new BaseException(6200, "low quality control fail! occlusion >= 0.8");
             }
             if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.15 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.95) {
-                throw new CommonException(6200, "low quality control fail! brightness is not in (0.15, 0.95)");
+                throw new BaseException(6200, "low quality control fail! brightness is not in (0.15, 0.95)");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.8) {
-                throw new CommonException(6200, "low quality control fail! brightness side diff >= 0.8");
+                throw new BaseException(6200, "low quality control fail! brightness side diff >= 0.8");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.8) {
-                throw new CommonException(6200, "low quality control fail! brightness updown diff >= 0.8");
+                throw new BaseException(6200, "low quality control fail! brightness updown diff >= 0.8");
             }
             if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.8) {
-                throw new CommonException(6200, "low quality control fail! tone off center >= 0.8");
+                throw new BaseException(6200, "low quality control fail! tone off center >= 0.8");
             }
         }
         if (qualityControl == 2) {
             if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 30) {
-                throw new CommonException(6200, "median quality control fail! abs(pitch) >= 30");
+                throw new BaseException(6200, "median quality control fail! abs(pitch) >= 30");
             }
             if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 30) {
-                throw new CommonException(6200, "median quality control fail! abs(yaw) >= 30");
+                throw new BaseException(6200, "median quality control fail! abs(yaw) >= 30");
             }
             if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 30) {
-                throw new CommonException(6200, "median quality control fail! abs(roll) >= 30");
+                throw new BaseException(6200, "median quality control fail! abs(roll) >= 30");
             }
             if (qualityRe.getFaceAttributes(0).getBlur() >= 0.6) {
-                throw new CommonException(6200, "median quality control fail! blur >= 0.6");
+                throw new BaseException(6200, "median quality control fail! blur >= 0.6");
             }
             if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.6) {
-                throw new CommonException(6200, "median quality control fail! occlusion >= 0.6");
+                throw new BaseException(6200, "median quality control fail! occlusion >= 0.6");
             }
             if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.2 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.9) {
-                throw new CommonException(6200, "median quality control fail! brightness is not in (0.2, 0.9)");
+                throw new BaseException(6200, "median quality control fail! brightness is not in (0.2, 0.9)");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.6) {
-                throw new CommonException(6200, "median quality control fail! brightness side diff >= 0.6");
+                throw new BaseException(6200, "median quality control fail! brightness side diff >= 0.6");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.6) {
-                throw new CommonException(6200, "median quality control fail! brightness updown diff >= 0.6");
+                throw new BaseException(6200, "median quality control fail! brightness updown diff >= 0.6");
             }
             if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.6) {
-                throw new CommonException(6200, "median quality control fail! tone off center >= 0.6");
+                throw new BaseException(6200, "median quality control fail! tone off center >= 0.6");
             }
         }
         if (qualityControl == 3) {
             if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 20) {
-                throw new CommonException(6200, "high quality control fail! abs(pitch) >= 20");
+                throw new BaseException(6200, "high quality control fail! abs(pitch) >= 20");
             }
             if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 20) {
-                throw new CommonException(6200, "high quality control fail! abs(yaw) >= 20");
+                throw new BaseException(6200, "high quality control fail! abs(yaw) >= 20");
             }
             if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 20) {
-                throw new CommonException(6200, "high quality control fail! abs(roll) >= 20");
+                throw new BaseException(6200, "high quality control fail! abs(roll) >= 20");
             }
             if (qualityRe.getFaceAttributes(0).getBlur() >= 0.4) {
-                throw new CommonException(6200, "high quality control fail! blur >= 0.4");
+                throw new BaseException(6200, "high quality control fail! blur >= 0.4");
             }
             if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.4) {
-                throw new CommonException(6200, "high quality control fail! occlusion >= 0.4");
+                throw new BaseException(6200, "high quality control fail! occlusion >= 0.4");
             }
             if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.3 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.8) {
-                throw new CommonException(6200, "high quality control fail! brightness is not in (0.3, 0.8)");
+                throw new BaseException(6200, "high quality control fail! brightness is not in (0.3, 0.8)");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.4) {
-                throw new CommonException(6200, "high quality control fail! brightness side diff >= 0.4");
+                throw new BaseException(6200, "high quality control fail! brightness side diff >= 0.4");
             }
             if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.4) {
-                throw new CommonException(6200, "high quality control fail! brightness updown diff >= 0.4");
+                throw new BaseException(6200, "high quality control fail! brightness updown diff >= 0.4");
             }
             if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.4) {
-                throw new CommonException(6200, "high quality control fail! tone off center >= 0.4");
+                throw new BaseException(6200, "high quality control fail! tone off center >= 0.4");
             }
         }
     }
 
 
-    public NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) {
+    public NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) throws BaseException {
         //封装请求
         NLFace.CloudFaceAllRequest.Builder amqpRequest = NLFace.CloudFaceAllRequest.newBuilder();
         amqpRequest.setLogId(UUID.randomUUID().toString());
@@ -333,17 +323,12 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         try {
             JsonFormat.merge(json, result);
         } catch (JsonFormat.ParseException e) {
-            e.printStackTrace();
-            throw new CommonException(6400, "proto parse exception");
+            throw SysErrorEnums.PROTO_PARSE_ERROR.toException();
         }
-        NLFace.CloudFaceSendMessage build = result.build();
-        if (!StringUtils.isEmpty(build.getErrorMsg())) {
-            throw new CommonException(build.getErrorCode(), build.getErrorMsg());
-        }
-        return build;
+        return result.build();
     }
 
-    private void uploadImage(FaceDO faceDO, String image) {
+    private void uploadImage(FaceDO faceDO, String image) throws IOException {
         //提交至指定服务器路径
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
         String imagePath = imageStorageService.uploadV2(uploadReq).getImagePath();
@@ -405,7 +390,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             groupInfoDO.setGroupId(groupInfoDO.getGroupId());
             groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
             if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
-                throw new EntityNotFoundException("group_id " + query.getGroupId() + " doesn't exist!");
+                throw BusinessErrorEnums.GROUP_NOT_FOUND.toException(query.getGroupId());
             }
         }
 
@@ -415,26 +400,20 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         userInfoDO.setGroupId(receive.getGroupId());
         userInfoDO.setUserId(receive.getUserId());
         if (userInfoMapper.selectCount(userInfoDO) <= 0) {
-            throw new EntityNotFoundException("user_id " + query.getUserId() + " doesn't exist!");
+            throw BusinessErrorEnums.USER_NOT_FOUND.toException(query.getUserId());
         }
 
         //然后直接去face表中查询是否存在这张人脸图片的记录，若不存在则抛出异常，存在则删除该人脸
         FaceDO faceDO = faceMapper.selectOne(query);
         if (faceDO == null) {
-            return;
+            throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
         }
 
-        //note 缓存中删除用户指定的人脸
-        if (faceCacheHelper.delete(query.getAppId(), faceDO.getId()) < 0) {
-            log.info("[人脸删除],参数{}", "AppId:" + faceDO.getAppId() + "GroupId" + faceDO.getGroupId() + "userId" + faceDO.getUserId());
-            throw ApiReturnErrorCode.CACHE_DELETE_ERROR.toException("[人脸删除]", "faceId:" + faceDO.getId());
-        }
+        //缓存中删除用户指定的人脸
+        faceCacheHelper.delete(query.getAppId(), faceDO.getId());
         //物理删除人脸
-        try {
-            faceMapper.delete(query);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw ApiReturnErrorCode.DB_DELETE_ERROR.toException("[人脸删除]");
+        if (faceMapper.delete(query) < 0) {
+            throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
         }
         publisher.publishEvent(new FaceDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
     }

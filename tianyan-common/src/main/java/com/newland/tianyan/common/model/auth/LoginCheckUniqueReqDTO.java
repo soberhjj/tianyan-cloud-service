@@ -1,10 +1,9 @@
 package com.newland.tianyan.common.model.auth;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import javax.validation.constraints.NotBlank;
 
 
 @AllArgsConstructor
@@ -13,8 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 public class LoginCheckUniqueReqDTO {
 
+    @NotBlank
+    @NonNull
     private String account;
 
+    @NotBlank
+    @NonNull
     private String mailbox;
 
 

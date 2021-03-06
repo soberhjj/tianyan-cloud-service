@@ -1,6 +1,7 @@
 package com.newland.tianyan.image.controller;
 
 import com.newland.tianyan.common.api.IImageStorageApi;
+import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.model.imagestrore.DownloadReqDTO;
 import com.newland.tianyan.common.model.imagestrore.DownloadResDTO;
 import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
@@ -25,9 +26,10 @@ public class ImageStorageController implements IImageStorageApi {
     @Override
     @PostMapping("/upload")
     public UploadResDTO upload(@RequestBody UploadReqDTO uploadReq) throws IOException {
-        UploadResDTO res = new UploadResDTO();
-        res.setImagePath(imageStorageService.uploadImage(uploadReq.getImage()));
-        return res;
+        throw new BaseException(8888,"fallback test error");
+//        UploadResDTO res = new UploadResDTO();
+//        res.setImagePath(imageStorageService.uploadImage(uploadReq.getImage()));
+//        return res;
     }
 
     @Override

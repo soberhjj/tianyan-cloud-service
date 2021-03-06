@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -17,33 +18,33 @@ import java.util.List;
 public interface IVectorSearchApi {
     @PostMapping("/insert")
     @ApiVersion(1)
-    Long insert(@RequestBody InsertReqDTO insertReqDTO);
+    Long insert(@RequestBody @Valid InsertReqDTO insertReqDTO);
 
     @PostMapping("/query")
     @ApiVersion(1)
-    List<QueryResDTO> query(@RequestBody QueryReqDTO queryReqDTO);
+    List<QueryResDTO> query(@RequestBody @Valid QueryReqDTO queryReqDTO);
 
     @PostMapping("/delete")
     @ApiVersion(1)
-    void delete(@RequestBody DeleteReqDTO deleteReqDTO);
+    void delete(@RequestBody @Valid DeleteReqDTO deleteReqDTO);
 
     @PostMapping("/createCol")
     @ApiVersion(1)
-    void createCollection(@RequestBody CreateColReqDTO createColReqDTO);
+    void createCollection(@RequestBody @Valid CreateColReqDTO createColReqDTO);
 
     @PostMapping("/dropCol")
     @ApiVersion(1)
-    void dropCollection(@RequestBody DeleteColReqDTO deleteReq);
+    void dropCollection(@RequestBody @Valid DeleteColReqDTO deleteReq);
 
     @PostMapping("/batchInsert")
     @ApiVersion(1)
-    List<Long> batchInsert(@RequestBody BatchInsertReqDTO batchInsertReq);
+    List<Long> batchInsert(@RequestBody @Valid BatchInsertReqDTO batchInsertReq);
 
     @PostMapping("/batchQuery")
     @ApiVersion(1)
-    List<List<QueryResDTO>> batchQuery(@RequestBody BatchQueryReqDTO batchQueryReqDTO);
+    List<List<QueryResDTO>> batchQuery(@RequestBody @Valid BatchQueryReqDTO batchQueryReqDTO);
 
     @PostMapping("/batchDelete")
     @ApiVersion(1)
-    void batchDelete(@RequestBody BatchDeleteReqDTO batchDeleteReq);
+    void batchDelete(@RequestBody @Valid BatchDeleteReqDTO batchDeleteReq);
 }

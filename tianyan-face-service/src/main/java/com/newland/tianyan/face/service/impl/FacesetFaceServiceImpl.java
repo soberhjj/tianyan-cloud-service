@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.service.impl;
 
 import com.googlecode.protobuf.format.JsonFormat;
-import com.newland.tianyan.common.exception.CommonException;
+import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
 import com.newland.tianyan.common.model.vectorsearch.QueryResDTO;
 import com.newland.tianyan.common.utils.message.NLBackend;
@@ -9,6 +9,8 @@ import com.newland.tianyan.common.utils.CosineDistanceTool;
 import com.newland.tianyan.common.utils.LogUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.FeaturesTool;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
+import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.constant.StatusConstants;
@@ -17,10 +19,8 @@ import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
-import com.newland.tianyan.face.feign.ImageStoreFeignService;
+import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.service.FacesetFaceService;
-import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
-import com.newland.tianyan.face.service.cache.MilvusKey;
 import com.newland.tianyan.face.domain.dto.FaceDetectReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceCompareReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceDetectReqDTO;
@@ -29,6 +29,7 @@ import newlandFace.NLFace;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
@@ -52,6 +53,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     private FaceCacheHelperImpl<FaceDO> faceFaceCacheHelper;
     @Autowired
     private ImageStoreFeignService imageStorageService;
+
     private final static Map<String, Integer> TASK_TYPE = new HashMap<String, Integer>() {{
         put("coordinate", 1);
         put("feature", 2);
@@ -60,7 +62,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }};
 
     @Override
-    public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReqDTO request) {
+    public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReqDTO request) throws BaseException {
         String fileName = request.getImage();
         List<String> groupIdList = new ArrayList<>();
         Collections.addAll(groupIdList, request.getGroupId().split(","));
@@ -82,45 +84,58 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         List<Float> featureRaw = FeaturesTool.normalizeConvertToList(feature.getFeatureResultList().get(0).getFeaturesList());
         //从缓存中拿到符合向量TopN个的用户
         List<QueryResDTO> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw, groupList, request.getMaxUserNum());
-
+        if (CollectionUtils.isEmpty(queryFaceList)) {
+            throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
+        }
         //封装结果集
         NLFace.CloudFaceSendMessage.Builder resultBuilder = NLFace.CloudFaceSendMessage.newBuilder();
         resultBuilder.setLogId(UUID.randomUUID().toString());
         resultBuilder.setFaceNum(feature.getFaceNum());
         //结果集.UserResult
+        int unUseResult = 0;
         for (QueryResDTO milvusQueryRes : queryFaceList) {
             //拆解根据规则拼接的向量id获得gid、uid
             Long vectorId = milvusQueryRes.getEntityId();
             Long gid = MilvusKey.splitGid(vectorId);
             Long uid = MilvusKey.splitUid(vectorId);
             NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
-            //用户信息
-            UserInfoDO conditionUser = new UserInfoDO();
-            conditionUser.setId(uid);
-            UserInfoDO queryUser = userInfoMapper.selectOne(conditionUser);
-            if (queryUser == null) {
+            //人脸筛选
+            if (!groupList.contains(gid)) {
+                unUseResult++;
                 continue;
             }
-            builder.setUserId(queryUser.getUserId());
-            builder.setUserName(queryUser.getUserName());
-            builder.setUserInfo(queryUser.getUserInfo());
             //用户组信息
             GroupInfoDO conditionGroup = new GroupInfoDO();
             conditionGroup.setId(gid);
             GroupInfoDO queryGroup = groupInfoMapper.selectOne(conditionGroup);
             if (queryGroup == null) {
+                unUseResult++;
                 continue;
             }
             builder.setGroupId(queryGroup.getGroupId());
+            //用户信息
+            UserInfoDO conditionUser = new UserInfoDO();
+            conditionUser.setId(uid);
+            UserInfoDO queryUser = userInfoMapper.selectOne(conditionUser);
+            if (queryUser == null) {
+                unUseResult++;
+                continue;
+            }
+            builder.setUserId(queryUser.getUserId());
+            builder.setUserName(queryUser.getUserName());
+            builder.setUserInfo(queryUser.getUserInfo());
             //置信度
             builder.setConfidence(String.valueOf(milvusQueryRes.getDistance()));
+        }
+        if (unUseResult == queryFaceList.size()) {
+            throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
         }
         // 如果face_fields有值(coordinate,liveness)，将分析的结果也加进来
         this.faceFieldHelper(request.getFaceFields(), resultBuilder, fileName);
         return resultBuilder.build();
     }
 
-    private NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) {
+    private NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) throws BaseException {
         // get features
         String logId = UUID.randomUUID().toString();
         NLFace.CloudFaceAllRequest.Builder amqpRequest = NLFace.CloudFaceAllRequest.newBuilder();
@@ -153,19 +168,18 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         try {
             JsonFormat.merge(json, result);
         } catch (JsonFormat.ParseException e) {
-            e.printStackTrace();
-            throw new CommonException(6400, "proto parse exception");
+            throw SysErrorEnums.PROTO_PARSE_ERROR.toException(e);
         }
         NLFace.CloudFaceSendMessage build = result.build();
         if (!StringUtils.isEmpty(build.getErrorMsg())) {
-            throw new CommonException(build.getErrorCode(), build.getErrorMsg());
+            throw new BaseException(build.getErrorCode(), build.getErrorMsg());
         }
         return build;
     }
 
 
     public void faceFieldHelper(String faceFieldsStr, NLFace.CloudFaceSendMessage.Builder result,
-                                String fileName) {
+                                String fileName) throws BaseException {
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
@@ -182,7 +196,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                             result.addLivenessResult(msg3.getLivenessResult(0).toBuilder());
                             break;
                         default: {
-                            break;
+                            throw BusinessErrorEnums.WRONG_FACE_FIELD.toException();
                         }
                     }
                 }
@@ -191,7 +205,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request) {
+    public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request) throws IOException {
         String image1 = request.getFirstImage();
         String image2 = request.getSecondImage();
         String logId = UUID.randomUUID().toString();
@@ -217,7 +231,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReqDTO vo) {
+    public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReqDTO vo) throws IOException {
         String image = vo.getImage();
         String logId = UUID.randomUUID().toString();
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
@@ -229,6 +243,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
+                this.checkFaceFields(faceField);
                 if (TASK_TYPE.get(faceField) != null) {
                     NLFace.CloudFaceSendMessage msg =
                             amqpHelper(image, vo.getMaxFaceNum(), (Integer) TASK_TYPE.get(faceField));
@@ -244,7 +259,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage liveness(FaceDetectReqDTO vo) {
+    public NLFace.CloudFaceSendMessage liveness(FaceDetectReqDTO vo) throws IOException {
         String image = vo.getImage();
         String logId = UUID.randomUUID().toString();
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
@@ -257,6 +272,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
                 if (TASK_TYPE.get(faceField) != null) {
+                    this.checkFaceFields(faceField);
                     NLFace.CloudFaceSendMessage msg =
                             amqpHelper(image, vo.getMaxFaceNum(), (Integer) TASK_TYPE.get(faceField));
                     builder.mergeFrom(msg);
@@ -271,7 +287,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectReqDTO request) {
+    public NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectReqDTO request) throws IOException {
         String image = request.getImage();
         String logId = UUID.randomUUID().toString();
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
@@ -284,6 +300,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
                 if (TASK_TYPE.get(faceField) != null) {
+                    this.checkFaceFields(faceField);
                     NLFace.CloudFaceSendMessage msg =
                             amqpHelper(image, request.getMaxFaceNum(), (Integer) TASK_TYPE.get(faceField));
                     builder.mergeFrom(msg);
@@ -298,7 +315,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Override
-    public NLFace.CloudFaceSendMessage features(NLBackend.BackendAllRequest receive, int model) {
+    public NLFace.CloudFaceSendMessage features(NLBackend.BackendAllRequest receive, int model) throws IOException {
         int qualityControl = receive.getQualityControl();
         if (qualityControl != 0) {
             NLFace.CloudFaceSendMessage.Builder detectBuilder = NLFace.CloudFaceSendMessage.newBuilder();
@@ -309,13 +326,13 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             double eyeDistance = Math.sqrt(Math.pow(detectRe.getFaceInfos(0).getPtx(0) - detectRe.getFaceInfos(0).getPtx(1), 2)
                     + Math.pow(detectRe.getFaceInfos(0).getPty(0) - detectRe.getFaceInfos(0).getPty(1), 2));
             if (qualityControl == 1 && eyeDistance <= 20) {
-                throw new CommonException(6200, "low quality control fail! eye distance < 20 pixels");
+                throw new BaseException(6200, "low quality control fail! eye distance < 20 pixels");
             }
             if (qualityControl == 2 && eyeDistance <= 40) {
-                throw new CommonException(6200, "median quality control fail! eye distance < 40 pixels");
+                throw new BaseException(6200, "median quality control fail! eye distance < 40 pixels");
             }
             if (qualityControl == 3 && eyeDistance <= 60) {
-                throw new CommonException(6200, "high quality control fail! eye distance < 60 pixels");
+                throw new BaseException(6200, "high quality control fail! eye distance < 60 pixels");
             }
             NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
             NLFace.CloudFaceSendMessage def =
@@ -324,89 +341,89 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             NLFace.CloudFaceSendMessage qualityRe = builder.build();
             if (receive.getQualityControl() == 1) {
                 if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 40) {
-                    throw new CommonException(6200, "low quality control fail! abs(pitch) >= 40");
+                    throw new BaseException(6200, "low quality control fail! abs(pitch) >= 40");
                 }
                 if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 40) {
-                    throw new CommonException(6200, "low quality control fail! abs(yaw) >= 40");
+                    throw new BaseException(6200, "low quality control fail! abs(yaw) >= 40");
                 }
                 if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 40) {
-                    throw new CommonException(6200, "low quality control fail! abs(roll) >= 40");
+                    throw new BaseException(6200, "low quality control fail! abs(roll) >= 40");
                 }
                 if (qualityRe.getFaceAttributes(0).getBlur() >= 0.8) {
-                    throw new CommonException(6200, "low quality control fail! blur >= 0.8");
+                    throw new BaseException(6200, "low quality control fail! blur >= 0.8");
                 }
                 if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.8) {
-                    throw new CommonException(6200, "low quality control fail! occlusion >= 0.8");
+                    throw new BaseException(6200, "low quality control fail! occlusion >= 0.8");
                 }
                 if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.15 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.95) {
-                    throw new CommonException(6200, "low quality control fail! brightness is not in (0.15, 0.95)");
+                    throw new BaseException(6200, "low quality control fail! brightness is not in (0.15, 0.95)");
                 }
                 if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.8) {
-                    throw new CommonException(6200, "low quality control fail! brightness side diff >= 0.8");
+                    throw new BaseException(6200, "low quality control fail! brightness side diff >= 0.8");
                 }
                 if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.8) {
-                    throw new CommonException(6200, "low quality control fail! brightness updown diff >= 0.8");
+                    throw new BaseException(6200, "low quality control fail! brightness updown diff >= 0.8");
                 }
                 if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.8) {
-                    throw new CommonException(6200, "low quality control fail! tone off center >= 0.8");
+                    throw new BaseException(6200, "low quality control fail! tone off center >= 0.8");
                 }
             }
             if (receive.getQualityControl() == 2) {
                 if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 30) {
-                    throw new CommonException(6200, "median quality control fail! abs(pitch) >= 30");
+                    throw new BaseException(6200, "median quality control fail! abs(pitch) >= 30");
                 }
                 if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 30) {
-                    throw new CommonException(6200, "median quality control fail! abs(yaw) >= 30");
+                    throw new BaseException(6200, "median quality control fail! abs(yaw) >= 30");
                 }
                 if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 30) {
-                    throw new CommonException(6200, "median quality control fail! abs(roll) >= 30");
+                    throw new BaseException(6200, "median quality control fail! abs(roll) >= 30");
                 }
                 if (qualityRe.getFaceAttributes(0).getBlur() >= 0.6) {
-                    throw new CommonException(6200, "median quality control fail! blur >= 0.6");
+                    throw new BaseException(6200, "median quality control fail! blur >= 0.6");
                 }
                 if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.6) {
-                    throw new CommonException(6200, "median quality control fail! occlusion >= 0.6");
+                    throw new BaseException(6200, "median quality control fail! occlusion >= 0.6");
                 }
                 if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.2 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.9) {
-                    throw new CommonException(6200, "median quality control fail! brightness is not in (0.2, 0.9)");
+                    throw new BaseException(6200, "median quality control fail! brightness is not in (0.2, 0.9)");
                 }
                 if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.6) {
-                    throw new CommonException(6200, "median quality control fail! brightness side diff >= 0.6");
+                    throw new BaseException(6200, "median quality control fail! brightness side diff >= 0.6");
                 }
                 if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.6) {
-                    throw new CommonException(6200, "median quality control fail! brightness updown diff >= 0.6");
+                    throw new BaseException(6200, "median quality control fail! brightness updown diff >= 0.6");
                 }
                 if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.6) {
-                    throw new CommonException(6200, "median quality control fail! tone off center >= 0.6");
+                    throw new BaseException(6200, "median quality control fail! tone off center >= 0.6");
                 }
             }
             if (receive.getQualityControl() == 3) {
                 if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 20) {
-                    throw new CommonException(6200, "high quality control fail! abs(pitch) >= 20");
+                    throw new BaseException(6200, "high quality control fail! abs(pitch) >= 20");
                 }
                 if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 20) {
-                    throw new CommonException(6200, "high quality control fail! abs(yaw) >= 20");
+                    throw new BaseException(6200, "high quality control fail! abs(yaw) >= 20");
                 }
                 if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 20) {
-                    throw new CommonException(6200, "high quality control fail! abs(roll) >= 20");
+                    throw new BaseException(6200, "high quality control fail! abs(roll) >= 20");
                 }
                 if (qualityRe.getFaceAttributes(0).getBlur() >= 0.4) {
-                    throw new CommonException(6200, "high quality control fail! blur >= 0.4");
+                    throw new BaseException(6200, "high quality control fail! blur >= 0.4");
                 }
                 if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.4) {
-                    throw new CommonException(6200, "high quality control fail! occlusion >= 0.4");
+                    throw new BaseException(6200, "high quality control fail! occlusion >= 0.4");
                 }
                 if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.3 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.8) {
-                    throw new CommonException(6200, "high quality control fail! brightness is not in (0.3, 0.8)");
+                    throw new BaseException(6200, "high quality control fail! brightness is not in (0.3, 0.8)");
                 }
                 if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.4) {
-                    throw new CommonException(6200, "high quality control fail! brightness side diff >= 0.4");
+                    throw new BaseException(6200, "high quality control fail! brightness side diff >= 0.4");
                 }
                 if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.4) {
-                    throw new CommonException(6200, "high quality control fail! brightness updown diff >= 0.4");
+                    throw new BaseException(6200, "high quality control fail! brightness updown diff >= 0.4");
                 }
                 if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.4) {
-                    throw new CommonException(6200, "high quality control fail! tone off center >= 0.4");
+                    throw new BaseException(6200, "high quality control fail! tone off center >= 0.4");
                 }
             }
         }
@@ -416,7 +433,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         temp.setAppId(receive.getAppId());
         if (model == -20) {
             NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-            result.setLogId(LogUtils.getLogId());
+            result.setLogId(LogUtils.traceId());
             ObjectInputStream in;
             float[] features = new float[512];
             try {
@@ -431,23 +448,23 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             }
             NLFace.CloudFaceSendMessage build = result.build();
             if (!StringUtils.isEmpty(build.getErrorMsg())) {
-                throw new CommonException(build.getErrorCode(), build.getErrorMsg());
+                throw new BaseException(build.getErrorCode(), build.getErrorMsg());
             }
             return build;
         }
 
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-        result.setLogId(LogUtils.getLogId());
+        result.setLogId(LogUtils.traceId());
         result.setFeature(temp.getFeaturesNew());
         result.setVersion(temp.getVersion());
         NLFace.CloudFaceSendMessage build = result.build();
         if (!StringUtils.isEmpty(build.getErrorMsg())) {
-            throw new CommonException(build.getErrorCode(), build.getErrorMsg());
+            throw new BaseException(build.getErrorCode(), build.getErrorMsg());
         }
         return build;
     }
 
-    public FaceDO getByImage(String image, int model) {
+    public FaceDO getByImage(String image, int model) throws IOException {
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
         String imagePath = imageStorageService.uploadV2(uploadReq).getImagePath();
 
@@ -488,5 +505,13 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         faceDO.setVersion(feature.getVersion());
         faceDO.setImagePath(imagePath);
         return faceDO;
+    }
+
+    private void checkFaceFields(String faceField) {
+        boolean coordinate = "coordinate".equals(faceField);
+        boolean liveNess = "liveness".equals(faceField);
+        if ((!coordinate) && (!liveNess)) {
+            throw BusinessErrorEnums.WRONG_FACE_FIELD.toException();
+        }
     }
 }

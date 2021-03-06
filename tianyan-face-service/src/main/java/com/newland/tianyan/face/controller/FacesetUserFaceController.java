@@ -2,7 +2,7 @@ package com.newland.tianyan.face.controller;
 
 
 import com.newland.tianyan.common.constans.TaskType;
-import com.newland.tianyan.common.exception.CommonException;
+import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.utils.ImgFormatConvertUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.LogUtils;
@@ -42,14 +42,14 @@ public class FacesetUserFaceController {
      * 添加人脸
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddReqDTO receive) {
+    public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddReqDTO receive) throws Exception {
         //convert image format to jpg
         receive.setImage(ImgFormatConvertUtils.convertToJpg(receive.getImage()));
 
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
         FaceDO faceDO = facesetUserFaceService.create(request);
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-        result.setLogId(LogUtils.getLogId());
+        result.setLogId(LogUtils.traceId());
         result.setFaceId(faceDO.getId().toString());
 
         if (receive.getType() == 101) {
@@ -68,7 +68,7 @@ public class FacesetUserFaceController {
         }
         NLFace.CloudFaceSendMessage build = result.build();
         if (!StringUtils.isEmpty(build.getErrorMsg())) {
-            throw new CommonException(build.getErrorCode(), build.getErrorMsg());
+            throw new BaseException(build.getErrorCode(), build.getErrorMsg());
         }
         return build;
     }

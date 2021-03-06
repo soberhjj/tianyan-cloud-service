@@ -1,12 +1,10 @@
 package com.newland.tianyan.face.controller;
 
 
-
-import com.newland.tianyan.common.api.IImageStorageApi;
-import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
-import com.newland.tianyan.common.model.imagestrore.UploadResDTO;
-import com.newland.tianyan.common.model.vectorsearch.CreateColReqDTO;
-import com.newland.tianyan.face.feign.VectorSearchFeignService;
+import com.newland.tianyan.common.exception.BaseException;
+import com.newland.tianyan.common.exception.SysException;
+import com.newland.tianyan.common.model.auth.AuthClientReqDTO;
+import com.newland.tianyan.face.feign.client.AuthClientFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,11 +19,24 @@ import org.springframework.web.bind.annotation.RestController;
 public class DemoController {
 
     @Autowired
-    private IImageStorageApi imageStorageApi;
+    private AuthClientFeignService authClientFeignService;
 
     @PostMapping("/test")
-    public UploadResDTO addClient(@RequestBody UploadReqDTO req) {
-        return imageStorageApi.upload(req);
+    public String test(@RequestBody AuthClientReqDTO req) {
+        String result = authClientFeignService.test(req);
+        return result + " fallback!";
     }
 
+    @PostMapping("/test1")
+    public String test1(@RequestBody AuthClientReqDTO req) {
+        String result = "";
+        try {
+            result = authClientFeignService.test(req);
+        }catch (Exception e){
+            if (e instanceof BaseException){
+                throw new SysException(((BaseException) e).getErrorCode(),((BaseException) e).getErrorMsg());
+            }
+        }
+        return result;
+    }
 }

@@ -2,20 +2,20 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.exception.CommonException;
-import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.common.exception.BaseException;
+import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
-import com.newland.tianyan.face.domain.entity.FaceDO;
-import com.newland.tianyan.face.service.cache.FaceCacheHelperImpl;
+import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.face.constant.StatusConstants;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
+import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.group.AbstractGroupDeleteEvent;
-import com.newland.tianyan.face.exception.ApiReturnErrorCode;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
+import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.service.GroupInfoService;
-import com.newland.tianyan.common.utils.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -41,19 +41,21 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
 
     @Override
-    public void create(NLBackend.BackendAllRequest receive) {
+    public void create(NLBackend.BackendAllRequest receive) throws BaseException {
         GroupInfoDO groupInfoDO = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
         //判断用户组是否存在
         groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
         if (groupInfoMapper.selectCount(groupInfoDO) > 0) {
-            throw new EntityExistsException("same group_id exist in app:" + receive.getGroupId());
+            throw BusinessErrorEnums.GROUP_ALREADY_EXISTS.toException(receive.getGroupId());
         }
 
         //添加用户组
         groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
         groupInfoDO.setFaceNumber(0);
         groupInfoDO.setUserNumber(0);
-        groupInfoMapper.insertSelective(groupInfoDO);
+        if (groupInfoMapper.insertSelective(groupInfoDO) < 0) {
+            throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(groupInfoDO));
+        }
 
         //发布事件。由于新增了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值加1
         publisher.publishEvent(new AbstractGroupCreateEvent(receive.getAppId(), receive.getGroupId()));
@@ -61,7 +63,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     }
 
     @Override
-    public PageInfo<GroupInfoDO> getList(NLBackend.BackendAllRequest receive) {
+    public PageInfo<GroupInfoDO> getList(NLBackend.BackendAllRequest receive) throws BaseException {
         GroupInfoDO query = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
         return PageHelper.offsetPage(query.getStartIndex(), query.getLength())
                 .doSelectPageInfo(
@@ -86,7 +88,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
      * 删除用户组
      */
     @Override
-    public void delete(NLBackend.BackendAllRequest receive) {
+    public void delete(NLBackend.BackendAllRequest receive) throws BaseException {
         GroupInfoDO groupInfoDO = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
         groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
         GroupInfoDO groupToDelete = groupInfoMapper.selectOne(groupInfoDO);
@@ -96,15 +98,11 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
         //todo 删除该组所有用户的所有人脸-可以做个闲时的人脸删除
         List<Long> faceIdList = faceMapper.selectIdByGroupId(groupToDelete.getGroupId());
-        if (faceCacheHelper.deleteBatch(groupInfoDO.getAppId(),faceIdList) < 0) {
-            throw ApiReturnErrorCode.CACHE_DELETE_ERROR.toException("[人脸管理]-移除用户组", "faceId:" + JsonUtils.toJson(faceIdList));
-        }
+        faceCacheHelper.deleteBatch(groupInfoDO.getAppId(), faceIdList);
 
         //逻辑删除
-        try {
-            groupInfoMapper.updateToDelete(StatusConstants.DELETE, groupToDelete.getId());
-        } catch (Exception e) {
-            throw new CommonException(6100, "invalid param");
+        if (groupInfoMapper.updateToDelete(StatusConstants.DELETE, groupToDelete.getId()) < 0) {
+            throw SysErrorEnums.DB_DELETE_ERROR.toException();
         }
 
         //发布事件。由于删除了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值减1
