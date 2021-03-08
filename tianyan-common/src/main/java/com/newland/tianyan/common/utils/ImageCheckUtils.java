@@ -1,7 +1,7 @@
 package com.newland.tianyan.common.utils;
 
 
-import com.newland.tianyan.common.constans.ArgumentErrorEnums;
+import com.newland.tianyan.common.constans.GlobalArgumentErrorEnums;
 
 import java.util.regex.Pattern;
 
@@ -20,14 +20,14 @@ public class ImageCheckUtils {
     public static void imageCheck(String image) {
         String base64 = image.replaceAll("[\\s*\t\n\r]", "");
         if (!Pattern.matches(BASE64_PATTERN, base64)) {
-            throw ArgumentErrorEnums.BASE64_FORMAT_ILLEGAL.toException();
+            throw GlobalArgumentErrorEnums.BASE64_FORMAT_ILLEGAL.toException();
         }
         if ((!image.startsWith(JPG_BASE64_PREFIX)) && (!image.startsWith(PNG_BASE64_PREFIX)) && (!image.startsWith(BMP_BASE64_PREFIX))) {
-            throw ArgumentErrorEnums.IMAGE_FORMAT_ILLEGAL.toException();
+            throw GlobalArgumentErrorEnums.IMAGE_FORMAT_ILLEGAL.toException();
         }
         int length = image.length();
         if (length > MAX_IMAGE_SIZE) {
-            throw ArgumentErrorEnums.IMAGE_SIZE_OVER_2MB.toException();
+            throw GlobalArgumentErrorEnums.IMAGE_SIZE_OVER_2MB.toException();
         }
     }
 

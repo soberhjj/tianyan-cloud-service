@@ -1,4 +1,4 @@
-package com.newland.tianyan.image.exception;
+package com.newland.tianyan.vectorsearch.constant;
 
 import com.newland.tianyan.common.exception.SysException;
 

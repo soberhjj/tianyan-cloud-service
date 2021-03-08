@@ -1,4 +1,4 @@
-package com.newland.tianyan.vectorsearch.exception;
+package com.newland.tianyan.image.constant;
 
 import com.newland.tianyan.common.exception.BusinessException;
 
@@ -11,7 +11,9 @@ public enum BusinessErrorEnums {
     /**
      * 测试微服务异常
      */
-    DEMO(1, "demo exception"),
+    BASE64_FORMAT_ILLEGAL(5350,"非BASE64编码串"),
+    IMAGE_SIZE_OVER_2MB(5351,"图片大小超过2MB"),
+    IMAGE_FORMAT_ILLEGAL(5352,"暂不支持JPG、PNG、BMP以外的图片格式"),
     ;
     private int errorCode;
 

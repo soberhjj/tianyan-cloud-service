@@ -1,7 +1,7 @@
 package com.newland.tianyan.auth.controller;
 
 
-import com.newland.tianyan.auth.exception.BusinessErrorEnums;
+import com.newland.tianyan.auth.constant.BusinessErrorEnums;
 import com.newland.tianyan.common.model.auth.AuthClientReqDTO;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

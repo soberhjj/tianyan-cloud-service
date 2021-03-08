@@ -1,5 +1,6 @@
 package com.newland.tianyan.gateway.log;
 
+import com.newland.tianyan.gateway.constant.GatewayErrorEnums;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -49,6 +50,9 @@ public class ReactiveAddrUtils {
                     break;
                 }
             }
+        }
+        if (ip.equals("192.168.2.219")){
+            throw GatewayErrorEnums.DEMO.toException();
         }
         return ip;
     }
