@@ -1,6 +1,6 @@
 package com.newland.tianyan.auth.config;
 
-import com.newland.tianyan.common.log.ApiMethodLogIntercept;
+import com.newland.tianyan.common.aop.ApiMethodLogIntercept;
 import com.newland.tianyan.common.utils.LogFixColumnUtils;
 import com.newland.tianyan.common.utils.ServerAddressUtils;
 import org.springframework.beans.factory.annotation.Autowired;

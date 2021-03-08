@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.log;
+package com.newland.tianyan.common.aop;
 
 import com.newland.tianyan.common.utils.LogFixColumnUtils;
 import com.newland.tianyan.common.utils.NetworkUtils;
@@ -35,8 +35,8 @@ public class ApiMethodLogIntercept implements HandlerInterceptor {
         String url = request.getRequestURI();
         String requestIp = NetworkUtils.getClientIpAddress(request);
         String responseIp = serverAddressUtils.getServerAddress();
-        String traceId = request.getHeader(GATEWAY_TRACE_HEAD);
-        logFixColumnUtils.init(traceId,url, requestIp, responseIp);
+        //String traceId = request.getHeader(GATEWAY_TRACE_HEAD);
+        logFixColumnUtils.init(null,url, requestIp, responseIp);
         //输出请求时间
         String requestTime = LocalDateTime.now().toString();
         request.setAttribute("requestTime", requestTime);

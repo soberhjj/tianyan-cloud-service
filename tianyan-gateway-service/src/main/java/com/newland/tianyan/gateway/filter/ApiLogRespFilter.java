@@ -39,16 +39,11 @@ public class ApiLogRespFilter implements GlobalFilter, Ordered {
     @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        //链路生成追踪id
-        String traceId = TraceContext.traceId();
-        //投放至日志
-        MDC.put(TRACE_MDC, traceId);
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
         //日志固定列
         String url = serverHttpRequest.getURI().getPath();
         String clientIp = ReactiveAddrUtils.getRemoteAddr(serverHttpRequest);
         String serverIp = ReactiveAddrUtils.getLocalAddr();
-
         LogFixColumnsUtils.init(url, clientIp, serverIp);
         //响应时间
         String requestTime = exchange.getAttribute("requestTime");
@@ -59,6 +54,9 @@ public class ApiLogRespFilter implements GlobalFilter, Ordered {
         ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(serverHttpResponse) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+                String traceId = getHeaders().get(GATEWAY_TRACE_HEAD).get(0);
+                //投放至日志
+                MDC.put(TRACE_MDC, traceId);
                 if (body instanceof Flux) {
                     Flux<? extends DataBuffer> fluxBody = (Flux<? extends DataBuffer>) body;
                     return super.writeWith(fluxBody.map(dataBuffer -> {
@@ -67,7 +65,7 @@ public class ApiLogRespFilter implements GlobalFilter, Ordered {
 
                         DataBufferUtils.release(dataBuffer);
                         String responseBody = new String(content, StandardCharsets.UTF_8);
-                        log.info("requestTime:{},responseTime:{},responseBody:{}", requestTime, responseTime,responseBody);
+                        log.info("requestTime:{},responseTime:{},responseBody:{}", requestTime, responseTime, responseBody);
                         byte[] uppedContent = new String(content, StandardCharsets.UTF_8).getBytes();
                         return dataBufferFactory.wrap(uppedContent);
                     }));
@@ -75,6 +73,7 @@ public class ApiLogRespFilter implements GlobalFilter, Ordered {
                 return super.writeWith(body);
             }
         };
+        //String traceID= decoratedResponse.getHeaders().get(GATEWAY_TRACE_HEAD).get(0);
         //LogFixColumnsUtils.clear();
         return chain.filter(exchange.mutate().response(decoratedResponse).build());
     }

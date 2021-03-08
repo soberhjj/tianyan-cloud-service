@@ -3,7 +3,7 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.newland.tianyan.common.version.VersionConfiguration,\
   com.newland.tianyan.common.utils.LogFixColumnUtils,\
   com.newland.tianyan.common.utils.ServerAddressUtils,\
-  com.newland.tianyan.common.log.ApiReqParamsAdvice,\
-  com.newland.tianyan.common.log.ApiRespBodyAdvice,\
-  com.newland.tianyan.common.log.ApiMethodLogIntercept,\
+  com.newland.tianyan.common.aop.ApiReqParamsAdvice,\
+  com.newland.tianyan.common.aop.ApiRespBodyAdvice,\
+  com.newland.tianyan.common.aop.ApiMethodLogIntercept,\
   com.newland.tianyan.common.aop.GlobalExceptionHandler

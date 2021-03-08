@@ -2,10 +2,7 @@ package com.newland.tianyan.gateway.filter;
 
 import com.newland.tianyan.gateway.utils.LogFixColumnsUtils;
 import com.newland.tianyan.gateway.utils.ReactiveAddrUtils;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.apm.toolkit.trace.TraceContext;
-import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -23,9 +20,6 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
-import static com.newland.tianyan.gateway.constant.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
-import static com.newland.tianyan.gateway.constant.GlobalTraceConstant.TRACE_MDC;
-
 /**
  * @author: RojiaHuang
  * @description: 会话请求打印，生成日志链路追踪TraceId并传入header中
@@ -37,22 +31,12 @@ public class ApiLogReqFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        //链路生成追踪id
-        String traceId = TraceContext.traceId();
-        //投放至日志
-        MDC.put(TRACE_MDC, traceId);
-        //投放至httpHead
-        ServerHttpRequest serverHttpRequest = exchange.getRequest().mutate()
-                .headers(header -> {
-                    header.add(GATEWAY_TRACE_HEAD, traceId);
-                })
-                .build();
+        ServerHttpRequest serverHttpRequest = exchange.getRequest();
         String url = serverHttpRequest.getURI().getPath();
         String clientIp = ReactiveAddrUtils.getRemoteAddr(serverHttpRequest);
         String serverIp = ReactiveAddrUtils.getLocalAddr();
         //日志固定列
         LogFixColumnsUtils.init(url, clientIp, serverIp);
-        //ServerHttpRequest serverHttpRequest = exchange.getRequest();
         //请求时间
         String requestTime = LocalDateTime.now().toString();
         exchange.getAttributes().put("requestTime", requestTime);

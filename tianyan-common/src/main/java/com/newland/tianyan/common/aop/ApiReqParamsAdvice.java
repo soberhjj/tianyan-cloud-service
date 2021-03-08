@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.log;
+package com.newland.tianyan.common.aop;
 
 import com.newland.tianyan.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
