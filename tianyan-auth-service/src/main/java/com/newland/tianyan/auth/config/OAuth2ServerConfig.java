@@ -154,7 +154,7 @@ public class OAuth2ServerConfig {
 
                 Object appId = extensions.get("app_id");
                 Object account = extensions.get("account");
-                if (appId != null) {additionalInfo.put("appId", appId);}
+                if (appId != null) {additionalInfo.put("app_id", appId);}
                 if (account != null) {additionalInfo.put("account", account);}
 
                 ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);

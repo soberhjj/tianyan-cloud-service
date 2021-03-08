@@ -21,9 +21,9 @@ public class DemoController {
 
     @PostMapping("/test")
     public String test(@RequestBody @Valid AuthClientReqDTO request) {
-        if ("huangtest".equals(request.getAccount())) {
-            throw BusinessErrorEnums.DEMO.toException();
-        }
+//        if ("huangtest".equals(request.getAccount())) {
+//            throw BusinessErrorEnums.DEMO.toException();
+//        }
         return "Hey!";
     }
 

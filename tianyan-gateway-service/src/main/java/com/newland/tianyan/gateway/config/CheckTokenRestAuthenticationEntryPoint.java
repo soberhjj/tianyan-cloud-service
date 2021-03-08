@@ -1,5 +1,7 @@
 package com.newland.tianyan.gateway.config;
 
+import com.newland.tianyan.gateway.constant.GatewayErrorEnums;
+import org.slf4j.MDC;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,12 +27,14 @@ public class CheckTokenRestAuthenticationEntryPoint implements ServerAuthenticat
         response.setStatusCode(HttpStatus.OK);
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         String message = e.getMessage();
-        if (message.startsWith("Jwt expired")){
-            String body = "{\"code\":6102,\"message\":Access token expired}";
+        if (message.startsWith("Jwt expired")) {
+            GatewayErrorEnums errorEnums = GatewayErrorEnums.TOKEN_EXPIRED;
+            String body = "{\"trace_id\":" + MDC.get("traceId") + ",\"error_code\":" + errorEnums.getErrorCode() + ",\"error_msg\": \"" + errorEnums.getErrorMsg() + "\"}";
             DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
             return response.writeWith(Mono.just(buffer));
-        }else {
-            String body = "{\"code\":6101,\"message\":Access token invalid}";
+        } else {
+            GatewayErrorEnums errorEnums = GatewayErrorEnums.TOKEN_INVALID;
+            String body = "{\"trace_id\":" + MDC.get("traceId") + ",\"error_code\":" + errorEnums.getErrorCode() + ",\"error_msg\": \"" + errorEnums.getErrorMsg() + "\"}";
             DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
             return response.writeWith(Mono.just(buffer));
         }

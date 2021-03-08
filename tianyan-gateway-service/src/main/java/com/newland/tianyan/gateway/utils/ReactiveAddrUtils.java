@@ -1,4 +1,4 @@
-package com.newland.tianyan.gateway.log;
+package com.newland.tianyan.gateway.utils;
 
 import com.newland.tianyan.gateway.constant.GatewayErrorEnums;
 import lombok.extern.slf4j.Slf4j;
@@ -51,9 +51,9 @@ public class ReactiveAddrUtils {
                 }
             }
         }
-        if (ip.equals("192.168.2.219")){
-            throw GatewayErrorEnums.DEMO.toException();
-        }
+//        if (ip.equals("192.168.2.219")){
+//            throw GatewayErrorEnums.DEMO.toException();
+//        }
         return ip;
     }
 

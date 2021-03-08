@@ -1,4 +1,4 @@
-package com.newland.tianyan.gateway.log;
+package com.newland.tianyan.gateway.filter;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -28,15 +28,9 @@ import java.time.LocalDateTime;
 @Slf4j
 public class ApiLogReqFilter implements GlobalFilter, Ordered {
 
-    @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
-        String url = serverHttpRequest.getURI().getPath();
-        String clientIp = ReactiveAddrUtils.getRemoteAddr(serverHttpRequest);
-        String serverIp = ReactiveAddrUtils.getLocalAddr();
-        //日志固定列
-        LogFixColumnsUtils.init(url, clientIp, serverIp);
         //请求时间
         String requestTime = LocalDateTime.now().toString();
         exchange.getAttributes().put("requestTime", requestTime);

@@ -1,7 +1,11 @@
-package com.newland.tianyan.gateway.log;
+package com.newland.tianyan.gateway.filter;
 
+import com.newland.tianyan.gateway.utils.LogFixColumnsUtils;
+import com.newland.tianyan.gateway.utils.ReactiveAddrUtils;
+import lombok.SneakyThrows;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.slf4j.MDC;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -20,6 +24,7 @@ import static com.newland.tianyan.gateway.constant.GlobalTraceConstant.*;
 @Component
 public class TraceFilter implements GlobalFilter, Ordered {
 
+    @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         //链路生成追踪id
@@ -32,6 +37,11 @@ public class TraceFilter implements GlobalFilter, Ordered {
                     header.add(GATEWAY_TRACE_HEAD, traceId);
                 })
                 .build();
+        String url = serverHttpRequest.getURI().getPath();
+        String clientIp = ReactiveAddrUtils.getRemoteAddr(serverHttpRequest);
+        String serverIp = ReactiveAddrUtils.getLocalAddr();
+        //日志固定列
+        LogFixColumnsUtils.init(url, clientIp, serverIp);
         //统一http
         ServerWebExchange build = exchange.mutate().request(serverHttpRequest).build();
         return chain.filter(build);
@@ -39,6 +49,6 @@ public class TraceFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -9;
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 }

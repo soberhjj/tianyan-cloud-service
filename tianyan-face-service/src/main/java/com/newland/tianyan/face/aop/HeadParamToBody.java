@@ -2,6 +2,7 @@ package com.newland.tianyan.face.aop;
 
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.MethodParameter;
@@ -53,21 +54,15 @@ public class HeadParamToBody implements RequestBodyAdvice {
     @Override
     public Object afterBodyRead(Object body, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         Class clazz = body.getClass();
-        String headerAppId = request.getHeader("appId");
         String headerAccount = request.getHeader("account");
+        String headerAppId = request.getHeader("app_id");
 
-        if (headerAccount != null) {
-            for (Field field : clazz.getDeclaredFields()) {
-                if (field.getName().equals("account")) {
-                    setValue(body, field, headerAccount);
-                }
+        for (Field field : clazz.getDeclaredFields()) {
+            if ((!StringUtils.isEmpty(headerAccount)) && field.getName().equals("account")) {
+                setValue(body, field, headerAccount);
             }
-        }
-        if (headerAppId != null) {
-            for (Field field : clazz.getDeclaredFields()) {
-                if (field.getName().equals("appId")) {
-                    setValue(body, field, headerAppId);
-                }
+            if ((!StringUtils.isEmpty(headerAppId)) && field.getName().equals("appId")) {
+                setValue(body, field, Long.valueOf(headerAppId));
             }
         }
         return body;

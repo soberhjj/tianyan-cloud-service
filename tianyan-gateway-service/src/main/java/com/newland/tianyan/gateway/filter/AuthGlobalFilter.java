@@ -6,11 +6,9 @@ import com.nimbusds.jose.JWSObject;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
-
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
 
 import java.text.ParseException;
 
@@ -33,7 +31,9 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             JSONObject jsonObject = JSON.parseObject(info);
             String grant_type = jsonObject.getString("grant_type");
             if (grant_type.equals("client_credentials")) {
-                ServerHttpRequest request = exchange.getRequest().mutate().header("appId", jsonObject.getString("appId")).build();
+                ServerHttpRequest request = exchange.getRequest().mutate().header("app_id", jsonObject.getString("appId"))
+                        .header("account", jsonObject.getString("account"))
+                        .build();
                 exchange = exchange.mutate().request(request).build();
             } else if (grant_type.equals("password")) {
                 ServerHttpRequest request = exchange.getRequest().mutate().header("account", jsonObject.getString("user_name")).build();
