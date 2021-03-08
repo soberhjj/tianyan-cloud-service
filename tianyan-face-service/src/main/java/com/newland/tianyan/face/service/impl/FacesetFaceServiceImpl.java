@@ -4,11 +4,8 @@ import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
 import com.newland.tianyan.common.model.vectorsearch.QueryResDTO;
+import com.newland.tianyan.common.utils.*;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.common.utils.CosineDistanceTool;
-import com.newland.tianyan.common.utils.LogUtils;
-import com.newland.tianyan.common.utils.ProtobufUtils;
-import com.newland.tianyan.common.utils.FeaturesTool;
 import com.newland.tianyan.face.constant.BusinessErrorEnums;
 import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.mq.RabbitMQSender;
@@ -28,12 +25,15 @@ import com.newland.tianyan.face.domain.dto.FaceSetFaceSearchReqDTO;
 import newlandFace.NLFace;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import static java.lang.Math.abs;
 
@@ -41,6 +41,7 @@ import static java.lang.Math.abs;
  * @Author: huangJunJie  2020-11-06 09:09
  */
 @Service
+@RefreshScope
 public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     @Autowired
@@ -54,6 +55,9 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Autowired
     private ImageStoreFeignService imageStorageService;
 
+    @Value("${enable-image-storage}")
+    private boolean ENABLE_IMAGE_STORAGE;
+
     private final static Map<String, Integer> TASK_TYPE = new HashMap<String, Integer>() {{
         put("coordinate", 1);
         put("feature", 2);
@@ -64,6 +68,8 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Override
     public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReqDTO request) throws BaseException {
         String fileName = request.getImage();
+        //检查图片
+        ImageCheckUtils.imageCheck(fileName);
         List<String> groupIdList = new ArrayList<>();
         Collections.addAll(groupIdList, request.getGroupId().split(","));
         List<Long> groupList = new ArrayList<>(groupIdList.size());
@@ -208,11 +214,16 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request) throws IOException {
         String image1 = request.getFirstImage();
         String image2 = request.getSecondImage();
+        //检查图片
+        ImageCheckUtils.imageCheck(image1);
+        ImageCheckUtils.imageCheck(image2);
+        //是否异步存储图片
+        if (ENABLE_IMAGE_STORAGE){
+            imageStorageService.asyncUpload(UploadReqDTO.builder().image(image1).build());
+            imageStorageService.asyncUpload(UploadReqDTO.builder().image(image2).build());
+        }
+
         String logId = UUID.randomUUID().toString();
-        UploadReqDTO uploadReq1 = UploadReqDTO.builder().image(image1).build();
-        imageStorageService.uploadV2(uploadReq1);
-        UploadReqDTO uploadReq2 = UploadReqDTO.builder().image(image1).build();
-        imageStorageService.uploadV2(uploadReq2);
 
         NLFace.CloudFaceSendMessage feature1 = amqpHelper(image1, 1, (Integer) TASK_TYPE.get("feature"));
         NLFace.CloudFaceSendMessage feature2 = amqpHelper(image2, 1, (Integer) TASK_TYPE.get("feature"));
@@ -233,9 +244,14 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Override
     public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReqDTO vo) throws IOException {
         String image = vo.getImage();
+        //检查图片
+        ImageCheckUtils.imageCheck(image);
+        //是否异步存储图片
+        if (ENABLE_IMAGE_STORAGE){
+            imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
+        }
+
         String logId = UUID.randomUUID().toString();
-        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
-        imageStorageService.uploadV2(uploadReq);
 
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
 
@@ -261,9 +277,14 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Override
     public NLFace.CloudFaceSendMessage liveness(FaceDetectReqDTO vo) throws IOException {
         String image = vo.getImage();
+        //检查图片
+        ImageCheckUtils.imageCheck(image);
+        //是否异步存储图片
+        if (ENABLE_IMAGE_STORAGE){
+            imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
+        }
+
         String logId = UUID.randomUUID().toString();
-        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
-        imageStorageService.uploadV2(uploadReq);
 
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
 
@@ -289,9 +310,14 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Override
     public NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectReqDTO request) throws IOException {
         String image = request.getImage();
+        //检查图片
+        ImageCheckUtils.imageCheck(image);
+        //是否异步存储图片
+        if (ENABLE_IMAGE_STORAGE){
+            imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
+        }
+
         String logId = UUID.randomUUID().toString();
-        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
-        imageStorageService.uploadV2(uploadReq);
 
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
 
@@ -465,8 +491,14 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     public FaceDO getByImage(String image, int model) throws IOException {
-        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
-        String imagePath = imageStorageService.uploadV2(uploadReq).getImagePath();
+        //检查图片
+        ImageCheckUtils.imageCheck(image);
+        //是否异步存储图片
+        if (ENABLE_IMAGE_STORAGE){
+            imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
+        }
+//        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
+//        String imagePath = imageStorageService.uploadV2(uploadReq).getImagePath();
 
         NLFace.CloudFaceSendMessage feature = amqpHelper(image, 1, model);
 
@@ -475,7 +507,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             FaceDO faceDO = new FaceDO();
             faceDO.setFeaturesNew(feature.getFeature());
             faceDO.setVersion(feature.getVersion());
-            faceDO.setImagePath(imagePath);
+//            faceDO.setImagePath(imagePath);
             List<Float> preFeature = builder.getFeatureResult(0).getFeaturesList();
             float[] afterFeature = new float[preFeature.size()];
             float tempSum = 0;
@@ -503,7 +535,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         FaceDO faceDO = new FaceDO();
         faceDO.setFeaturesNew(feature.getFeature());
         faceDO.setVersion(feature.getVersion());
-        faceDO.setImagePath(imagePath);
+//        faceDO.setImagePath(imagePath);
         return faceDO;
     }
 
