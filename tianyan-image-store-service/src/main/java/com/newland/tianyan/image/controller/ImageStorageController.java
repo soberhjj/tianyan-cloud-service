@@ -48,4 +48,10 @@ public class ImageStorageController implements IImageStorageApi {
         return res;
     }
 
+    @Override
+    @PostMapping("/asyncUpload")
+    public void asyncUpload(@RequestBody UploadReqDTO uploadReq) throws IOException {
+        imageStorageService.asyncUploadImage(uploadReq.getImage());
+    }
+
 }

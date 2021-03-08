@@ -1,6 +1,7 @@
 package com.newland.tianyan.image.service;
 
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 /**
  * @author: RojiaHuang
@@ -15,4 +16,5 @@ public interface IImageStoreService {
 
     String downloadImage(String imagePath);
 
+    Future<String> asyncUploadImage(String image) throws IOException;
 }

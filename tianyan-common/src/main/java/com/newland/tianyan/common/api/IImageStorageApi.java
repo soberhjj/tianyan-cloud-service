@@ -31,4 +31,8 @@ public interface IImageStorageApi {
     @PostMapping("/download")
     @ApiVersion(1)
     DownloadResDTO download(@RequestBody @Valid DownloadReqDTO downloadReq);
+
+    @PostMapping("/asyncUpload")
+    @ApiVersion(1)
+    void asyncUpload(@RequestBody @Valid UploadReqDTO uploadReq) throws IOException;
 }

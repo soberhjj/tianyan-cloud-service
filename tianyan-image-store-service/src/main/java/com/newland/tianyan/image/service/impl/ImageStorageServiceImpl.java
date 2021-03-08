@@ -8,12 +8,15 @@ import com.newland.tianyan.image.service.IImageStoreService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 /**
  * @Author: huangJunJie  2021-02-07 09:36
@@ -76,5 +79,27 @@ public class ImageStorageServiceImpl implements IImageStoreService {
         } else {
             return null;
         }
+    }
+
+    @Override
+    @Async("taskPoolExecutor")
+    public Future<String> asyncUploadImage(String image) throws IOException {
+        BASE64Decoder decoder = new BASE64Decoder();
+        byte[] bytes = decoder.decodeBuffer(image);
+        String imageFormat;
+        if (0xFFD8 == ((bytes[0] & 0xff) << 8 | (bytes[1] & 0xff))) {
+            imageFormat = "jpg";
+        } else if (0x8950 == ((bytes[0] & 0xff) << 8 | (bytes[1] & 0xff))) {
+            imageFormat = "png";
+        } else {
+            imageFormat = "bmp";
+        }
+        long startTime = System.currentTimeMillis();
+        StorePath storePath = fastFileStorageClient.uploadFile(new ByteArrayInputStream(bytes), bytes.length, imageFormat, null);
+        long endTime = System.currentTimeMillis();
+        log.info(String.format("图片存储耗时：%d ms", endTime - startTime));
+        String imagePath = storePath.getFullPath();
+        log.info(String.format("图片存储路径：%s", imagePath));
+        return AsyncResult.forValue(imagePath);
     }
 }
