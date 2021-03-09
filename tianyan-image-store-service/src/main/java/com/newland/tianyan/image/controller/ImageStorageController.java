@@ -7,6 +7,7 @@ import com.newland.tianyan.common.model.imagestrore.DownloadResDTO;
 import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
 import com.newland.tianyan.common.model.imagestrore.UploadResDTO;
 import com.newland.tianyan.image.service.IImageStoreService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import java.io.IOException;
  * @Author: huangJunJie  2021-02-07 10:07
  */
 @RestController
+@Slf4j
 public class ImageStorageController implements IImageStorageApi {
 
     @Autowired
@@ -26,10 +28,10 @@ public class ImageStorageController implements IImageStorageApi {
     @Override
     @PostMapping("/upload")
     public UploadResDTO upload(@RequestBody UploadReqDTO uploadReq) throws IOException {
-        throw new BaseException(8888,"fallback test error");
-//        UploadResDTO res = new UploadResDTO();
-//        res.setImagePath(imageStorageService.uploadImage(uploadReq.getImage()));
-//        return res;
+        log.info("我是业务日志{}","123");
+        UploadResDTO res = new UploadResDTO();
+        res.setImagePath(imageStorageService.uploadImage(uploadReq.getImage()));
+        return res;
     }
 
     @Override
