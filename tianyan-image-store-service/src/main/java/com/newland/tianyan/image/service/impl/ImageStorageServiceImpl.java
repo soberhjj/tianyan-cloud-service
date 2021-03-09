@@ -36,6 +36,7 @@ public class ImageStorageServiceImpl implements IImageStoreService {
      */
     @Override
     public String uploadImage(String image) throws IOException {
+        log.info("我是业务日志{}","123Oh~");
         ImageCheckUtils.imageCheck(image);
         BASE64Decoder decoder = new BASE64Decoder();
         byte[] bytes = decoder.decodeBuffer(image);

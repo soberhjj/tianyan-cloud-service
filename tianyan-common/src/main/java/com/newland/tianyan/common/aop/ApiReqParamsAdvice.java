@@ -45,7 +45,10 @@ public class ApiReqParamsAdvice implements RequestBodyAdvice {
     @Override
     public Object afterBodyRead(Object o, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         Map<String, Object> map = JsonUtils.toMap(o);
-        map.remove("image");
+        if (map.containsKey("image")){
+            map.remove("image");
+            map.put("image","(base转码图片，省略不打印)");
+        }
         log.info("requestParams：{}", map);
         return o;
     }

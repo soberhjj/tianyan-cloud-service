@@ -32,7 +32,10 @@ public class ApiRespBodyAdvice implements ResponseBodyAdvice {
                                   MediaType mediaType, Class aClass,
                                   ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         Map<String, Object> map = JsonUtils.toMap(o);
-        map.remove("image");
+        if (map.containsKey("image")){
+            map.remove("image");
+            map.put("image","(base转码图片，省略不打印)");
+        }
         log.info("responseParams：{}", JsonUtils.toJson(map));
         String traceId = TraceContext.traceId();
         serverHttpResponse.getHeaders().add(GATEWAY_TRACE_HEAD,traceId);
