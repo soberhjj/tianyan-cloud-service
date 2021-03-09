@@ -111,13 +111,9 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
         Long appId = insertSourceList.get(0).getAppId();
         List<List<Float>> features = new ArrayList<>(size);
         List<Long> entityIds = new ArrayList<>(size);
-//        List<Long> gids = new ArrayList<>(size);
-//        List<Long> uids = new ArrayList<>(size);
         insertSourceList.forEach(face -> {
             features.add(this.convertByteArrayToList(face));
             entityIds.add(face.getId());
-//            gids.add(face.getGid());
-//            uids.add(face.getUid());
         });
 
         BatchInsertReqDTO batchInsertReq = BatchInsertReqDTO.builder()

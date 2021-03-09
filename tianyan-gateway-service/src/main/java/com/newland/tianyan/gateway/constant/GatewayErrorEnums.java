@@ -14,9 +14,9 @@ public enum GatewayErrorEnums {
      * 测试异常
      * */
     DEMO(10010,"test gateway exception"),
+    NO_TOKEN(6100,"No Access token"),
     TOKEN_INVALID(6101,"Access token invalid"),
     TOKEN_EXPIRED(6102,"Access token expired"),
-    NO_TOKEN(6103,"No Access token"),
     ;
     private int errorCode;
 

@@ -10,7 +10,9 @@ import com.newland.tianyan.common.utils.FeaturesTool;
 import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
 import com.newland.tianyan.face.constant.StatusConstants;
+import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.dao.UserInfoMapper;
@@ -21,8 +23,6 @@ import com.newland.tianyan.face.event.face.FaceCreateEvent;
 import com.newland.tianyan.face.event.face.FaceDeleteEvent;
 import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.user.UserCreateEvent;
-import com.newland.tianyan.face.constant.BusinessErrorEnums;
-import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
@@ -32,12 +32,15 @@ import newlandFace.NLFace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.*;
 
+import static com.newland.tianyan.face.constant.BusinessConstants.*;
 import static java.lang.Math.abs;
 
 /**
@@ -63,7 +66,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     private RabbitMQSender rabbitMqSender;
 
     @Override
-    //@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public FaceDO create(NLBackend.BackendAllRequest receive) throws IOException {
         String actionType = receive.getActionType();
         this.checkActionType(actionType);
@@ -104,6 +107,9 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             }
             insertFaceDO.setGroupId(groupId);
 
+            if (groupInfoDO.getUserNumber() > MAX_USER_NUMBER) {
+                throw BusinessErrorEnums.OVER_USE_MAX_NUMBER.toException();
+            }
             //如果user_info表中不存在该用户，那么在添加人脸后，往user_info表中插入一条新记录表示新增了该用户。
             UserInfoDO queryUser = new UserInfoDO();
             queryUser.setAppId(query.getAppId());
@@ -189,8 +195,8 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     }
 
     private void checkActionType(String actionType) {
-        boolean append = "append".equals(actionType);
-        boolean replace = "replace".equals(actionType);
+        boolean append = ACTION_TYPE_APPEND.equals(actionType);
+        boolean replace = ACTION_TYPE_REPLACE.equals(actionType);
         if ((!append) && (!replace)) {
             throw BusinessErrorEnums.WRONG_ACTION_TYPE.toException();
         }

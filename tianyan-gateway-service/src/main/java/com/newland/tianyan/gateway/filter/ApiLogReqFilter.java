@@ -3,6 +3,10 @@ package com.newland.tianyan.gateway.filter;
 import com.newland.tianyan.gateway.utils.LogFixColumnsUtils;
 import com.newland.tianyan.gateway.utils.ReactiveAddrUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.toolkit.trace.TraceContext;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cloud.gateway.filter.ForwardRoutingFilter;
+import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -13,6 +17,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.DispatcherHandler;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,10 +32,13 @@ import java.time.LocalDateTime;
  */
 @Component
 @Slf4j
-public class ApiLogReqFilter implements GlobalFilter, Ordered {
+public class ApiLogReqFilter implements GlobalFilter, GatewayFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String traceId = TraceContext.traceId();
+        System.out.println("traceID：" + traceId);
+
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
         String url = serverHttpRequest.getURI().getPath();
         String clientIp = ReactiveAddrUtils.getRemoteAddr(serverHttpRequest);

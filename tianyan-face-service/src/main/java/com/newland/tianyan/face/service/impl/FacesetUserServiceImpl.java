@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.newland.tianyan.face.constant.BusinessConstants.MAX_USER_NUMBER;
+
 /**
  * @Author: huangJunJie  2020-11-07 09:18
  */
@@ -127,6 +129,9 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         int faceNumber, userNumber;
         //不存在同名用户,直接新建
         if (targetUserInfoDO == null) {
+            if (dstGroupInfo.getUserNumber() > MAX_USER_NUMBER) {
+                throw BusinessErrorEnums.OVER_USE_MAX_NUMBER.toException();
+            }
             userNumber = 1;
             faceNumber = srcFace.size();
             //新建目标用户组中的用户
@@ -149,6 +154,8 @@ public class FacesetUserServiceImpl implements FacesetUserService {
                 insertFace.setUserId(dstUser.getUserId());
                 insertFace.setImagePath(faceDO.getImagePath());
                 insertFace.setFeatures(faceDO.getFeatures());
+
+                insertFace.setId(MilvusKey.generatedKey(dstUser.getGid(), dstUser.getId(), dstUser.getFaceNumber() + 1));
                 insertList.add(insertFace);
             }
         } else {
@@ -240,7 +247,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             faceDO.setGroupId(group);
             faceDO.setUserId(userInfoDO.getUserId());
             faceDO.setAppId(receive.getAppId());
-            if (faceMapper.delete(faceDO)<0){
+            if (faceMapper.delete(faceDO) < 0) {
                 throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
             }
 

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class RabbitMQConfig {
 
-    //TODO: remove magic number
     @Bean
     public Queue queue() {
         return new Queue("faceDetectQueue");

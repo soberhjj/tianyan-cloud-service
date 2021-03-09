@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @Author: huangJunJie  2020-11-03 11:14
  */
 @Component
-@Async
+//@Async
 public class GroupCreateEventListener {
 
     @Autowired

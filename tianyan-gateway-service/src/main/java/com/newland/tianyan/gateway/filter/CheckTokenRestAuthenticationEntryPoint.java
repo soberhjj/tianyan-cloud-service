@@ -1,4 +1,4 @@
-package com.newland.tianyan.gateway.config;
+package com.newland.tianyan.gateway.filter;
 
 import com.newland.tianyan.gateway.constant.GatewayErrorEnums;
 import org.slf4j.MDC;

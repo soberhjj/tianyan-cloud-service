@@ -35,7 +35,7 @@ public class FaceSetFaceSearchReqDTO {
     private int maxFaceNum = 1;
 
     @Min(1)
-    @Max(10)
+    @Max(50)
     private int maxUserNum = 1;
 
     private String faceFields;

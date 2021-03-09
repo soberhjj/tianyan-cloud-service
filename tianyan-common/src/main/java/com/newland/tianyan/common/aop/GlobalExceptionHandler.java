@@ -80,10 +80,10 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public JsonErrorObject handleMediaTypeException(HttpMediaTypeNotSupportedException e) {
         log.warn("抛出系统异常", e);
-        if (!"json".equals(Objects.requireNonNull(e.getContentType()).getType())){
+        if (!"json".equals(Objects.requireNonNull(e.getContentType()).getType())) {
             ArgumentException sysException = GlobalArgumentErrorEnums.JSON_CONTENT_FORMAT_ERROR.toException();
             return new JsonErrorObject(LogUtils.traceId(), sysException.getErrorCode(), sysException.getErrorMsg());
-        }else {
+        } else {
             SysException sysException = GlobalSystemErrorEnums.SYSTEM_ERROR.toException();
             return new JsonErrorObject(LogUtils.traceId(), sysException.getErrorCode(), sysException.getErrorMsg());
         }

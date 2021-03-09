@@ -15,7 +15,7 @@ public enum GlobalSystemErrorEnums {
     /**
      * 404
      * */
-    INVALID_METHOD(9998,"invalid method"),
+    INVALID_METHOD(6304,"service not support"),
     ;
     private int errorCode;
 

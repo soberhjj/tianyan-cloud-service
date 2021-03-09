@@ -1,6 +1,8 @@
 package com.newland.tianyan.gateway.config;
 
 import cn.hutool.core.util.ArrayUtil;
+import com.newland.tianyan.gateway.filter.CheckTokenRestAuthenticationEntryPoint;
+import com.newland.tianyan.gateway.filter.NoTokenRestAuthenticationEntryPoint;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -27,31 +27,22 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             String realToken = token.replace("Bearer ", "");
             JWSObject jwsObject = JWSObject.parse(realToken);
             String info = jwsObject.getPayload().toString();
-            System.out.println(info);
             JSONObject jsonObject = JSON.parseObject(info);
-            String grant_type = jsonObject.getString("grant_type");
-            if (grant_type.equals("client_credentials")) {
-                ServerHttpRequest request = exchange.getRequest().mutate().header("app_id", jsonObject.getString("appId"))
+            String grantType = jsonObject.getString("grant_type");
+            if ("client_credentials".equals(grantType)) {
+                String appId = "";
+                if (jsonObject.containsKey("app_id")) {
+                    appId = jsonObject.getString("app_id");
+                } else if (jsonObject.containsKey("appId")) {
+                    appId = jsonObject.getString("appId");
+                }
+                ServerHttpRequest request = exchange.getRequest().mutate().header("app_id", appId)
                         .header("account", jsonObject.getString("account"))
                         .build();
                 exchange = exchange.mutate().request(request).build();
-            } else if (grant_type.equals("password")) {
+            } else if ("password".equals(grantType)) {
                 ServerHttpRequest request = exchange.getRequest().mutate().header("account", jsonObject.getString("user_name")).build();
                 exchange = exchange.mutate().request(request).build();
-
-//                ServerHttpRequest request = exchange.getRequest();
-//                Flux<DataBuffer> body = request.getBody();
-//                System.out.println("aa");
-//                StringBuilder sb = new StringBuilder();
-//                body.subscribe(buffer -> {
-//                    byte[] bytes = new byte[buffer.readableByteCount()];
-//                    buffer.read(bytes);
-//                    DataBufferUtils.release(buffer);
-//                    String bodyString = new String(bytes, StandardCharsets.UTF_8);
-//                    sb.append(bodyString);
-//                });
-//                System.out.println(sb);
-
             }
         } catch (ParseException e) {
             e.printStackTrace();

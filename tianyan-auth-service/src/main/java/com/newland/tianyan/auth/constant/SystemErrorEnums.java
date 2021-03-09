@@ -8,6 +8,7 @@ import com.newland.tianyan.common.exception.SysException;
  * @date: 2021/3/5
  */
 public enum SystemErrorEnums {
+    INVALID_GRANT(6103,"client_secret error"),
     /**
      * db验证
      */
