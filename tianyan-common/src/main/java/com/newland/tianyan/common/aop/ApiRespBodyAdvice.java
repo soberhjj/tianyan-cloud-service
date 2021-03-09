@@ -10,6 +10,8 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import java.util.Map;
+
 import static com.newland.tianyan.common.constans.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
 
 /**
@@ -29,7 +31,9 @@ public class ApiRespBodyAdvice implements ResponseBodyAdvice {
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter,
                                   MediaType mediaType, Class aClass,
                                   ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        log.info("responseParams：{}", JsonUtils.toJson(o));
+        Map<String, Object> map = JsonUtils.toMap(o);
+        map.remove("image");
+        log.info("responseParams：{}", JsonUtils.toJson(map));
         String traceId = TraceContext.traceId();
         serverHttpResponse.getHeaders().add(GATEWAY_TRACE_HEAD,traceId);
         return o;

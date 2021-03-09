@@ -12,6 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.Map;
 
 /**
  * @author: RojiaHuang
@@ -43,7 +44,9 @@ public class ApiReqParamsAdvice implements RequestBodyAdvice {
 
     @Override
     public Object afterBodyRead(Object o, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
-        log.info("requestParams：{}", JsonUtils.toJson(o));
+        Map<String, Object> map = JsonUtils.toMap(o);
+        map.remove("image");
+        log.info("requestParams：{}", map);
         return o;
     }
 
