@@ -5,7 +5,7 @@ import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.model.vectorsearch.*;
 import com.newland.tianyan.common.utils.FeaturesTool;
 import com.newland.tianyan.face.domain.entity.FaceDO;
-import com.newland.tianyan.face.constant.SysErrorEnums;
+import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.feign.ReportException;
 import com.newland.tianyan.face.feign.client.VectorSearchFeignService;
 import com.newland.tianyan.face.service.ICacheHelper;
@@ -30,7 +30,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
         return "FACE_" + appId;
     }
 
-    public List<QueryResDTO> query(Long appId, List<Float> feature, List<Long> gids, Integer topK) throws BaseException {
+    public List<QueryResDTO> query(Long appId, List<Float> feature, Integer topK) throws BaseException {
         QueryReqDTO queryReq = QueryReqDTO.builder()
                 .appId(getCollectionName(appId))
                 .feature(feature)
@@ -40,7 +40,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
         try {
             result = vectorSearchService.query(queryReq);
         } catch (ReportException exception) {
-            throw SysErrorEnums.VECTOR_QUERY_ERROR.toException();
+            throw SystemErrorEnums.VECTOR_QUERY_ERROR.toException();
         }
         return result;
     }
@@ -58,7 +58,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                     .build();
             vectorSearchService.delete(deleteReq);
         } catch (ReportException exception) {
-            throw SysErrorEnums.VECTOR_DELETE_ERROR.toException();
+            throw SystemErrorEnums.VECTOR_DELETE_ERROR.toException();
         }
     }
 
@@ -75,7 +75,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                     .build();
             vectorSearchService.batchDelete(batchDeleteReq);
         } catch (ReportException exception) {
-            throw SysErrorEnums.VECTOR_DELETE_ERROR.toException();
+            throw SystemErrorEnums.VECTOR_DELETE_ERROR.toException();
         }
     }
 
@@ -93,7 +93,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
         try {
             result = vectorSearchService.insert(insertReq);
         } catch (ReportException exception) {
-            throw SysErrorEnums.VECTOR_INSERT_ERROR.toException();
+            throw SystemErrorEnums.VECTOR_INSERT_ERROR.toException();
         }
         return result;
     }
@@ -125,7 +125,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
         try {
             result = vectorSearchService.batchInsert(batchInsertReq);
         } catch (ReportException exception) {
-            throw SysErrorEnums.VECTOR_INSERT_ERROR.toException();
+            throw SystemErrorEnums.VECTOR_INSERT_ERROR.toException();
         }
         return result;
     }
@@ -142,7 +142,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                     .build();
             vectorSearchService.createCollection(createColReq);
         } catch (ReportException exception) {
-            throw SysErrorEnums.VECTOR_CREATE_ERROR.toException();
+            throw SystemErrorEnums.VECTOR_CREATE_ERROR.toException();
         }
     }
 
@@ -154,7 +154,7 @@ public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
                     .build();
             vectorSearchService.dropCollection(deleteColReq);
         } catch (ReportException exception) {
-            throw SysErrorEnums.VECTOR_DROP_ERROR.toException();
+            throw SystemErrorEnums.VECTOR_DROP_ERROR.toException();
         }
     }
 }

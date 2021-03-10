@@ -1,7 +1,7 @@
 package com.newland.tianyan.auth.exception;
 
-import com.newland.tianyan.common.constans.GlobalSystemErrorEnums;
-import com.newland.tianyan.common.exception.SysException;
+import com.newland.tianyan.common.constans.GlobalArgumentErrorEnums;
+import com.newland.tianyan.common.exception.ArgumentException;
 import org.slf4j.MDC;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
@@ -29,10 +29,10 @@ public class NotFoundException implements ErrorController {
     @ResponseBody
     public Object error(HttpServletRequest request) {
         Map<String, Object> body = new HashMap<>();
-        SysException sysException = GlobalSystemErrorEnums.INVALID_METHOD.toException();
+        ArgumentException exception = GlobalArgumentErrorEnums.INVALID_METHOD.toException();
         body.put("log_id", MDC.get("traceId"));
-        body.put("error_code", sysException.getErrorCode());
-        body.put("error_msg", sysException.getErrorMsg());
+        body.put("error_code", exception.getErrorCode());
+        body.put("error_msg", exception.getErrorMsg());
         return body;
     }
 }

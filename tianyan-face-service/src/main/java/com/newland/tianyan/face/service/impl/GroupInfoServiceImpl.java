@@ -6,22 +6,21 @@ import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.face.constant.StatusConstants;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
+import com.newland.tianyan.face.constant.EntityStatusConstants;
+import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.group.AbstractGroupDeleteEvent;
-import com.newland.tianyan.face.constant.BusinessErrorEnums;
-import com.newland.tianyan.face.constant.SysErrorEnums;
 import com.newland.tianyan.face.service.GroupInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
-import javax.persistence.EntityExistsException;
 import java.util.List;
 
 /**
@@ -44,17 +43,17 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     public void create(NLBackend.BackendAllRequest receive) throws BaseException {
         GroupInfoDO groupInfoDO = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
         //判断用户组是否存在
-        groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (groupInfoMapper.selectCount(groupInfoDO) > 0) {
             throw BusinessErrorEnums.GROUP_ALREADY_EXISTS.toException(receive.getGroupId());
         }
 
         //添加用户组
-        groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         groupInfoDO.setFaceNumber(0);
         groupInfoDO.setUserNumber(0);
         if (groupInfoMapper.insertSelective(groupInfoDO) < 0) {
-            throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(groupInfoDO));
+            throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(groupInfoDO));
         }
 
         //发布事件。由于新增了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值加1
@@ -72,7 +71,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
                             Example.Criteria criteria = example.createCriteria();
 
                             criteria.andEqualTo("appId", query.getAppId());
-                            criteria.andEqualTo("isDelete", StatusConstants.NOT_DELETE);
+                            criteria.andEqualTo("isDelete", EntityStatusConstants.NOT_DELETE);
                             // dynamic sql
                             if (query.getGroupId() != null) {
                                 criteria.andLike("groupId", "%" + query.getGroupId() + "%");
@@ -90,10 +89,10 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     @Override
     public void delete(NLBackend.BackendAllRequest receive) throws BaseException {
         GroupInfoDO groupInfoDO = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
-        groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         GroupInfoDO groupToDelete = groupInfoMapper.selectOne(groupInfoDO);
         if (groupToDelete == null) {
-            throw new EntityExistsException("group_id not exist in app:" + receive.getGroupId());
+            throw BusinessErrorEnums.GROUP_NOT_FOUND.toException(receive.getGroupId());
         }
 
         //todo 删除该组所有用户的所有人脸-可以做个闲时的人脸删除
@@ -101,8 +100,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         faceCacheHelper.deleteBatch(groupInfoDO.getAppId(), faceIdList);
 
         //逻辑删除
-        if (groupInfoMapper.updateToDelete(StatusConstants.DELETE, groupToDelete.getId()) < 0) {
-            throw SysErrorEnums.DB_DELETE_ERROR.toException();
+        if (groupInfoMapper.updateToDelete(EntityStatusConstants.DELETE, groupToDelete.getId()) < 0) {
+            throw SystemErrorEnums.DB_DELETE_ERROR.toException();
         }
 
         //发布事件。由于删除了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值减1

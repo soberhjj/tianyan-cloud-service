@@ -7,7 +7,7 @@ import com.newland.tianyan.common.exception.SysException;
  * @description:
  * @date: 2021/3/3
  */
-public enum SysErrorEnums {
+public enum SystemErrorEnums {
     /**
      * 人脸算法服务异常
      */
@@ -44,7 +44,7 @@ public enum SysErrorEnums {
         return errorMsg;
     }
 
-    SysErrorEnums(int errorCode, String errorMsg) {
+    SystemErrorEnums(int errorCode, String errorMsg) {
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
     }

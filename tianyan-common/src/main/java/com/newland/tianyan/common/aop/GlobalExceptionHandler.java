@@ -2,7 +2,6 @@ package com.newland.tianyan.common.aop;
 
 
 import com.newland.tianyan.common.constans.GlobalArgumentErrorEnums;
-import com.newland.tianyan.common.constans.GlobalSystemErrorEnums;
 import com.newland.tianyan.common.exception.ArgumentException;
 import com.newland.tianyan.common.exception.BusinessException;
 import com.newland.tianyan.common.exception.SysException;
@@ -10,6 +9,7 @@ import com.newland.tianyan.common.utils.JsonErrorObject;
 import com.newland.tianyan.common.utils.LogUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -66,25 +66,32 @@ public class GlobalExceptionHandler {
 
     /**
      * 系统异常(未知)
+     * 已知系统异常向外暴露错误码，但统一展示系统繁忙
+     * 未知异常异常向外暴露6000错误码+system error
      */
     @ExceptionHandler({Exception.class, SysException.class})
     @ResponseBody
     public JsonErrorObject handleOtherException(Exception e) {
         log.warn("抛出系统异常", e);
         e.printStackTrace();
-        SysException sysException = GlobalSystemErrorEnums.SYSTEM_ERROR.toException();
+        SysException sysException;
+        if (e instanceof SysException) {
+            sysException = new SysException(((SysException) e).getErrorCode(), "system busy");
+        } else {
+            sysException = new SysException(6000, "system error");
+        }
         return new JsonErrorObject(LogUtils.traceId(), sysException.getErrorCode(), sysException.getErrorMsg());
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     @ResponseBody
     public JsonErrorObject handleMediaTypeException(HttpMediaTypeNotSupportedException e) {
-        log.warn("抛出系统异常", e);
-        if (!"json".equals(Objects.requireNonNull(e.getContentType()).getType())) {
+        log.warn("抛出http异常", e);
+        if (!MediaType.APPLICATION_JSON.getType().equals(Objects.requireNonNull(e.getContentType()).getType())) {
             ArgumentException sysException = GlobalArgumentErrorEnums.JSON_CONTENT_FORMAT_ERROR.toException();
             return new JsonErrorObject(LogUtils.traceId(), sysException.getErrorCode(), sysException.getErrorMsg());
         } else {
-            SysException sysException = GlobalSystemErrorEnums.SYSTEM_ERROR.toException();
+            SysException sysException = new SysException(6000, "system error");
             return new JsonErrorObject(LogUtils.traceId(), sysException.getErrorCode(), sysException.getErrorMsg());
         }
     }

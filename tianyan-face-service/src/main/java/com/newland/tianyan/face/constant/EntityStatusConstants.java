@@ -3,7 +3,7 @@ package com.newland.tianyan.face.constant;
 /**
  * @author hlj
  */
-public class StatusConstants {
+public class EntityStatusConstants {
 
     /**
      * 是否删除，0：否  1：是

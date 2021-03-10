@@ -1,8 +1,7 @@
-package com.newland.tianyan.common.aop;
+package com.newland.tianyan.common.filter;
 
 import com.alibaba.fastjson.JSON;
-import com.newland.tianyan.common.constans.GlobalAuthErrorEnums;
-import com.newland.tianyan.common.constans.GlobalSystemErrorEnums;
+import com.newland.tianyan.common.constans.GlobalArgumentErrorEnums;
 import com.newland.tianyan.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
@@ -25,7 +24,7 @@ import static com.newland.tianyan.common.constans.GlobalTraceConstant.GATEWAY_TR
  */
 @ControllerAdvice
 @Slf4j
-public class ApiRespBodyAdvice implements ResponseBodyAdvice {
+public class ApiRespAdvice implements ResponseBodyAdvice {
     @Override
     public boolean supports(MethodParameter methodParameter, Class aClass) {
         return true;
@@ -41,12 +40,12 @@ public class ApiRespBodyAdvice implements ResponseBodyAdvice {
             log.info("responseParams：{}", JsonUtils.toJson(o));
 
             if (o instanceof Exception) {
-                GlobalAuthErrorEnums errorEnums = null;
+                GlobalArgumentErrorEnums errorEnums = null;
                 if ("用户名或密码错误".equals(((Exception) o).getMessage())) {
-                    errorEnums = GlobalAuthErrorEnums.CLIENT_SECRET_ERROR;
+                    errorEnums = GlobalArgumentErrorEnums.CLIENT_SECRET_ERROR;
                 }
                 if (((Exception) o).getMessage().contains("Unauthorized grant type") || ((Exception) o).getMessage().contains("Unsupported grant type")) {
-                    errorEnums = GlobalAuthErrorEnums.GRANT_TYPE_INVALID;
+                    errorEnums = GlobalArgumentErrorEnums.GRANT_TYPE_INVALID;
                 }
 
                 Map<String, Object> map = new HashMap<>();

@@ -7,6 +7,8 @@ import feign.Response;
 import feign.Util;
 import feign.codec.ErrorDecoder;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * @author: RojiaHuang
  * @description:
@@ -17,7 +19,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
     public Exception decode(String methodKey, Response response) {
         try {
             if (response.body() != null) {
-                String content = Util.toString(response.body().asReader());
+                String content = Util.toString(response.body().asReader(StandardCharsets.UTF_8));
                 JsonErrorObject exceptionInfo = JSON.parseObject(content, JsonErrorObject.class);
                 return new ReportException(exceptionInfo.getErrorCode(), exceptionInfo.getErrorMsg());
             }

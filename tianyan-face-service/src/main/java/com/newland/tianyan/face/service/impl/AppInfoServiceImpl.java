@@ -8,12 +8,12 @@ import com.newland.tianyan.common.utils.AppUtils;
 import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.face.constant.StatusConstants;
+import com.newland.tianyan.face.constant.EntityStatusConstants;
 import com.newland.tianyan.face.dao.AppInfoMapper;
 import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.constant.BusinessErrorEnums;
-import com.newland.tianyan.face.constant.SysErrorEnums;
+import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.feign.client.AuthClientFeignService;
 import com.newland.tianyan.face.service.AppInfoService;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +49,7 @@ public class AppInfoServiceImpl implements AppInfoService {
     public void insert(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         // (未逻辑删除的数据集)检查account和appNames是否已经存在
-        appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        appInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (appInfoMapper.selectCount(appInfoDO) > 0) {
             throw BusinessErrorEnums.APP_ALREADY_EXISTS.toException(appInfoDO.getAppId());
         }
@@ -73,7 +73,7 @@ public class AppInfoServiceImpl implements AppInfoService {
     public AppInfoDO getInfo(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
 
-        appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        appInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         return appInfoMapper.selectOne(appInfoDO);
     }
 
@@ -89,7 +89,7 @@ public class AppInfoServiceImpl implements AppInfoService {
                             example.setTableName(AppInfoDO.TABLE_NAME);
 
                             criteria.andEqualTo("account", appInfoDO.getAccount());
-                            criteria.andEqualTo("isDelete", StatusConstants.NOT_DELETE);
+                            criteria.andEqualTo("isDelete", EntityStatusConstants.NOT_DELETE);
                             // dynamic sql
                             if (StringUtils.isNotBlank(appInfoDO.getAppName())) {
                                 criteria.andLike("appName", "%" + appInfoDO.getAppName() + "%");
@@ -115,7 +115,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         //是否存在且状态有效
         AppInfoDO queryAppInfoDO = new AppInfoDO();
         queryAppInfoDO.setAppId(appInfoDO.getAppId());
-        queryAppInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        queryAppInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (appInfoMapper.selectCount(queryAppInfoDO) <= 0) {
             throw BusinessErrorEnums.APP_NOT_FOUND.toException(receive.getAppId());
         }
@@ -127,7 +127,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         if (StringUtils.isNotBlank(appInfoDO.getAppName())) {
             criteria.andEqualTo("appName", appInfoDO.getAppName());
         }
-        criteria.andEqualTo("isDelete", StatusConstants.NOT_DELETE);
+        criteria.andEqualTo("isDelete", EntityStatusConstants.NOT_DELETE);
         criteria.andNotEqualTo("appId", appInfoDO.getAppId());
         if (appInfoMapper.selectCountByExample(example) > 0) {
             throw BusinessErrorEnums.APP_ALREADY_EXISTS.toException(receive.getAppName());
@@ -135,7 +135,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         try {
             appInfoMapper.update(appInfoDO);
         } catch (Exception e) {
-            throw SysErrorEnums.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
+            throw SystemErrorEnums.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
         }
     }
 
@@ -152,7 +152,7 @@ public class AppInfoServiceImpl implements AppInfoService {
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void delete(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
-        appInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        appInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         AppInfoDO appToDelete = appInfoMapper.selectOne(appInfoDO);
         if (appToDelete == null) {
             throw BusinessErrorEnums.APP_NOT_FOUND.toException(receive.getAppId());
@@ -161,9 +161,9 @@ public class AppInfoServiceImpl implements AppInfoService {
         faceFaceCacheHelper.deleteCollection(appInfoDO.getAppId());
         // app逻辑删除
         try {
-            appInfoMapper.updateToDelete(StatusConstants.DELETE, appInfoDO.getAppId());
+            appInfoMapper.updateToDelete(EntityStatusConstants.DELETE, appInfoDO.getAppId());
         } catch (Exception e) {
-            throw SysErrorEnums.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
+            throw SystemErrorEnums.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
         }
 
         // 远程调用

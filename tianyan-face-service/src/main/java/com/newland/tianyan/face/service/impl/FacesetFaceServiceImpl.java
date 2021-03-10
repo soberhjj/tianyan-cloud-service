@@ -7,8 +7,8 @@ import com.newland.tianyan.common.model.vectorsearch.QueryResDTO;
 import com.newland.tianyan.common.utils.*;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.face.constant.BusinessErrorEnums;
-import com.newland.tianyan.face.constant.StatusConstants;
-import com.newland.tianyan.face.constant.SysErrorEnums;
+import com.newland.tianyan.face.constant.EntityStatusConstants;
+import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.domain.dto.FaceDetectReqDTO;
@@ -55,7 +55,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     private ImageStoreFeignService imageStorageService;
 
     @Value("${enable-image-storage}")
-    private boolean ENABLE_IMAGE_STORAGE;
+    private boolean enableImageStorage;
 
     private final static Map<String, Integer> TASK_TYPE = new HashMap<String, Integer>() {{
         put("coordinate", 1);
@@ -76,7 +76,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             GroupInfoDO groupInfoDO = new GroupInfoDO();
             groupInfoDO.setAppId(request.getAppId());
             groupInfoDO.setGroupId(groupId);
-            groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+            groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
             //仅筛选出非逻辑删除的用户组
             GroupInfoDO group = groupInfoMapper.selectOne(groupInfoDO);
             if (group != null) {
@@ -93,7 +93,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                 amqpHelper(fileName, request.getMaxFaceNum(), TASK_TYPE.get("feature"));
         List<Float> featureRaw = FeaturesTool.normalizeConvertToList(feature.getFeatureResultList().get(0).getFeaturesList());
         //从缓存中拿到符合向量TopN个的用户
-        List<QueryResDTO> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw, groupList, request.getMaxUserNum());
+        List<QueryResDTO> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw, request.getMaxUserNum());
         if (CollectionUtils.isEmpty(queryFaceList)) {
             throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
         }
@@ -178,7 +178,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         try {
             JsonFormat.merge(json, result);
         } catch (JsonFormat.ParseException e) {
-            throw SysErrorEnums.PROTO_PARSE_ERROR.toException(e);
+            throw SystemErrorEnums.PROTO_PARSE_ERROR.toException(e);
         }
         NLFace.CloudFaceSendMessage build = result.build();
         if (!StringUtils.isEmpty(build.getErrorMsg())) {
@@ -221,7 +221,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         ImageCheckUtils.imageCheck(image1);
         ImageCheckUtils.imageCheck(image2);
         //是否异步存储图片
-        if (ENABLE_IMAGE_STORAGE) {
+        if (enableImageStorage) {
             imageStorageService.asyncUpload(UploadReqDTO.builder().image(image1).build());
             imageStorageService.asyncUpload(UploadReqDTO.builder().image(image2).build());
         }
@@ -250,7 +250,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         //检查图片
         ImageCheckUtils.imageCheck(image);
         //是否异步存储图片
-        if (ENABLE_IMAGE_STORAGE) {
+        if (enableImageStorage) {
             imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
         }
 
@@ -262,7 +262,6 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
-                //this.checkFaceFields(faceField);
                 if (TASK_TYPE.get(faceField) != null) {
                     NLFace.CloudFaceSendMessage msg =
                             amqpHelper(image, vo.getMaxFaceNum(), (Integer) TASK_TYPE.get(faceField));
@@ -283,7 +282,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         //检查图片
         ImageCheckUtils.imageCheck(image);
         //是否异步存储图片
-        if (ENABLE_IMAGE_STORAGE) {
+        if (enableImageStorage) {
             imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
         }
 
@@ -296,7 +295,6 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
                 if (TASK_TYPE.get(faceField) != null) {
-                    //this.checkFaceFields(faceField);
                     NLFace.CloudFaceSendMessage msg =
                             amqpHelper(image, vo.getMaxFaceNum(), (Integer) TASK_TYPE.get(faceField));
                     builder.mergeFrom(msg);
@@ -316,7 +314,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         //检查图片
         ImageCheckUtils.imageCheck(image);
         //是否异步存储图片
-        if (ENABLE_IMAGE_STORAGE) {
+        if (enableImageStorage) {
             imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
         }
 
@@ -496,7 +494,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         //检查图片
         ImageCheckUtils.imageCheck(image);
         //是否异步存储图片
-        if (ENABLE_IMAGE_STORAGE) {
+        if (enableImageStorage) {
             imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
         }
 

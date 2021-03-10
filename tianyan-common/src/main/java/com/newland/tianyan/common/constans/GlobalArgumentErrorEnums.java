@@ -9,6 +9,14 @@ import com.newland.tianyan.common.exception.ArgumentException;
  */
 public enum GlobalArgumentErrorEnums {
     /**
+     * 请求方法错误
+     * */
+    INVALID_METHOD(6301,"invalid method [{0}]"),
+    /**
+     * 请求方法不支持(版本错误)
+     * */
+    SERVICE_NOT_SUPPORT(6302,"service not support"),
+    /**
      * 请求参数不是json
      * */
     JSON_CONTENT_FORMAT_ERROR(6303,"request body should be json format"),
@@ -39,6 +47,18 @@ public enum GlobalArgumentErrorEnums {
      * 暂不支持JPG、PNG、BMP以外的图片格式
      * */
     IMAGE_FORMAT_ILLEGAL(6315,"image file format error"),
+
+    /**
+     * auth校验异常
+     * */
+    /**
+     * 客户端密码错误
+     */
+    CLIENT_SECRET_ERROR(6103, "client_secret error"),
+    /**
+     * 授权类型错误或不支持
+     */
+    GRANT_TYPE_INVALID(6104, "grant_type invalid"),
     ;
     private int errorCode;
 

@@ -1,5 +1,6 @@
 package com.newland.tianyan.common.version;
 
+import com.newland.tianyan.common.constans.GlobalArgumentErrorEnums;
 import lombok.Data;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 
@@ -45,7 +46,7 @@ public class ApiVersionCondition implements RequestCondition<ApiVersionCondition
                 return this;
             }
         }
-        return null;
+        throw GlobalArgumentErrorEnums.SERVICE_NOT_SUPPORT.toException(request.getRequestURI());
     }
 
     /**

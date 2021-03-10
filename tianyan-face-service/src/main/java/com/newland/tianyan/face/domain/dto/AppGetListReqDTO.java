@@ -1,13 +1,11 @@
 package com.newland.tianyan.face.domain.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 
-@Getter
-@Setter
+@Data
 public class AppGetListReqDTO {
 
     /**

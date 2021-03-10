@@ -1,7 +1,6 @@
 package com.newland.tianyan.face.domain.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 
@@ -10,8 +9,7 @@ import javax.validation.constraints.NotBlank;
  * @description:
  * @author: THE KING
  **/
-@Getter
-@Setter
+@Data
 public class FaceSetFaceCompareReqDTO {
 
     @NotBlank

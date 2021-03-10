@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
  * @Author: huangJunJie  2021-03-05 10:57
  */
 @RestControllerAdvice
-public class HeadParamToBody implements RequestBodyAdvice {
+public class HeadParamToBodyAdvice implements RequestBodyAdvice {
 
     @Autowired
     private HttpServletRequest request;
@@ -58,10 +58,10 @@ public class HeadParamToBody implements RequestBodyAdvice {
         String headerAppId = request.getHeader("app_id");
 
         for (Field field : clazz.getDeclaredFields()) {
-            if ((!StringUtils.isEmpty(headerAccount)) && field.getName().equals("account")) {
+            if ((!StringUtils.isEmpty(headerAccount)) && "account".equals(field.getName())) {
                 setValue(body, field, headerAccount);
             }
-            if ((!StringUtils.isEmpty(headerAppId)) && field.getName().equals("appId")) {
+            if ((!StringUtils.isEmpty(headerAppId)) && "appId".equals(field.getName())) {
                 setValue(body, field, Long.valueOf(headerAppId));
             }
         }

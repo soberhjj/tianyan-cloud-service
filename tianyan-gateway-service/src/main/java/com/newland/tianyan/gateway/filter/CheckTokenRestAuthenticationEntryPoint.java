@@ -17,6 +17,7 @@ import java.nio.charset.Charset;
 
 /**
  * 自定义返回结果：token校验失败（即token是无效的）、token过期
+ * @author Administrator
  */
 
 @Component

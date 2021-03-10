@@ -1,15 +1,13 @@
 package com.newland.tianyan.face.domain.dto;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NonNull;
-import lombok.Setter;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
-@Getter
-@Setter
+@Data
 public class FaceSetUserDeleteReqDTO {
 
     @NotBlank

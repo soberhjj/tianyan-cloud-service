@@ -7,7 +7,7 @@ import com.newland.tianyan.common.generator.IDUtil;
 import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.face.constant.StatusConstants;
+import com.newland.tianyan.face.constant.EntityStatusConstants;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.dao.UserInfoMapper;
@@ -17,7 +17,7 @@ import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.event.user.UserCopyEvent;
 import com.newland.tianyan.face.event.user.UserDeleteEvent;
 import com.newland.tianyan.face.constant.BusinessErrorEnums;
-import com.newland.tianyan.face.constant.SysErrorEnums;
+import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.service.FacesetUserService;
 import com.newland.tianyan.face.service.ICacheHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +60,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         GroupInfoDO groupInfoDO = new GroupInfoDO();
         groupInfoDO.setAppId(query.getAppId());
         groupInfoDO.setGroupId(query.getGroupId());
-        groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+        groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
             return new PageInfo<>(new ArrayList<>());
         }
@@ -96,7 +96,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         GroupInfoDO srcGroupInfo = new GroupInfoDO();
         srcGroupInfo.setAppId(queryUser.getAppId());
         srcGroupInfo.setGroupId(srcGroupId);
-        srcGroupInfo.setIsDelete(StatusConstants.NOT_DELETE);
+        srcGroupInfo.setIsDelete(EntityStatusConstants.NOT_DELETE);
         boolean sourceInvalid = groupInfoMapper.selectCount(srcGroupInfo) > 0;
         if (!sourceInvalid) {
             throw BusinessErrorEnums.GROUP_NOT_FOUND.toException(srcGroupId);
@@ -104,7 +104,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         GroupInfoDO dstGroupInfo = new GroupInfoDO();
         dstGroupInfo.setAppId(queryUser.getAppId());
         dstGroupInfo.setGroupId(dstGroupId);
-        dstGroupInfo.setIsDelete(StatusConstants.NOT_DELETE);
+        dstGroupInfo.setIsDelete(EntityStatusConstants.NOT_DELETE);
         dstGroupInfo = groupInfoMapper.selectOne(dstGroupInfo);
         boolean targetInvalid = dstGroupInfo != null;
         if (!targetInvalid) {
@@ -193,7 +193,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         try {
             faceMapper.insertBatch(insertList);
         } catch (Exception e) {
-            throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertList));
+            throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertList));
         }
         //存在同名用户：组下用户数+0，人脸数+新增数
         publisher.publishEvent(new UserCopyEvent(appId, dstGroupId, userId, faceNumber, userNumber));
@@ -234,21 +234,21 @@ public class FacesetUserServiceImpl implements FacesetUserService {
                 throw BusinessErrorEnums.USER_NOT_FOUND.toException(receive.getUserId());
             }
 
-            //note 缓存中删除用户的所有人脸
+            //缓存中删除用户的所有人脸
             List<Long> faceIdList = faceMapper.selectIdByUserId(userInfoDO.getUserId());
             faceCacheHelper.deleteBatch(query.getAppId(), faceIdList);
             //物理删除用户及人脸
             int userCount;
             userCount = userInfoMapper.delete(query);
             if (userCount < 0) {
-                throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
+                throw SystemErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
             }
             FaceDO faceDO = new FaceDO();
             faceDO.setGroupId(group);
             faceDO.setUserId(userInfoDO.getUserId());
             faceDO.setAppId(receive.getAppId());
             if (faceMapper.delete(faceDO) < 0) {
-                throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
+                throw SystemErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
             }
 
             publisher.publishEvent(new UserDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId(), userInfoDO.getFaceNumber(), userCount));
@@ -296,7 +296,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             for (String groupId : groupIdList) {
                 groupInfoDO.setAppId(appId);
                 groupInfoDO.setGroupId(groupId);
-                groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+                groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
                 if (groupInfoMapper.selectCount(groupInfoDO) > 0) {
                     result.add(groupId);
                 }

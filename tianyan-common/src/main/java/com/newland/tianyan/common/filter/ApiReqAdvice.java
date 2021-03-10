@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.aop;
+package com.newland.tianyan.common.filter;
 
 import com.newland.tianyan.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @ControllerAdvice
 @Slf4j
-public class ApiReqParamsAdvice implements RequestBodyAdvice {
+public class ApiReqAdvice implements RequestBodyAdvice {
     @Override
     public boolean supports(MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         return true;

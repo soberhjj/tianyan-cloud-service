@@ -11,8 +11,8 @@ import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.face.constant.BusinessErrorEnums;
-import com.newland.tianyan.face.constant.StatusConstants;
-import com.newland.tianyan.face.constant.SysErrorEnums;
+import com.newland.tianyan.face.constant.EntityStatusConstants;
+import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.dao.UserInfoMapper;
@@ -91,13 +91,13 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             GroupInfoDO groupInfoDO = new GroupInfoDO();
             groupInfoDO.setAppId(query.getAppId());
             groupInfoDO.setGroupId(query.getGroupId());
-            groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+            groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
             groupInfoDO = groupInfoMapper.selectOne(groupInfoDO);
             if (groupInfoDO == null) {
                 GroupInfoDO insertGroup = new GroupInfoDO();
                 insertGroup.setAppId(query.getAppId());
                 insertGroup.setGroupId(query.getGroupId());
-                insertGroup.setIsDelete(StatusConstants.NOT_DELETE);
+                insertGroup.setIsDelete(EntityStatusConstants.NOT_DELETE);
                 insertGroup.setUserNumber(0);
                 insertGroup.setFaceNumber(0);
                 groupInfoMapper.insertGetId(insertGroup);
@@ -137,10 +137,10 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 insertFaceDO.setUid(userInfoDO.getId());
                 insertFaceDO.setGid(groupInfoDO.getId());
                 insertFaceDO.setId(MilvusKey.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber() + 1));
-                //note 缓存中添加用户的人脸
+                //缓存中添加用户的人脸
                 faceCacheHelper.add(insertFaceDO);
                 if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                    throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
+                    throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
                 }
                 //发布事件。由于新增了用户，所以要在group_info表中将该用户对应的那个用户组的记录进行更新（更新的字段是user_number和face_number）
                 publisher.publishEvent(new UserCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId(), 1, 1));
@@ -151,12 +151,12 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 insertFaceDO.setUid(sourceUser.getId());
                 insertFaceDO.setGid(sourceUser.getGid());
                 if ("append".equals(actionType)) {
-                    //note 缓存中添加用户的人脸
+                    //缓存中添加用户的人脸
                     insertFaceDO.setId(MilvusKey.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), sourceUser.getFaceNumber() + 1));
                     faceCacheHelper.add(insertFaceDO);
                     //添加人脸
                     if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                        throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
+                        throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
                     }
                     //发布事件。已存在的用户添加了人脸，所以要在user_info中将该用户对应的那条记录进行更新（更新的字段是face_number）,也要在group_info表中将该用户对应的那个用户组的记录进行更新（更新的字段同样是face_number）
                     publisher.publishEvent(new FaceCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
@@ -168,19 +168,19 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     faceDO.setUserId(query.getUserId());
                     faceDO.setAppId(query.getAppId());
                     List<Long> faceIdList = faceMapper.selectIdByGroupId(groupId);
-                    //note 删除原本缓存中的人脸，添加新的人脸
+                    //删除原本缓存中的人脸，添加新的人脸
                     if ((!CollectionUtils.isEmpty(faceIdList))) {
                         faceCacheHelper.deleteBatch(query.getAppId(), faceIdList);
                     }
                     int deleteCount;
                     deleteCount = faceMapper.delete(faceDO);
                     if (deleteCount < 0) {
-                        throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
+                        throw SystemErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
                     }
                     //添加该用户新的人脸（只有一张）
                     faceCacheHelper.add(insertFaceDO);
                     if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                        throw SysErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
+                        throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
                     }
                     //人脸替换后更新user_info表中该用户的face_number,也要更新group_info表中该用户对在的用户组对应的那条记录中的face_number
                     userInfoMapper.faceNumberIncrease(receive.getAppId(), groupId, receive.getUserId(), 1 - deleteCount);
@@ -320,7 +320,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         try {
             JsonFormat.merge(json, result);
         } catch (JsonFormat.ParseException e) {
-            throw SysErrorEnums.PROTO_PARSE_ERROR.toException();
+            throw SystemErrorEnums.PROTO_PARSE_ERROR.toException();
         }
         return result.build();
     }
@@ -347,7 +347,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             GroupInfoDO groupInfoDO = new GroupInfoDO();
             groupInfoDO.setAppId(query.getAppId());
             groupInfoDO.setGroupId(query.getGroupId());
-            groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+            groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
             if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
                 return new ArrayList<>();
             }
@@ -385,7 +385,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             GroupInfoDO groupInfoDO = new GroupInfoDO();
             groupInfoDO.setAppId(groupInfoDO.getAppId());
             groupInfoDO.setGroupId(groupInfoDO.getGroupId());
-            groupInfoDO.setIsDelete(StatusConstants.NOT_DELETE);
+            groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
             if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
                 throw BusinessErrorEnums.GROUP_NOT_FOUND.toException(query.getGroupId());
             }
@@ -410,7 +410,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         faceCacheHelper.delete(query.getAppId(), faceDO.getId());
         //物理删除人脸
         if (faceMapper.delete(query) < 0) {
-            throw SysErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
+            throw SystemErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
         }
         publisher.publishEvent(new FaceDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
     }
