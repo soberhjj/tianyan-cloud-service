@@ -9,6 +9,7 @@ import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.feign.ReportException;
 import com.newland.tianyan.face.feign.client.VectorSearchFeignService;
 import com.newland.tianyan.face.service.ICacheHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -22,6 +23,7 @@ import java.util.List;
  * @date: 2021/1/12
  */
 @Service
+@Slf4j
 public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
     @Autowired
     private VectorSearchFeignService vectorSearchService;

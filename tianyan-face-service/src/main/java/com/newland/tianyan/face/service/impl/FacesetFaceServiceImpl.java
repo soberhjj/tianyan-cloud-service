@@ -22,6 +22,7 @@ import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.service.FacesetFaceService;
+import lombok.extern.slf4j.Slf4j;
 import newlandFace.NLFace;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ import static java.lang.Math.abs;
  */
 @Service
 @RefreshScope
+@Slf4j
 public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     @Autowired
@@ -67,17 +69,17 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Override
     public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReqDTO request) throws BaseException {
         String fileName = request.getImage();
-        //检查图片
+        log.info("人脸搜索，开始检查图片有效性");
         ImageCheckUtils.imageCheck(fileName);
         List<String> groupIdList = new ArrayList<>();
         Collections.addAll(groupIdList, request.getGroupId().split(","));
+        log.info("人脸搜索，输入用户组{},进入用户组有效性筛查：用户组存在且不为空", groupIdList);
         List<Long> groupList = new ArrayList<>(groupIdList.size());
         for (String groupId : groupIdList) {
             GroupInfoDO groupInfoDO = new GroupInfoDO();
             groupInfoDO.setAppId(request.getAppId());
             groupInfoDO.setGroupId(groupId);
             groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
-            //仅筛选出非逻辑删除的用户组
             GroupInfoDO group = groupInfoMapper.selectOne(groupInfoDO);
             if (group != null) {
                 if (group.getUserNumber() == 0) {
@@ -88,20 +90,19 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                 throw BusinessErrorEnums.GROUP_NOT_FOUND.toException(groupId);
             }
         }
-        //已获得特征值，计算向量匹配用户
+        log.info("人脸搜索，用户组筛查通过，请求计算图片特征值");
         NLFace.CloudFaceSendMessage feature =
                 amqpHelper(fileName, request.getMaxFaceNum(), TASK_TYPE.get("feature"));
         List<Float> featureRaw = FeaturesTool.normalizeConvertToList(feature.getFeatureResultList().get(0).getFeaturesList());
-        //从缓存中拿到符合向量TopN个的用户
+        log.info("人脸搜索，图片特征值已获得，开始向量搜索中。");
         List<QueryResDTO> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw, request.getMaxUserNum());
         if (CollectionUtils.isEmpty(queryFaceList)) {
             throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
         }
-        //封装结果集
+        log.info("人脸搜索，向量搜索得到结果，开始筛选结果集并封装");
         NLFace.CloudFaceSendMessage.Builder resultBuilder = NLFace.CloudFaceSendMessage.newBuilder();
         resultBuilder.setLogId(UUID.randomUUID().toString());
         resultBuilder.setFaceNum(feature.getFaceNum());
-        //结果集.UserResult
         int unUseResult = 0;
         for (QueryResDTO milvusQueryRes : queryFaceList) {
             //拆解根据规则拼接的向量id获得gid、uid
@@ -111,6 +112,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
             //人脸筛选
             if (!groupList.contains(gid)) {
+                log.info("剔除非当前请求的用户组结果gid:{}", gid);
                 unUseResult++;
                 continue;
             }
@@ -119,6 +121,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             conditionGroup.setId(gid);
             GroupInfoDO queryGroup = groupInfoMapper.selectOne(conditionGroup);
             if (queryGroup == null) {
+                log.info("剔除db已删除用户组信息gid:{}", gid);
                 unUseResult++;
                 continue;
             }
@@ -128,6 +131,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             conditionUser.setId(uid);
             UserInfoDO queryUser = userInfoMapper.selectOne(conditionUser);
             if (queryUser == null) {
+                log.info("剔除db已删除用户信息uid:{}", uid);
                 unUseResult++;
                 continue;
             }
@@ -140,7 +144,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         if (unUseResult == queryFaceList.size()) {
             throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
         }
-        // 如果face_fields有值(coordinate,liveness)，将分析的结果也加进来
+        log.info("人脸搜索-搜索已结束，开始请求活体或5~106点坐标");
         this.faceFieldHelper(request.getFaceFields(), resultBuilder, fileName);
         return resultBuilder.build();
     }

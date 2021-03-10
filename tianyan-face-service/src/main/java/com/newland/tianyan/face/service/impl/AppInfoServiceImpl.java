@@ -8,14 +8,15 @@ import com.newland.tianyan.common.utils.AppUtils;
 import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
 import com.newland.tianyan.face.constant.EntityStatusConstants;
+import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.dao.AppInfoMapper;
 import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import com.newland.tianyan.face.domain.entity.FaceDO;
-import com.newland.tianyan.face.constant.BusinessErrorEnums;
-import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.feign.client.AuthClientFeignService;
 import com.newland.tianyan.face.service.AppInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import tk.mybatis.mapper.entity.Example;
  * @description: 用户接口
  **/
 @Service
+@Slf4j
 public class AppInfoServiceImpl implements AppInfoService {
 
     @Autowired
@@ -47,23 +49,24 @@ public class AppInfoServiceImpl implements AppInfoService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void insert(NLBackend.BackendAllRequest receive) throws BaseException {
+
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
-        // (未逻辑删除的数据集)检查account和appNames是否已经存在
         appInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (appInfoMapper.selectCount(appInfoDO) > 0) {
             throw BusinessErrorEnums.APP_ALREADY_EXISTS.toException(appInfoDO.getAppId());
         }
-        // 数据插入
         appInfoDO.setApiKey(AppUtils.generateApiKey());
         appInfoDO.setSecretKey(AppUtils.generateSecretKey());
-        appInfoMapper.insertSelective(appInfoDO);
-        // 建立缓存库,milvus创建collection
+
+        log.info("请求向量搜索服务服务创建向量集合");
         faceFaceCacheHelper.createCollection(appInfoMapper.selectOne(appInfoDO).getAppId());
+
+        appInfoMapper.insertSelective(appInfoDO);
+
+        log.info("请求授权服务增加客户端");
         // 查询app的主键
         Long appId = appInfoMapper.select(appInfoDO).get(0).getAppId();
         appInfoDO.setAppId(appId);
-
-        // 远程调用
         AuthClientReqDTO clientRequest = new AuthClientReqDTO(receive.getAccount(), appInfoDO.getAppId(),
                 appInfoDO.getApiKey(), appInfoDO.getSecretKey());
         clientService.addClient(clientRequest);

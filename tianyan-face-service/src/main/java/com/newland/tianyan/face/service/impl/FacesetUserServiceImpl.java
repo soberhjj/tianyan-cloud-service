@@ -3,11 +3,12 @@ package com.newland.tianyan.face.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.newland.tianyan.common.exception.BaseException;
-import com.newland.tianyan.common.generator.IDUtil;
 import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.face.constant.BusinessErrorEnums;
 import com.newland.tianyan.face.constant.EntityStatusConstants;
+import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.dao.UserInfoMapper;
@@ -16,8 +17,6 @@ import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.event.user.UserCopyEvent;
 import com.newland.tianyan.face.event.user.UserDeleteEvent;
-import com.newland.tianyan.face.constant.BusinessErrorEnums;
-import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.service.FacesetUserService;
 import com.newland.tianyan.face.service.ICacheHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -92,7 +91,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         String srcGroupId = receive.getSrcGroupId();
         String dstGroupId = receive.getDstGroupId();
 
-        // 源用户组与目标用户组的状态有效性检查
+        log.info("人脸复制-源用户组{}和目标用户组{}的有效性检查", srcGroupId, dstGroupId);
         GroupInfoDO srcGroupInfo = new GroupInfoDO();
         srcGroupInfo.setAppId(queryUser.getAppId());
         srcGroupInfo.setGroupId(srcGroupId);
@@ -111,8 +110,8 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             throw BusinessErrorEnums.GROUP_NOT_FOUND.toException(dstGroupId);
         }
 
-        //查询源用户组中是否存在当前用户
         queryUser.setGroupId(srcGroupId);
+        log.info("人脸复制-源用户组的用户{}有效性检查", JsonUtils.toJson(queryUser));
         UserInfoDO sourceUserInfoDO = userInfoMapper.selectOne(queryUser);
         if (sourceUserInfoDO == null) {
             throw BusinessErrorEnums.USER_NOT_FOUND.toException(userId);
@@ -123,18 +122,17 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
         }
         List<FaceDO> insertList = new ArrayList<>(srcFace.size());
-        //查询目标用户组中是否存在当前用户
         queryUser.setGroupId(dstGroupId);
+        log.info("人脸复制-目标用户组的用户{}有效性检查", JsonUtils.toJson(queryUser));
         UserInfoDO targetUserInfoDO = userInfoMapper.selectOne(queryUser);
         int faceNumber, userNumber;
-        //不存在同名用户,直接新建
+        log.info("人脸复制-目标用户组的不存在同名用户，开始新建用户");
         if (targetUserInfoDO == null) {
             if (dstGroupInfo.getUserNumber() > MAX_USER_NUMBER) {
                 throw BusinessErrorEnums.OVER_USE_MAX_NUMBER.toException();
             }
             userNumber = 1;
             faceNumber = srcFace.size();
-            //新建目标用户组中的用户
             UserInfoDO dstUser = new UserInfoDO();
             dstUser.setAppId(sourceUserInfoDO.getAppId());
             dstUser.setGid(dstGroupInfo.getId());
@@ -144,23 +142,11 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             dstUser.setUserInfo(sourceUserInfoDO.getUserInfo());
             dstUser.setFaceNumber(sourceUserInfoDO.getFaceNumber());
             userInfoMapper.insertGetId(dstUser);
-            for (FaceDO faceDO : srcFace) {
-                FaceDO insertFace = new FaceDO();
-                insertFace.setId(IDUtil.getRandomId());
-                insertFace.setAppId(faceDO.getAppId());
-                insertFace.setGid(dstGroupInfo.getId());
-                insertFace.setGroupId(dstGroupInfo.getGroupId());
-                insertFace.setUid(dstUser.getId());
-                insertFace.setUserId(dstUser.getUserId());
-                insertFace.setImagePath(faceDO.getImagePath());
-                insertFace.setFeatures(faceDO.getFeatures());
-
-                insertFace.setId(MilvusKey.generatedKey(dstUser.getGid(), dstUser.getId(), dstUser.getFaceNumber() + 1));
-                insertList.add(insertFace);
-            }
+            targetUserInfoDO = dstUser;
         } else {
             userNumber = 0;
-            // 存在同名用户的情况
+            log.info("人脸复制-目标用户组的存在同名用户,开始过滤相同人脸");
+            //封装复制人脸信息
             List<FaceDO> dstFace = this.queryFace(appId, dstGroupId, userId);
             //过滤相同照片
             Set<String> srcImages = srcFace.stream().map(FaceDO::getImagePath).collect(Collectors.toSet());
@@ -171,24 +157,19 @@ public class FacesetUserServiceImpl implements FacesetUserService {
                 return;
             }
             faceNumber = srcFace.size();
-            for (FaceDO faceDO : srcFace) {
-                //人脸不在已去重的范围内，跳过
+            List<FaceDO> srcFaceCopy = new ArrayList<>(srcFace);
+            for (FaceDO faceDO : srcFaceCopy) {
                 if (!srcImages.contains(faceDO.getImagePath())) {
-                    continue;
+                    srcFace.remove(faceDO);
                 }
-                FaceDO newFace = new FaceDO();
-                newFace.setId(IDUtil.getRandomId());
-                newFace.setAppId(faceDO.getAppId());
-                newFace.setGid(dstGroupInfo.getId());
-                newFace.setGroupId(dstGroupInfo.getGroupId());
-                newFace.setUid(targetUserInfoDO.getId());
-                newFace.setUserId(targetUserInfoDO.getUserId());
-                newFace.setFeatures(faceDO.getFeatures());
-                newFace.setImagePath(faceDO.getImagePath());
-                insertList.add(newFace);
             }
         }
-        //note 缓存中向目标用户组插入新的人脸
+        //封装复制人脸信息
+        for (FaceDO faceDO : srcFace) {
+            FaceDO insertFace = this.convertCopyFace(faceDO, targetUserInfoDO, dstGroupInfo);
+            insertList.add(insertFace);
+        }
+        log.info("人脸复制-请求向量搜索服务添加人脸");
         faceCacheHelper.addBatch(insertList);
         try {
             faceMapper.insertBatch(insertList);
@@ -197,6 +178,19 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         }
         //存在同名用户：组下用户数+0，人脸数+新增数
         publisher.publishEvent(new UserCopyEvent(appId, dstGroupId, userId, faceNumber, userNumber));
+    }
+
+    private FaceDO convertCopyFace(FaceDO targetFace, UserInfoDO userInfoDO, GroupInfoDO targetGroup) {
+        FaceDO newFace = new FaceDO();
+        newFace.setId(MilvusKey.generatedKey(targetGroup.getId(), userInfoDO.getId(), userInfoDO.getFaceNumber() + 1));
+        newFace.setAppId(targetGroup.getAppId());
+        newFace.setGid(targetGroup.getId());
+        newFace.setGroupId(targetGroup.getGroupId());
+        newFace.setUid(userInfoDO.getId());
+        newFace.setUserId(userInfoDO.getUserId());
+        newFace.setFeatures(targetFace.getFeatures());
+        newFace.setImagePath(targetFace.getImagePath());
+        return newFace;
     }
 
     /**
