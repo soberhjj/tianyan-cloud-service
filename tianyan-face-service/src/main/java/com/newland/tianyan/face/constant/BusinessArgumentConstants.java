@@ -5,7 +5,7 @@ package com.newland.tianyan.face.constant;
  * @description: 业务限制参数
  * @date: 2021/3/9
  */
-public class BusinessConstants {
+public class BusinessArgumentConstants {
     /**
      * 单个用户限制添加最多人脸数目
      */
@@ -20,4 +20,10 @@ public class BusinessConstants {
     public static final String ACTION_TYPE_APPEND = "append";
 
     public static final String ACTION_TYPE_REPLACE = "replace";
+    /**
+     * 人脸特征获取类型
+     */
+    public static final String FACE_FIELD_COORDINATE = "coordinate";
+
+    public static final String FACE_FIELD_LIVENESS = "liveness";
 }

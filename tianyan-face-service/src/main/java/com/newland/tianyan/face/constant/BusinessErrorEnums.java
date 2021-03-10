@@ -9,23 +9,28 @@ import com.newland.tianyan.common.exception.BusinessException;
  */
 public enum BusinessErrorEnums {
     /**
-     * 存在性异常
+     * app
      */
-    APP_NOT_FOUND(5250, "app[{0}] not found"),
-    GROUP_NOT_FOUND(5251, "group[{0}] not found"),
-    USER_NOT_FOUND(5252, "user[{0}] not found"),
-    FACE_NOT_FOUND(5253, "face not found"),
-    APP_ALREADY_EXISTS(5254, "app[{0}] already exists"),
-    GROUP_ALREADY_EXISTS(5255, "group[{0}] already exists"),
-    USER_ALREADY_EXISTS(5256, "user[{0}] already exists"),
-
+    APP_NOT_FOUND(6401, "app[{0}] is not found"),
+    APP_ALREADY_EXISTS(6402, "app[{0}] already exists"),
     /**
-     * 业务字段验证
+     * group
      */
-    WRONG_ACTION_TYPE(5257, "param [action_type] format error"),
-    WRONG_FACE_FIELD(5258, "param [face_field] format error"),
-    OVER_USE_MAX_NUMBER(6409, "request add user over limit"),
-    OVER_FACE_MAX_NUMBER(6407, "the number of user's faces is beyond the limit"),
+    GROUP_NOT_FOUND(6403, "group[{0}] is not found"),
+    GROUP_ALREADY_EXISTS(6404, "group[{0}] already exists"),
+    EMPTY_GROUP(6405, "no user in group[{0}]"),
+    /**
+     * user
+     */
+    USER_NOT_FOUND(6406, "user[{0}] is not found"),
+    USER_ALREADY_EXISTS(6407, "user[{0}] already exists"),
+    //(单个group上线最大5万用户)
+    OVER_USE_MAX_NUMBER(6408, "request add user over limit"),
+    /**
+     * face
+     */
+    FACE_NOT_FOUND(6409, "face is not found"),
+    OVER_FACE_MAX_NUMBER(6410, "the number of user's faces is beyond the limit"),
     ;
     private int errorCode;
 

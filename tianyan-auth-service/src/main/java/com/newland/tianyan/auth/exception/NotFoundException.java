@@ -27,7 +27,7 @@ public class NotFoundException implements ErrorController {
 
     @RequestMapping(value = {"/error"})
     @ResponseBody
-    public Object error(HttpServletRequest request,Exception exception) {
+    public Object error(HttpServletRequest request) {
         Map<String, Object> body = new HashMap<>();
         SysException sysException = GlobalSystemErrorEnums.INVALID_METHOD.toException();
         body.put("log_id", MDC.get("traceId"));

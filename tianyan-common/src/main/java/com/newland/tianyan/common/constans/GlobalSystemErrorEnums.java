@@ -11,11 +11,11 @@ public enum GlobalSystemErrorEnums {
     /**
      * 系统异常
      * */
-    SYSTEM_ERROR(9999,"system error"),
+    SYSTEM_ERROR(6000,"system error"),
     /**
      * 404
      * */
-    INVALID_METHOD(6304,"service not support"),
+    INVALID_METHOD(6302,"service not support"),
     ;
     private int errorCode;
 

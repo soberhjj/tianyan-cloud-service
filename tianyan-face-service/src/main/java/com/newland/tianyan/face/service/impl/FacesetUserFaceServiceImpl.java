@@ -40,7 +40,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.*;
 
-import static com.newland.tianyan.face.constant.BusinessConstants.*;
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
 import static java.lang.Math.abs;
 
 /**
@@ -69,7 +69,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public FaceDO create(NLBackend.BackendAllRequest receive) throws IOException {
         String actionType = receive.getActionType();
-        this.checkActionType(actionType);
         int qualityControl = receive.getQualityControl();
         if (qualityControl != 0) {
             this.handleImageQualityControl(qualityControl, receive.getImage());
@@ -192,14 +191,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             }
         }
         return insertFaceDO;
-    }
-
-    private void checkActionType(String actionType) {
-        boolean append = ACTION_TYPE_APPEND.equals(actionType);
-        boolean replace = ACTION_TYPE_REPLACE.equals(actionType);
-        if ((!append) && (!replace)) {
-            throw BusinessErrorEnums.WRONG_ACTION_TYPE.toException();
-        }
     }
 
     private void handleImageQualityControl(int qualityControl, String image) {

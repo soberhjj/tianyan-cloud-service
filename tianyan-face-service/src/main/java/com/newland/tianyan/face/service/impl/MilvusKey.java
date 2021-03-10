@@ -4,7 +4,7 @@ import com.newland.tianyan.face.constant.BusinessErrorEnums;
 
 import java.text.NumberFormat;
 
-import static com.newland.tianyan.face.constant.BusinessConstants.MAX_FACE_NUMBER;
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MAX_FACE_NUMBER;
 
 /**
  * @author: RojiaHuang

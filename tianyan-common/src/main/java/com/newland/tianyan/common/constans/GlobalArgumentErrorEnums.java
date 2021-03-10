@@ -11,25 +11,34 @@ public enum GlobalArgumentErrorEnums {
     /**
      * 请求参数不是json
      * */
-    JSON_CONTENT_FORMAT_ERROR(2100,"request body should be json format"),
+    JSON_CONTENT_FORMAT_ERROR(6303,"request body should be json format"),
     /**
      * 参数校验异常
      */
-    ARGUMENT_FORMAT_ERROR(2200, "Parameter [{0}] format error"),
-    ARGUMENT_NOT_BLANK(2201, "Parameter [{0}] should not be blank"),
-    ARGUMENT_NOT_EMPTY(2202, "Parameter [{0}] should not be empty"),
-    ARGUMENT_NOT_NULL(2203, "param [{0}] should not be null"),
-    ARGUMENT_SIZE_MIN(2204, "param [{0}] is too large"),
-    ARGUMENT_SIZE_MAX(2205, "param [{0}] is too small"),
-    ARGUMENT_SIZE(2206, "Parameter [{0}] wrong size error"),
-    ARGUMENT_PATTERN(2207, "Parameter [{0}] format error"),
+    ARGUMENT_NOT_NULL(6304, "param [{0}] is null"),
+    ARGUMENT_SIZE_MIN(6305, "param [{0}] is too short"),
+    ARGUMENT_SIZE_MAX(6306, "param [{0}] is too long"),
+    ARGUMENT_NOT_BLANK(6307, "param [{0}] should not be blank"),
+    ARGUMENT_NOT_EMPTY(6308, "param [{0}] should not be empty"),
+    ARGUMENT_SIZE(6309, "param [{0}] wrong size error"),
+    ARGUMENT_FORMAT_ERROR(6310, "param [{0}] format error"),
+    ARGUMENT_PATTERN(6310, "param [{0}] format error"),
 
     /**
      * 图片校验异常
      * */
-    BASE64_FORMAT_ILLEGAL(2300,"非BASE64编码串"),
-    IMAGE_SIZE_OVER_2MB(2301,"图片大小超过2MB"),
-    IMAGE_FORMAT_ILLEGAL(2302,"暂不支持JPG、PNG、BMP以外的图片格式"),
+    /**
+     * 图⽚⼤⼩错误
+     * */
+    IMAGE_SIZE_OVER_2MB(6313,"image size error（2MB）"),
+    /**
+     * 图 ⽚ 为 空 或 base64 解码错误
+     * */
+    BASE64_FORMAT_ILLEGAL(6314,"empty image or not base64 encode"),
+    /**
+     * 暂不支持JPG、PNG、BMP以外的图片格式
+     * */
+    IMAGE_FORMAT_ILLEGAL(6315,"image file format error"),
     ;
     private int errorCode;
 

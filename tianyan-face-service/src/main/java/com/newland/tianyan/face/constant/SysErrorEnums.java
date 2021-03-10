@@ -9,34 +9,28 @@ import com.newland.tianyan.common.exception.SysException;
  */
 public enum SysErrorEnums {
     /**
-     * 识别服务异常
-     * */
-    FACE_BACK_ERROR(5200, "后端识别服务异常"),
+     * 人脸算法服务异常
+     */
+    RABBIT_MQ_RETURN_NONE(6001, "backend error"),
     /**
      * db验证
      */
-    DB_INSERT_ERROR(5201, "DBMS新增失败[{0}]"),
-    DB_UPDATE_ERROR(5202, "DBMS更新失败[{0}]"),
-    DB_DELETE_ERROR(5203, "DBMS删除失败[{0}]"),
-    SQL_NOT_VALID(5204, "SQL语句错误[{0}:{1}]"),
+    DB_INSERT_ERROR(6002, "DBMS insert fail [{0}]"),
+    DB_UPDATE_ERROR(6003, "DBMS update fail [{0}]"),
+    DB_DELETE_ERROR(6004, "DBMS delete fail[{0}]"),
+    SQL_NOT_VALID(6005, "SQL fail [{0}:{1}]"),
     /**
      * 向量集合删除失败
      **/
-    VECTOR_DROP_ERROR(5205, ""),
-    VECTOR_CREATE_ERROR(5206,""),
-    VECTOR_INSERT_ERROR(5207,""),
-    VECTOR_DELETE_ERROR(5208,""),
-    VECTOR_QUERY_ERROR(5209,""),
+    VECTOR_DROP_ERROR(6006, "vector drop fail"),
+    VECTOR_CREATE_ERROR(6007, "vector create collection fail"),
+    VECTOR_INSERT_ERROR(6008, "vector insert fail"),
+    VECTOR_DELETE_ERROR(6009, "vector delete fail"),
+    VECTOR_QUERY_ERROR(6010, "vector query fail"),
     /**
      * proto异常
      */
-    PROTO_PARSE_ERROR(5210, "proto转换失败"),
-
-    RABBIT_MQ_RETURN_NONE(6001, "后端识别服务异常"),
-    /**
-     * 其他系统异常
-     */
-    SYSTEM_ERROR(5299, "系统异常"),
+    PROTO_PARSE_ERROR(6011, "proto转换失败"),
     ;
     private int errorCode;
 

@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.newland.tianyan.face.constant.BusinessConstants.MAX_USER_NUMBER;
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MAX_USER_NUMBER;
 
 /**
  * @Author: huangJunJie  2020-11-07 09:18
