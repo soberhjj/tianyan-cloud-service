@@ -3,6 +3,7 @@ package com.newland.tianyan.auth.controller;
 
 import com.newland.tianyan.auth.constant.BusinessErrorEnums;
 import com.newland.tianyan.common.model.auth.AuthClientReqDTO;
+import com.newland.tianyan.common.utils.JsonUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,7 @@ public class DemoController {
 //        if ("huangtest".equals(request.getAccount())) {
 //            throw BusinessErrorEnums.DEMO.toException();
 //        }
-        return "Hey!";
+        return "Hey!--->" + JsonUtils.toJson(request);
     }
 
 }

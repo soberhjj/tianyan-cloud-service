@@ -8,7 +8,6 @@ import com.newland.tianyan.common.exception.SysException;
  * @date: 2021/3/5
  */
 public enum SystemErrorEnums {
-    INVALID_GRANT(6103,"client_secret error"),
     /**
      * db验证
      */
@@ -20,10 +19,6 @@ public enum SystemErrorEnums {
      * proto异常
      */
     PROTO_PARSE_ERROR(5104, "proto转换失败"),
-    /**
-     * 其他系统异常
-     */
-    SYSTEM_ERROR(5199, "系统异常"),
     ;
     private int errorCode;
 
@@ -41,6 +36,7 @@ public enum SystemErrorEnums {
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
     }
+
     public SysException toException() {
         return new SysException(this.getErrorCode(), this.getErrorMsg());
     }

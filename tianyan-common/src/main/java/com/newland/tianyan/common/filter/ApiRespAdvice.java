@@ -54,8 +54,8 @@ public class ApiRespAdvice implements ResponseBodyAdvice {
                     map.put("error_code", errorEnums.getErrorCode());
                     map.put("error_msg", errorEnums.getErrorMsg());
                 } else {
-                    map.put("error_code", GlobalSystemErrorEnums.SYSTEM_ERROR.getErrorCode());
-                    map.put("error_msg", GlobalSystemErrorEnums.SYSTEM_ERROR.getErrorMsg());
+                    map.put("error_code", "6000");
+                    map.put("error_msg", "system error");
                 }
 
                 return JSON.toJSON(map);
