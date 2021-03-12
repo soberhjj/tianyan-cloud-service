@@ -49,6 +49,10 @@ public class ApiReqAdvice implements RequestBodyAdvice {
             map.remove("image");
             map.put("image","(base转码图片，省略不打印)");
         }
+        if (map.containsKey("Image")){
+            map.remove("Image");
+            map.put("image","(base转码图片，省略不打印)");
+        }
         log.info("requestParams：{}", map);
         return o;
     }
