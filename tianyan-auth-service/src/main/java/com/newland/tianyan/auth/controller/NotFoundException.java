@@ -1,4 +1,4 @@
-package com.newland.tianyan.auth.exception;
+package com.newland.tianyan.auth.controller;
 
 import com.newland.tianyan.common.constans.GlobalArgumentErrorEnums;
 import com.newland.tianyan.common.exception.ArgumentException;
