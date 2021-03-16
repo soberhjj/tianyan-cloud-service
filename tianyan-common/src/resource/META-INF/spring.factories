@@ -7,4 +7,5 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
   com.newland.tianyan.common.filter.ApiRespAdvice,\
   com.newland.tianyan.common.aop.ApiMethodLogIntercept,\
   com.newland.tianyan.common.aop.GlobalExceptionHandler,\
-  com.newland.tianyan.common.config.WebMvcConfig
+  com.newland.tianyan.common.config.WebMvcConfig,\
+  com.newland.tianyan.common.exception.NotFoundException
