@@ -1,4 +1,4 @@
-package com.newland.tianyan.face.service.impl;
+package com.newland.tianyan.face.utils;
 
 import com.newland.tianyan.face.constant.BusinessErrorEnums;
 
@@ -11,7 +11,7 @@ import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MAX_FA
  * @description:
  * @date: 2021/2/9
  */
-public class MilvusKey {
+public class VectorSearchKeyUtils {
 
     private static final int ALLPRE_LONG = 18;
 
@@ -63,11 +63,11 @@ public class MilvusKey {
         System.out.println(nf.format(beforeGid));
         System.out.println(nf.format(beforeUid));
 
-        Long key = MilvusKey.generatedKey(beforeGid, beforeUid, 2);
+        Long key = VectorSearchKeyUtils.generatedKey(beforeGid, beforeUid, 2);
         System.out.println(nf.format(key));
 
-        Long afterGid = MilvusKey.splitGid(key);
-        Long afterUid = MilvusKey.splitUid(key);
+        Long afterGid = VectorSearchKeyUtils.splitGid(key);
+        Long afterUid = VectorSearchKeyUtils.splitUid(key);
         System.out.println(nf.format(afterGid));
         System.out.println(nf.format(afterUid));
     }

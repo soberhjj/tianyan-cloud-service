@@ -14,16 +14,4 @@ public class GlobalGatewayConfig {
     public GlobalFilter globalFilter() {
         return new AuthGlobalFilter();
     }
-
-//    @Primary
-//    @Bean
-//    @Order(Ordered.HIGHEST_PRECEDENCE)
-//    public ErrorWebExceptionHandler errorWebExceptionHandler(ObjectProvider<List<ViewResolver>> viewResolversProvider,
-//                                                             ServerCodecConfigurer serverCodecConfigurer) {
-//        JsonExceptionHandler globalGatewayExceptionHandler = new JsonExceptionHandler();
-//        globalGatewayExceptionHandler.setViewResolvers(viewResolversProvider.getIfAvailable(Collections::emptyList));
-//        globalGatewayExceptionHandler.setMessageWriters(serverCodecConfigurer.getWriters());
-//        globalGatewayExceptionHandler.setMessageReaders(serverCodecConfigurer.getReaders());
-//        return globalGatewayExceptionHandler;
-//    }
 }

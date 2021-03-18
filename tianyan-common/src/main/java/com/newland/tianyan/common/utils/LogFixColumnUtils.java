@@ -13,8 +13,18 @@ import java.net.UnknownHostException;
 @Component
 public class LogFixColumnUtils {
 
-    public void init(String traceId, String url, String clientIp, String serverAddress) throws UnknownHostException {
+    public void init(String traceId, String url, String clientIp, String serverAddress) {
         MDC.put("traceId", traceId);
+        MDC.put("uri", url);
+        MDC.put("responseId", serverAddress);
+        MDC.put("requestIp", clientIp);
+    }
+
+    public static void init(String traceId) {
+        MDC.put("traceId", traceId);
+    }
+
+    public static void init(String url, String clientIp, String serverAddress) {
         MDC.put("uri", url);
         MDC.put("responseId", serverAddress);
         MDC.put("requestIp", clientIp);

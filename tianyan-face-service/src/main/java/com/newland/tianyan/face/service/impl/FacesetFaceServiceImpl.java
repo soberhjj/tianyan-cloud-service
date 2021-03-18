@@ -6,6 +6,7 @@ import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
 import com.newland.tianyan.common.model.vectorsearch.QueryResDTO;
 import com.newland.tianyan.common.utils.*;
 import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.face.constant.ArgumentErrorEnums;
 import com.newland.tianyan.face.constant.BusinessErrorEnums;
 import com.newland.tianyan.face.constant.EntityStatusConstants;
 import com.newland.tianyan.face.constant.SystemErrorEnums;
@@ -22,6 +23,7 @@ import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.service.FacesetFaceService;
+import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import newlandFace.NLFace;
 import org.apache.commons.lang3.ArrayUtils;
@@ -35,6 +37,8 @@ import org.springframework.util.StringUtils;
 import java.io.*;
 import java.util.*;
 
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.FACE_FIELD_COORDINATE;
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.FACE_FIELD_LIVENESS;
 import static java.lang.Math.abs;
 
 /**
@@ -52,7 +56,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Autowired
     private UserInfoMapper userInfoMapper;
     @Autowired
-    private FaceCacheHelperImpl<FaceDO> faceFaceCacheHelper;
+    private VectorSearchServiceImpl<FaceDO> faceFaceCacheHelper;
     @Autowired
     private ImageStoreFeignService imageStorageService;
 
@@ -107,8 +111,8 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         for (QueryResDTO milvusQueryRes : queryFaceList) {
             //拆解根据规则拼接的向量id获得gid、uid
             Long vectorId = milvusQueryRes.getEntityId();
-            Long gid = MilvusKey.splitGid(vectorId);
-            Long uid = MilvusKey.splitUid(vectorId);
+            Long gid = VectorSearchKeyUtils.splitGid(vectorId);
+            Long uid = VectorSearchKeyUtils.splitUid(vectorId);
             NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
             //人脸筛选
             if (!groupList.contains(gid)) {
@@ -145,6 +149,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
         }
         log.info("人脸搜索-搜索已结束，开始请求活体或5~106点坐标");
+        this.checkFaceField(request.getFaceFields());
         this.faceFieldHelper(request.getFaceFields(), resultBuilder, fileName);
         return resultBuilder.build();
     }
@@ -243,6 +248,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         result.setConfidence(distance);
         result.setLogId(logId);
 
+        this.checkFaceField(request.getFaceFields());
         faceFieldHelper(request.getFaceFields(), result, image1);
         faceFieldHelper(request.getFaceFields(), result, image2);
         return result.build();
@@ -263,6 +269,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
 
         String faceFieldsStr = vo.getFaceFields();
+        this.checkFaceField(faceFieldsStr);
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
@@ -295,6 +302,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
 
         String faceFieldsStr = vo.getFaceFields();
+        this.checkFaceField(faceFieldsStr);
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
@@ -327,6 +335,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
 
         String faceFieldsStr = request.getFaceFields();
+        this.checkFaceField(faceFieldsStr);
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
@@ -539,4 +548,17 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         return faceDO;
     }
 
+    private void checkFaceField(String faceField){
+        if (StringUtils.isEmpty(faceField)){
+            return;
+        }
+        String[] faceFields = faceField.split(",");
+        for (String item :faceFields){
+            boolean coordinate = FACE_FIELD_COORDINATE.equals(item);
+            boolean liveNess = FACE_FIELD_LIVENESS.equals(item);
+            if ((!coordinate) && (!liveNess)) {
+                throw ArgumentErrorEnums.WRONG_FACE_FIELD.toException();
+            }
+        }
+    }
 }

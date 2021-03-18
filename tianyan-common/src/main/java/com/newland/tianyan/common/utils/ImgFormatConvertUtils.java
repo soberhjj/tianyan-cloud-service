@@ -1,6 +1,6 @@
 package com.newland.tianyan.common.utils;
 
-import com.newland.tianyan.common.constans.ImageType;
+import com.newland.tianyan.common.constans.ImageTypeEnums;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -31,7 +31,7 @@ public class ImgFormatConvertUtils {
         //图片解码
         byte[] imageByte = decoder.decode(imageBase64);
         //若图片格式为jpg，不做任何处理，非jpg则将其转为jpg
-        if (ImageType.JPG.getRule() == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))) {
+        if (ImageTypeEnums.JPG.getRule() == ((imageByte[0] & 0xff) << 8 | (imageByte[1] & 0xff))) {
             return result;
         } else {
             InputStream is = new ByteArrayInputStream(imageByte);

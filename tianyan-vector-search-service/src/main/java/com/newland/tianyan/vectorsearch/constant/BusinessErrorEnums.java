@@ -8,10 +8,6 @@ import com.newland.tianyan.common.exception.BusinessException;
  * @date: 2021/3/3
  */
 public enum BusinessErrorEnums {
-    /**
-     * 测试微服务异常
-     */
-    DEMO(1, "demo exception"),
     ;
     private int errorCode;
 

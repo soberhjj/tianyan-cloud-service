@@ -1,6 +1,6 @@
 package com.newland.tianyan.common.constans;
 
-public class TaskType {
+public class TaskTypeEnums {
 
     public static final String FACE_DETECT = "1";
     public static final String FACE_COMPARE = "2";

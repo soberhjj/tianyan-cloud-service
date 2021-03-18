@@ -1,10 +1,9 @@
 package com.newland.tianyan.gateway.filter;
 
-import com.newland.tianyan.gateway.utils.LogFixColumnsUtils;
+import com.newland.tianyan.common.utils.LogFixColumnUtils;
 import com.newland.tianyan.gateway.utils.ReactiveAddrUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
-import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.factory.rewrite.CachedBodyOutputMessage;
@@ -30,8 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.newland.tianyan.gateway.constant.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
-import static com.newland.tianyan.gateway.constant.GlobalTraceConstant.TRACE_MDC;
+import static com.newland.tianyan.common.constans.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
 import static org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter.ROUTE_TO_URL_FILTER_ORDER;
 
 /**
@@ -122,7 +120,7 @@ public class ApiLogReqFilter implements GlobalFilter, Ordered {
         String requestTime = LocalDateTime.now().toString();
         if (!CollectionUtils.isEmpty(traceIdList)) {
             httpHeaders.put(GATEWAY_TRACE_HEAD, traceIdList);
-            MDC.put(TRACE_MDC, traceIdList.get(0));
+            LogFixColumnUtils.init(traceIdList.get(0));
             //打印日志
             log.info("requestTime:{},requestParam:{}", requestTime, requestParam);
         }
@@ -142,7 +140,7 @@ public class ApiLogReqFilter implements GlobalFilter, Ordered {
         String clientIp = ReactiveAddrUtils.getRemoteAddr(serverHttpRequest);
         String serverIp = ReactiveAddrUtils.getLocalAddr();
 
-        LogFixColumnsUtils.init(url, clientIp, serverIp);
+        LogFixColumnUtils.init(url, clientIp, serverIp);
     }
 
 

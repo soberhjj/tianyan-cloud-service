@@ -1,9 +1,8 @@
 package com.newland.tianyan.face.controller;
 
 
-import com.newland.tianyan.common.constans.TaskType;
+import com.newland.tianyan.common.constans.TaskTypeEnums;
 import com.newland.tianyan.common.exception.BaseException;
-import com.newland.tianyan.common.utils.ImgFormatConvertUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.LogUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
@@ -43,7 +42,7 @@ public class FacesetUserFaceController {
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddReqDTO receive) throws Exception {
-        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         FaceDO faceDO = facesetUserFaceService.create(request);
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
         result.setLogId(LogUtils.traceId());
@@ -75,7 +74,7 @@ public class FacesetUserFaceController {
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage getList(@RequestBody @Validated FaceSetUserFaceGetListReqDTO receive) {
-        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         List<FaceDO> list = facesetUserFaceService.getList(request);
         return ProtobufUtils.buildFacesetSendMessage(list, list.size());
     }
@@ -85,7 +84,7 @@ public class FacesetUserFaceController {
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated FaceSetFaceDeleteReqDTO receive) {
-        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         facesetUserFaceService.delete(request);
         return ProtobufUtils.buildFacesetSendMessage();
     }

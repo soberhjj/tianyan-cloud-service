@@ -9,7 +9,7 @@ import java.util.List;
  * @description: 统一缓存维护入口
  * @date: 2021/1/12
  */
-public interface ICacheHelper<T> {
+public interface IVectorSearchService<T> {
 
     /**
      * 删除目标

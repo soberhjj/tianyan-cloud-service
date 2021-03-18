@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.controller;
 
 
-import com.newland.tianyan.common.constans.TaskType;
+import com.newland.tianyan.common.constans.TaskTypeEnums;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.face.domain.dto.FaceDetectReqDTO;
@@ -53,25 +53,25 @@ public class FacesetFaceController {
 
     @RequestMapping(value = "/features/v20", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage featuresV20old(@RequestBody @Validated FaceSetFaceDetectReqDTO request) throws IOException {
-        NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskTypeEnums.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, -20);
     }
 
     @RequestMapping(value = "/features/v20/new", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage featuresV20(@RequestBody @Validated FaceSetFaceDetectReqDTO request) throws IOException {
-        NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskTypeEnums.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, 20);
     }
 
     @RequestMapping(value = "/features/v36/new", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage featuresV36(@RequestBody @Validated FaceSetFaceDetectReqDTO request) throws IOException {
-        NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskTypeEnums.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, 36);
     }
 
     @RequestMapping(value = "/features/v34/new", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage featuresV34(@RequestBody @Validated FaceSetFaceDetectReqDTO request) throws IOException {
-        NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskTypeEnums.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, 34);
     }
 }

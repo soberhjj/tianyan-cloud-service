@@ -10,16 +10,16 @@ import com.newland.tianyan.common.exception.ArgumentException;
 public enum GlobalArgumentErrorEnums {
     /**
      * 请求方法错误
-     * */
-    INVALID_METHOD(6301,"invalid method [{0}]"),
+     */
+    INVALID_METHOD(6301, "invalid method [{0}]"),
     /**
      * 请求方法不支持(版本错误)
-     * */
-    SERVICE_NOT_SUPPORT(6302,"service not support"),
+     */
+    SERVICE_NOT_SUPPORT(6302, "service not support"),
     /**
      * 请求参数不是json
-     * */
-    JSON_CONTENT_FORMAT_ERROR(6303,"request body should be json format"),
+     */
+    JSON_CONTENT_FORMAT_ERROR(6303, "request body should be json format"),
     /**
      * 参数校验异常
      */
@@ -37,27 +37,24 @@ public enum GlobalArgumentErrorEnums {
      * */
     /**
      * 图⽚⼤⼩错误
-     * */
-    IMAGE_SIZE_OVER_2MB(6313,"image size error（2MB）"),
+     */
+    IMAGE_SIZE_OVER_2MB(6313, "image size error（2MB）"),
     /**
      * 图 ⽚ 为 空 或 base64 解码错误
-     * */
-    BASE64_FORMAT_ILLEGAL(6314,"empty image or not base64 encode"),
+     */
+    BASE64_FORMAT_ILLEGAL(6314, "empty image or not base64 encode"),
     /**
      * 暂不支持JPG、PNG、BMP以外的图片格式
-     * */
-    IMAGE_FORMAT_ILLEGAL(6315,"image file format error"),
+     */
+    IMAGE_FORMAT_ILLEGAL(6315, "image file format error"),
 
     /**
      * auth校验异常
-     * */
-    /**
-     * 客户端密码错误
      */
+    NO_TOKEN(6100, "No Access token"),
+    TOKEN_INVALID(6101, "Access token invalid"),
+    TOKEN_EXPIRED(6102, "Access token expired"),
     CLIENT_SECRET_ERROR(6103, "client_secret error"),
-    /**
-     * 授权类型错误或不支持
-     */
     GRANT_TYPE_INVALID(6104, "grant_type invalid"),
     ;
     private int errorCode;

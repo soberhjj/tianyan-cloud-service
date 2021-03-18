@@ -6,7 +6,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author: RojiaHuang
@@ -16,6 +16,7 @@ import java.util.Map;
 @Slf4j
 public class ReactiveAddrUtils {
     private final static String UNKNOWN_STR = "unknown";
+
     /**
      * 获取客户端IP地址
      */
@@ -23,27 +24,23 @@ public class ReactiveAddrUtils {
         Map<String, String> headers = request.getHeaders().toSingleValueMap();
         String ip = headers.get("X-Forwarded-For");
         if (isEmptyIp(ip)) {
-            ip = headers.get("Proxy-Client-IP");
-            if (isEmptyIp(ip)) {
-                ip = headers.get("WL-Proxy-Client-IP");
-                if (isEmptyIp(ip)) {
-                    ip = headers.get("HTTP_CLIENT_IP");
-                    if (isEmptyIp(ip)) {
-                        ip = headers.get("HTTP_X_FORWARDED_FOR");
-                        if (isEmptyIp(ip)) {
-                            ip = request.getRemoteAddress().getAddress().getHostAddress();
-                            if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {
-                                // 根据网卡取本机配置的IP
-                                ip = getLocalAddr();
-                            }
-                        }
+            List<String> searchIpHeads = Arrays.asList("Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR");
+            for (String head : searchIpHeads) {
+                ip = headers.get(head);
+                if (!isEmptyIp(ip)){
+                    break;
+                }else if ("HTTP_X_FORWARDED_FOR".equals(head)){
+                    ip = Objects.requireNonNull(request.getRemoteAddress()).getAddress().getHostAddress();
+                    if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {
+                        // 根据网卡取本机配置的IP
+                        ip = getLocalAddr();
                     }
                 }
             }
+
         } else if (ip.length() > 15) {
             String[] ips = ip.split(",");
-            for (int index = 0; index < ips.length; index++) {
-                String strIp = ips[index];
+            for (String strIp : ips) {
                 if (!isEmptyIp(ip)) {
                     ip = strIp;
                     break;
@@ -54,10 +51,7 @@ public class ReactiveAddrUtils {
     }
 
     private static boolean isEmptyIp(String ip) {
-        if (StringUtils.isEmpty(ip) || UNKNOWN_STR.equalsIgnoreCase(ip)) {
-            return true;
-        }
-        return false;
+        return StringUtils.isEmpty(ip) || UNKNOWN_STR.equalsIgnoreCase(ip);
     }
 
     /**

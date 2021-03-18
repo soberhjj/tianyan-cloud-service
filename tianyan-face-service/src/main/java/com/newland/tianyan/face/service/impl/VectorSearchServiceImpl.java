@@ -8,7 +8,7 @@ import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.feign.ReportException;
 import com.newland.tianyan.face.feign.client.VectorSearchFeignService;
-import com.newland.tianyan.face.service.ICacheHelper;
+import com.newland.tianyan.face.service.IVectorSearchService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class FaceCacheHelperImpl<T> implements ICacheHelper<T> {
+public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
     @Autowired
     private VectorSearchFeignService vectorSearchService;
 

@@ -2,7 +2,7 @@ package com.newland.tianyan.face.controller;
 
 
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.constans.TaskType;
+import com.newland.tianyan.common.constans.TaskTypeEnums;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
@@ -34,28 +34,28 @@ public class FacesetUserController {
 
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage getList(@RequestBody @Validated FaceSetUserGetListReqDTO receive) {
-        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         PageInfo<UserInfoDO> list = facesetUserService.getList(request);
         return ProtobufUtils.buildFacesetSendMessage(list.getList(), list.getSize());
     }
 
     @RequestMapping(value = "/copy", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage copy(@RequestBody @Validated FaceSetUserCopyReqDTO receive) {
-        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         facesetUserService.copy(request);
         return ProtobufUtils.buildFacesetSendMessage();
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated FaceSetUserDeleteReqDTO receive) {
-        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         facesetUserService.delete(request);
         return ProtobufUtils.buildFacesetSendMessage();
     }
 
     @RequestMapping(value = "/getInfo", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage getInfo(@RequestBody @Validated FaceSetUserMessageReqDTO receive) {
-        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         List<UserInfoDO> info = facesetUserService.getInfo(request);
         return ProtobufUtils.buildFacesetSendMessage(info, info.size());
     }

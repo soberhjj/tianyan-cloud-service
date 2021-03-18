@@ -15,10 +15,6 @@ public enum SystemErrorEnums {
     DB_UPDATE_ERROR(5101, "DBMS更新失败[{0}]"),
     DB_DELETE_ERROR(5102, "DBMS删除失败[{0}]"),
     SQL_NOT_VALID(5103, "SQL语句错误[{0}:{1}]"),
-    /**
-     * proto异常
-     */
-    PROTO_PARSE_ERROR(5104, "proto转换失败"),
     ;
     private int errorCode;
 

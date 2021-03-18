@@ -36,7 +36,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     @Autowired
     private FaceMapper faceMapper;
     @Autowired
-    private FaceCacheHelperImpl<FaceDO> faceCacheHelper;
+    private VectorSearchServiceImpl<FaceDO> faceCacheHelper;
 
 
     @Override

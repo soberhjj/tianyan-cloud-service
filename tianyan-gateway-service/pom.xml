@@ -28,6 +28,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
+        <!--项目公共组件-->
+        <dependency>
+            <groupId>com.newland.tianyan</groupId>
+            <artifactId>tianyan-common</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!--权限-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
  * @Author: huangJunJie  2020-11-03 14:08
  */
 @Component
-//@Async
 public class GroupDeleteEventListener {
 
     @Autowired

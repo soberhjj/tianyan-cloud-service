@@ -10,6 +10,7 @@ import com.newland.tianyan.common.utils.FeaturesTool;
 import com.newland.tianyan.common.utils.JsonUtils;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianyan.face.constant.ArgumentErrorEnums;
 import com.newland.tianyan.face.constant.BusinessErrorEnums;
 import com.newland.tianyan.face.constant.EntityStatusConstants;
 import com.newland.tianyan.face.constant.SystemErrorEnums;
@@ -27,6 +28,7 @@ import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
+import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import newlandFace.NLFace;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.*;
 
-import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MAX_USER_NUMBER;
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
 import static java.lang.Math.abs;
 
 /**
@@ -55,7 +57,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Autowired
     private UserInfoMapper userInfoMapper;
     @Autowired
-    private FaceCacheHelperImpl<FaceDO> faceCacheHelper;
+    private VectorSearchServiceImpl<FaceDO> faceCacheHelper;
     @Autowired
     private FaceMapper faceMapper;
     @Autowired
@@ -69,6 +71,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public FaceDO create(NLBackend.BackendAllRequest receive) throws IOException {
         String actionType = receive.getActionType();
+        this.checkOperationType(actionType);
         int qualityControl = receive.getQualityControl();
         if (qualityControl != 0) {
             this.handleImageQualityControl(qualityControl, receive.getImage());
@@ -135,7 +138,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
                 insertFaceDO.setUid(userInfoDO.getId());
                 insertFaceDO.setGid(groupInfoDO.getId());
-                insertFaceDO.setId(MilvusKey.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber() + 1));
+                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber() + 1));
                 log.info("人脸添加-请求向量搜索添加人脸向量");
                 faceCacheHelper.add(insertFaceDO);
                 if (faceMapper.insertSelective(insertFaceDO) <= 0) {
@@ -149,7 +152,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 if ("append".equals(actionType)) {
                     log.info("人脸添加-追加人脸append");
                     //缓存中添加用户的人脸
-                    insertFaceDO.setId(MilvusKey.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), sourceUser.getFaceNumber() + 1));
+                    insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), sourceUser.getFaceNumber() + 1));
                     faceCacheHelper.add(insertFaceDO);
                     //添加人脸
                     if (faceMapper.insertSelective(insertFaceDO) <= 0) {
@@ -158,7 +161,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     publisher.publishEvent(new FaceCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
                 } else if ("replace".equals(actionType)) {
                     log.info("人脸添加-清空并添加新的人脸replace");
-                    insertFaceDO.setId(MilvusKey.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
+                    insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
                     FaceDO faceDO = new FaceDO();
                     faceDO.setGroupId(groupId);
                     faceDO.setUserId(query.getUserId());
@@ -406,5 +409,19 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             throw SystemErrorEnums.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
         }
         publisher.publishEvent(new FaceDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
+    }
+
+    private void checkOperationType(String operationType) {
+        if (StringUtils.isEmpty(operationType)) {
+            return;
+        }
+        String[] arr = operationType.split(",");
+        for (String item : arr) {
+            boolean append = ACTION_TYPE_APPEND.equals(item);
+            boolean replace = ACTION_TYPE_REPLACE.equals(item);
+            if ((!append) && (!replace)) {
+                throw ArgumentErrorEnums.WRONG_ACTION_TYPE.toException();
+            }
+        }
     }
 }

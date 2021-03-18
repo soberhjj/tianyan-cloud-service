@@ -36,7 +36,7 @@ public class AppInfoServiceImpl implements AppInfoService {
     @Autowired
     private AppInfoMapper appInfoMapper;
     @Autowired
-    private FaceCacheHelperImpl<FaceDO> faceFaceCacheHelper;
+    private VectorSearchServiceImpl<FaceDO> faceFaceCacheHelper;
 
     /**
      * 新增一条appinfo

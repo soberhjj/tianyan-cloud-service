@@ -18,7 +18,8 @@ import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.event.user.UserCopyEvent;
 import com.newland.tianyan.face.event.user.UserDeleteEvent;
 import com.newland.tianyan.face.service.FacesetUserService;
-import com.newland.tianyan.face.service.ICacheHelper;
+import com.newland.tianyan.face.service.IVectorSearchService;
+import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -49,7 +50,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
-    private ICacheHelper<FaceDO> faceCacheHelper;
+    private IVectorSearchService<FaceDO> faceCacheHelper;
 
     @Override
     public PageInfo<UserInfoDO> getList(NLBackend.BackendAllRequest receive) throws BaseException {
@@ -182,7 +183,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
 
     private FaceDO convertCopyFace(FaceDO targetFace, UserInfoDO userInfoDO, GroupInfoDO targetGroup) {
         FaceDO newFace = new FaceDO();
-        newFace.setId(MilvusKey.generatedKey(targetGroup.getId(), userInfoDO.getId(), userInfoDO.getFaceNumber() + 1));
+        newFace.setId(VectorSearchKeyUtils.generatedKey(targetGroup.getId(), userInfoDO.getId(), userInfoDO.getFaceNumber() + 1));
         newFace.setAppId(targetGroup.getAppId());
         newFace.setGid(targetGroup.getId());
         newFace.setGroupId(targetGroup.getGroupId());

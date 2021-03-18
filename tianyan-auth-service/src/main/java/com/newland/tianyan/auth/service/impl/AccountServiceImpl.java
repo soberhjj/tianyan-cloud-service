@@ -1,8 +1,9 @@
-package com.newland.tianyan.auth.service;
+package com.newland.tianyan.auth.service.impl;
 
 
-import com.newland.tianyan.auth.entity.Account;
 import com.newland.tianyan.auth.dao.AccountMapper;
+import com.newland.tianyan.auth.entity.Account;
+import com.newland.tianyan.auth.service.IAccountService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,13 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 @Service
-public class AccountServiceImpl implements UserDetailsService {
+public class AccountServiceImpl implements UserDetailsService, IAccountService {
 
     private final AccountMapper accountMapper;
     private final PasswordEncoder encoder;
 
     public AccountServiceImpl(AccountMapper accountMapper, PasswordEncoder encoder) {
-        this.accountMapper=accountMapper;
+        this.accountMapper = accountMapper;
         this.encoder = encoder;
     }
 
@@ -32,6 +33,7 @@ public class AccountServiceImpl implements UserDetailsService {
      *
      * @param record 要添加的用户信息
      */
+    @Override
     @Transactional
     public int insert(Account record) {
         return accountMapper.insertSelective(record);
@@ -44,6 +46,7 @@ public class AccountServiceImpl implements UserDetailsService {
      * @param password 新密码
      * @return 成功返回 true, 失败返回 false
      */
+    @Override
     @Transactional
     public boolean resetPassword(String mailbox, String password) {
         return accountMapper.resetPassword(mailbox, password) != 0;
@@ -55,6 +58,7 @@ public class AccountServiceImpl implements UserDetailsService {
      * @param account
      * @return 查询到的结果
      */
+    @Override
     public Account findOne(Account account) {
         return accountMapper.find(account);
     }
@@ -66,6 +70,7 @@ public class AccountServiceImpl implements UserDetailsService {
      * @param account 要查询的值
      * @return 存在返回 true, 不存在返回 false
      */
+    @Override
     public boolean checkExits(String column, String account) {
         Example example = new Example(Account.class);
         example.createCriteria().andEqualTo(column, account);
