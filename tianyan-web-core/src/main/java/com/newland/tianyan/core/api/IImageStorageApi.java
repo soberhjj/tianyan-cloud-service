@@ -1,10 +1,10 @@
-package com.newland.tianyan.common.api;
+package com.newland.tianyan.core.api;
 
 import com.newland.tianyan.common.model.imagestrore.DownloadReqDTO;
 import com.newland.tianyan.common.model.imagestrore.DownloadResDTO;
 import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
 import com.newland.tianyan.common.model.imagestrore.UploadResDTO;
-import com.newland.tianyan.common.version.ApiVersion;
+import com.newland.tianyan.core.annotation.ApiVersion;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

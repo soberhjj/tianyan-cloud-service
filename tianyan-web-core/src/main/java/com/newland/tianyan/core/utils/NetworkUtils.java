@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.utils;
+package com.newland.tianyan.core.utils;
 
 import javax.servlet.http.HttpServletRequest;
 

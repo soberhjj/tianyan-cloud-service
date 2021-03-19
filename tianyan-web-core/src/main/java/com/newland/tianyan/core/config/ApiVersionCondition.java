@@ -1,6 +1,6 @@
-package com.newland.tianyan.common.version;
+package com.newland.tianyan.core.config;
 
-import com.newland.tianyan.common.constans.GlobalArgumentErrorEnums;
+import com.newland.tianyan.common.constants.GlobalArgumentErrorEnums;
 import lombok.Data;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 

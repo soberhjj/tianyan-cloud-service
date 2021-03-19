@@ -1,8 +1,9 @@
-package com.newland.tianyan.common.config;
+package com.newland.tianyan.core.config;
 
-import com.newland.tianyan.common.aop.ApiMethodLogIntercept;
+
 import com.newland.tianyan.common.utils.LogFixColumnUtils;
 import com.newland.tianyan.common.utils.ServerAddressUtils;
+import com.newland.tianyan.core.aop.ApiMethodLogIntercept;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -25,4 +26,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
     private LogFixColumnUtils logFixColumnUtils;
     @Autowired
     private ServerAddressUtils serverAddressUtils;
+
 }

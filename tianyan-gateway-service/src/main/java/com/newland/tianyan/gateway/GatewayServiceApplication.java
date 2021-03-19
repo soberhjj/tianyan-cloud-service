@@ -11,7 +11,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @date: 2021/2/3
  */
 @EnableDiscoveryClient
-@SpringBootApplication
+@SpringBootApplication()
 @Slf4j
 public class GatewayServiceApplication {
     public static void main(String[] args) {

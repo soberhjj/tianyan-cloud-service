@@ -18,4 +18,9 @@ public class ArgumentException extends BaseException {
     public ArgumentException(Integer errorCode, String errorMsg, Object... args) {
         super(errorCode, errorMsg, args);
     }
+
+    public static ArgumentException create(int errorCode, String errorMsg, Object... args) {
+        return new ArgumentException(errorCode, errorMsg, args);
+    }
+
 }

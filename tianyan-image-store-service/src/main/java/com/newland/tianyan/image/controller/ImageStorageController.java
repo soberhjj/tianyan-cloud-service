@@ -1,7 +1,6 @@
 package com.newland.tianyan.image.controller;
 
-import com.newland.tianyan.common.api.IImageStorageApi;
-import com.newland.tianyan.common.exception.BaseException;
+import com.newland.tianyan.core.api.IImageStorageApi;
 import com.newland.tianyan.common.model.imagestrore.DownloadReqDTO;
 import com.newland.tianyan.common.model.imagestrore.DownloadResDTO;
 import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;

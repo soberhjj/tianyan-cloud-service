@@ -1,7 +1,9 @@
-package com.newland.tianyan.common.filter;
+package com.newland.tianyan.core.filter;
+
 
 import com.alibaba.fastjson.JSON;
-import com.newland.tianyan.common.constans.GlobalArgumentErrorEnums;
+import com.newland.tianyan.common.constants.GlobalArgumentErrorEnums;
+import com.newland.tianyan.common.constants.GlobalTraceConstant;
 import com.newland.tianyan.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
@@ -15,7 +17,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.newland.tianyan.common.constans.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
 
 /**
  * @author: RojiaHuang
@@ -35,7 +36,7 @@ public class ApiRespAdvice implements ResponseBodyAdvice {
                                   MediaType mediaType, Class aClass,
                                   ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         String traceId = TraceContext.traceId();
-        serverHttpResponse.getHeaders().add(GATEWAY_TRACE_HEAD, traceId);
+        serverHttpResponse.getHeaders().add(GlobalTraceConstant.GATEWAY_TRACE_HEAD, traceId);
         if (!mediaType.equals(MediaType.APPLICATION_JSON) || o instanceof Exception) {
             log.info("responseParams：{}", JsonUtils.toJson(o));
 

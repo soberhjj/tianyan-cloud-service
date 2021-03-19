@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.version;
+package com.newland.tianyan.core.config;
 
 /**
  * @author: https://mp.weixin.qq.com/s/m2HnUBXagKaLQjzww1s77g
@@ -6,6 +6,7 @@ package com.newland.tianyan.common.version;
  * @date: 2021/2/22
  */
 
+import com.newland.tianyan.core.annotation.ApiVersion;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
@@ -21,12 +22,14 @@ public class VersionRequestMappingHandlerMapping extends RequestMappingHandlerMa
         ApiVersion apiVersion = AnnotationUtils.findAnnotation(handlerType, ApiVersion.class);
         return createRequestCondition(apiVersion);
     }
+
     @Override
     protected RequestCondition<?> getCustomMethodCondition(Method method) {
         // 扫描方法上的 @ApiVersion
         ApiVersion apiVersion = AnnotationUtils.findAnnotation(method, ApiVersion.class);
         return createRequestCondition(apiVersion);
     }
+
     private RequestCondition<ApiVersionCondition> createRequestCondition(ApiVersion apiVersion) {
         if (Objects.isNull(apiVersion)) {
             return null;

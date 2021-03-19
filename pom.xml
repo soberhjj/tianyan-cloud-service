@@ -33,6 +33,7 @@
         <module>tianyan-gateway-service</module>
         <module>tianyan-image-store-service</module>
         <module>tianyan-vector-search-service</module>
+        <module>tianyan-web-core</module>
     </modules>
 
     <dependencies>

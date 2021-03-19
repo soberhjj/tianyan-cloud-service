@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.filter;
+package com.newland.tianyan.core.filter;
 
 import com.newland.tianyan.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -45,13 +45,13 @@ public class ApiReqAdvice implements RequestBodyAdvice {
     @Override
     public Object afterBodyRead(Object o, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         Map<String, Object> map = JsonUtils.toMap(o);
-        if (map.containsKey("image")){
+        if (map.containsKey("image")) {
             map.remove("image");
-            map.put("image","(base转码图片，省略不打印)");
+            map.put("image", "(base转码图片，省略不打印)");
         }
-        if (map.containsKey("Image")){
+        if (map.containsKey("Image")) {
             map.remove("Image");
-            map.put("image","(base转码图片，省略不打印)");
+            map.put("image", "(base转码图片，省略不打印)");
         }
         log.info("requestParams：{}", map);
         return o;

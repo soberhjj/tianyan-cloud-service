@@ -2,7 +2,7 @@ package com.newland.tianyan.face.controller;
 
 
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.constans.TaskTypeEnums;
+import com.newland.tianyan.common.constants.TaskTypeEnums;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;

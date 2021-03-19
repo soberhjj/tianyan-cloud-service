@@ -1,7 +1,7 @@
-package com.newland.tianyan.common.aop;
+package com.newland.tianyan.core.aop;
 
 import com.newland.tianyan.common.utils.LogFixColumnUtils;
-import com.newland.tianyan.common.utils.NetworkUtils;
+import com.newland.tianyan.core.utils.NetworkUtils;
 import com.newland.tianyan.common.utils.ServerAddressUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -11,8 +11,6 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
-
-import static com.newland.tianyan.common.constans.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
 
 /**
  * @author: RojiaHuang
@@ -36,7 +34,7 @@ public class ApiMethodLogIntercept implements HandlerInterceptor {
         String requestIp = NetworkUtils.getClientIpAddress(request);
         String responseIp = serverAddressUtils.getServerAddress();
         //String traceId = request.getHeader(GATEWAY_TRACE_HEAD);
-        logFixColumnUtils.init(null,url, requestIp, responseIp);
+        logFixColumnUtils.init(null, url, requestIp, responseIp);
         //输出请求时间
         String requestTime = LocalDateTime.now().toString();
         request.setAttribute("requestTime", requestTime);

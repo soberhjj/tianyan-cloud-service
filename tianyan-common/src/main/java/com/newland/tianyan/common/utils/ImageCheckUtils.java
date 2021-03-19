@@ -1,7 +1,7 @@
 package com.newland.tianyan.common.utils;
 
 
-import com.newland.tianyan.common.constans.GlobalArgumentErrorEnums;
+import com.newland.tianyan.common.constants.GlobalArgumentErrorEnums;
 
 import java.util.regex.Pattern;
 

@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.version;
+package com.newland.tianyan.core.annotation;
 
 import java.lang.annotation.*;
 

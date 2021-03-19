@@ -1,12 +1,13 @@
-package com.newland.tianyan.common.aop;
+package com.newland.tianyan.core.hander;
 
 
-import com.newland.tianyan.common.constans.GlobalArgumentErrorEnums;
+import com.newland.tianyan.common.constants.GlobalArgumentErrorEnums;
+
+import com.newland.tianyan.common.utils.JsonErrorObject;
+import com.newland.tianyan.common.utils.LogUtils;
 import com.newland.tianyan.common.exception.ArgumentException;
 import com.newland.tianyan.common.exception.BusinessException;
 import com.newland.tianyan.common.exception.SysException;
-import com.newland.tianyan.common.utils.JsonErrorObject;
-import com.newland.tianyan.common.utils.LogUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
 /**
@@ -88,7 +91,8 @@ public class GlobalExceptionHandler {
     public JsonErrorObject handleMediaTypeException(HttpMediaTypeNotSupportedException e) {
         log.warn("抛出http异常", e);
         if (!MediaType.APPLICATION_JSON.getType().equals(Objects.requireNonNull(e.getContentType()).getType())) {
-            ArgumentException sysException = GlobalArgumentErrorEnums.JSON_CONTENT_FORMAT_ERROR.toException();
+            GlobalArgumentErrorEnums errorEnums = GlobalArgumentErrorEnums.JSON_CONTENT_FORMAT_ERROR;
+            ArgumentException sysException = new ArgumentException(errorEnums.getErrorCode(), errorEnums.getErrorMsg());
             return new JsonErrorObject(LogUtils.traceId(), sysException.getErrorCode(), sysException.getErrorMsg());
         } else {
             SysException sysException = new SysException(6000, "system error");
@@ -96,22 +100,39 @@ public class GlobalExceptionHandler {
         }
     }
 
+    @ExceptionHandler(NoHandlerFoundException.class)
+    @ResponseBody
+    public JsonErrorObject handleNoHandlerException(NoHandlerFoundException e, HttpServletRequest request) {
+        log.warn("抛出参数[URI不支持]异常", e);
+        ArgumentException argumentException = GlobalArgumentErrorEnums.INVALID_METHOD.toException(request.getRequestURI());
+        return new JsonErrorObject(LogUtils.traceId(), argumentException.getErrorCode(), argumentException.getErrorMsg());
+    }
+
     private static ArgumentException getError(String code, String field) {
+        GlobalArgumentErrorEnums errorEnums;
         switch (code) {
             case "NotBlank":
-                return GlobalArgumentErrorEnums.ARGUMENT_NOT_BLANK.toException(field);
+                errorEnums = GlobalArgumentErrorEnums.ARGUMENT_NOT_BLANK;
+                break;
             case "NotNull":
-                return GlobalArgumentErrorEnums.ARGUMENT_NOT_NULL.toException(field);
+                errorEnums = GlobalArgumentErrorEnums.ARGUMENT_NOT_NULL;
+                break;
             case "NotEmpty":
-                return GlobalArgumentErrorEnums.ARGUMENT_NOT_EMPTY.toException(field);
+                errorEnums = GlobalArgumentErrorEnums.ARGUMENT_NOT_EMPTY;
+                break;
             case "Max":
-                return GlobalArgumentErrorEnums.ARGUMENT_SIZE_MAX.toException(field);
+                errorEnums = GlobalArgumentErrorEnums.ARGUMENT_SIZE_MAX;
+                break;
             case "Min":
-                return GlobalArgumentErrorEnums.ARGUMENT_SIZE_MIN.toException(field);
+                errorEnums = GlobalArgumentErrorEnums.ARGUMENT_SIZE_MIN;
+                break;
             case "Pattern":
-                return GlobalArgumentErrorEnums.ARGUMENT_PATTERN.toException(field);
+                errorEnums = GlobalArgumentErrorEnums.ARGUMENT_PATTERN;
+                break;
             default:
-                return GlobalArgumentErrorEnums.ARGUMENT_FORMAT_ERROR.toException(field);
+                errorEnums = GlobalArgumentErrorEnums.ARGUMENT_FORMAT_ERROR;
         }
+        return ArgumentException.create(errorEnums.getErrorCode(), errorEnums.getErrorMsg(), field);
     }
+
 }

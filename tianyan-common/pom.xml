@@ -12,10 +12,6 @@
     <artifactId>tianyan-common</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
         <!--apache基础工具类库-->
         <dependency>
             <groupId>org.apache.commons</groupId>

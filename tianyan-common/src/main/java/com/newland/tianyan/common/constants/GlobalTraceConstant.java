@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.constans;
+package com.newland.tianyan.common.constants;
 
 /**
  * @author: RojiaHuang

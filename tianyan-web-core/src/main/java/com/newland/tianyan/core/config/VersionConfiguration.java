@@ -1,4 +1,4 @@
-package com.newland.tianyan.common.version;
+package com.newland.tianyan.core.config;
 
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +16,7 @@ public class VersionConfiguration implements WebMvcRegistrations {
     protected RequestMappingHandlerMapping customRequestMappingHandlerMapping() {
         return new VersionRequestMappingHandlerMapping();
     }
+
     @Override
     public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
         RequestMappingHandlerMapping handlerMapping = new VersionRequestMappingHandlerMapping();

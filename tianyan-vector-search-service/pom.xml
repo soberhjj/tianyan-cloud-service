@@ -28,7 +28,7 @@
         <!--项目公共组件-->
         <dependency>
             <groupId>com.newland.tianyan</groupId>
-            <artifactId>tianyan-common</artifactId>
+            <artifactId>tianyan-web-core</artifactId>
             <version>1.0.0</version>
         </dependency>
         <!--milvus-->

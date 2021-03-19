@@ -1,6 +1,6 @@
 package com.newland.tianyan.common.utils;
 
-import com.newland.tianyan.common.constans.ImageTypeEnums;
+import com.newland.tianyan.common.constants.ImageTypeEnums;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

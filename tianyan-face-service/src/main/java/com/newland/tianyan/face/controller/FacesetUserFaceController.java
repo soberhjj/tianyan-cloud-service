@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.controller;
 
 
-import com.newland.tianyan.common.constans.TaskTypeEnums;
+import com.newland.tianyan.common.constants.TaskTypeEnums;
 import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.common.utils.LogUtils;

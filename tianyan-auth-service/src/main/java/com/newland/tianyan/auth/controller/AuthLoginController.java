@@ -2,7 +2,7 @@ package com.newland.tianyan.auth.controller;
 
 import com.newland.tianyan.auth.entity.Account;
 import com.newland.tianyan.auth.service.ILoginService;
-import com.newland.tianyan.common.constans.TaskTypeEnums;
+import com.newland.tianyan.common.constants.TaskTypeEnums;
 import com.newland.tianyan.common.model.auth.LoginCheckUniqueReqDTO;
 import com.newland.tianyan.common.model.auth.LoginGetInfoReqDTO;
 import com.newland.tianyan.common.model.auth.LoginRegisterReqDTO;
