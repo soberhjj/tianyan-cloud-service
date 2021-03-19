@@ -8,8 +8,8 @@ spring:
       config:
         server-addr: 192.168.136.210:8848
         file-extension: yml
-        namespace: tianyan-cloud
-#        group: hlj
+        namespace: dev-hlj
+        group: tianyan-cloud
         prefix: ${spring.application.name}
 
 
