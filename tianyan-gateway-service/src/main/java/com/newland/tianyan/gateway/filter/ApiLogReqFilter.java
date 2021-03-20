@@ -1,6 +1,6 @@
 package com.newland.tianyan.gateway.filter;
 
-import com.newland.tianyan.common.utils.LogFixColumnUtils;
+import com.newland.tianya.commons.base.utils.LogFixColumnUtils;
 import com.newland.tianyan.gateway.utils.ReactiveAddrUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
@@ -23,13 +23,12 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.newland.tianyan.common.constants.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
+import static com.newland.tianya.commons.base.constants.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
 import static org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter.ROUTE_TO_URL_FILTER_ORDER;
 
 /**

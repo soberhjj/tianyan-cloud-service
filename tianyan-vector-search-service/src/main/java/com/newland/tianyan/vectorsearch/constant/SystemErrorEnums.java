@@ -1,6 +1,7 @@
 package com.newland.tianyan.vectorsearch.constant;
 
-import com.newland.tianyan.common.exception.SysException;
+
+import com.newland.tianya.commons.base.exception.SysException;
 
 /**
  * @author: RojiaHuang

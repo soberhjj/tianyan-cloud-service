@@ -1,6 +1,7 @@
 package com.newland.tianyan.face.constant;
 
-import com.newland.tianyan.common.exception.ArgumentException;
+
+import com.newland.tianya.commons.base.exception.ArgumentException;
 
 /**
  * @author: RojiaHuang

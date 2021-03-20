@@ -1,7 +1,8 @@
 package com.newland.tianyan.vectorsearch.controller;
 
-import com.newland.tianyan.core.api.IVectorSearchApi;
-import com.newland.tianyan.common.model.vectorsearch.*;
+
+import com.newland.tianya.commons.base.model.vectorsearch.*;
+import com.newland.tianyan.commons.webcore.api.IVectorSearchApi;
 import com.newland.tianyan.vectorsearch.service.IMilvusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

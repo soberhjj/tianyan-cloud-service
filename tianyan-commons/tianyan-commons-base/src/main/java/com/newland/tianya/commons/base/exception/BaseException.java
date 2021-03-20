@@ -1,27 +1,23 @@
-package com.newland.tianyan.face.feign;
-
-import com.netflix.hystrix.exception.HystrixBadRequestException;
+package com.newland.tianya.commons.base.exception;
 
 import java.text.MessageFormat;
 
 /**
- * @author: RojiaHuang
- * @description:
- * @date: 2021/3/5
+ * @description: 公共异常类
+ * @author newland
  */
-public class ReportException extends HystrixBadRequestException {
+public class BaseException extends RuntimeException {
+
     private int errorCode;
     private String errorMsg;
     private Object[] args;
 
-    public ReportException(int errorCode, String errorMsg) {
-        super(errorMsg);
+    public BaseException(int errorCode, String errorMsg) {
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
     }
 
-    public ReportException(int errorCode, String errorMsg, Object... args) {
-        super(errorMsg);
+    public BaseException(int errorCode, String errorMsg, Object... args) {
         this.errorCode = errorCode;
         this.errorMsg = formatMsg(errorMsg, args);
         this.args = args;
@@ -54,5 +50,4 @@ public class ReportException extends HystrixBadRequestException {
     public void setErrorMsg(String errorMsg) {
         this.errorMsg = errorMsg;
     }
-
 }

@@ -1,6 +1,6 @@
 package com.newland.tianyan.gateway.filter;
 
-import com.newland.tianyan.common.constants.GlobalArgumentErrorEnums;
+import com.newland.tianya.commons.base.constants.GlobalArgumentErrorEnums;
 import org.slf4j.MDC;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;

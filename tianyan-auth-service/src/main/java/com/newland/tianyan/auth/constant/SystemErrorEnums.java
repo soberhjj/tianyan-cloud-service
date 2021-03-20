@@ -1,6 +1,7 @@
 package com.newland.tianyan.auth.constant;
 
-import com.newland.tianyan.common.exception.SysException;
+
+import com.newland.tianya.commons.base.exception.SysException;
 
 /**
  * @author: RojiaHuang

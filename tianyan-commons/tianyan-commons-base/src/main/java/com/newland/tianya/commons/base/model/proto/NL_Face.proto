@@ -1,0 +1,88 @@
+syntax = "proto2";
+
+package newlandFace;
+
+message CloudFaceAllRequest{
+  optional string log_id = 1;
+  optional int32 task_type = 2;
+  optional string image = 3;
+  optional uint32 max_face_num = 18;
+}
+
+message CloudFaceDetectInfo{
+  optional uint32 x1 = 1;
+  optional uint32 y1 = 2;
+  optional uint32 x2 = 3;
+  optional uint32 y2 = 4;
+  optional float score = 5;
+  repeated uint32 ptx = 6 [packed=true];
+  repeated uint32 pty = 7 [packed=true];
+  repeated uint32 landmarkx = 8 [packed=true];
+  repeated uint32 landmarky = 9 [packed=true];
+}
+
+message CloudFaceFeatureResult{
+  repeated float features = 1 [packed=true];
+}
+
+message CloudFaceLivenessResult{
+  optional uint32 liveness = 1;
+  optional float score = 2;
+}
+
+message CloudFaceAttributeResult{
+  optional int32 pitch = 1;
+  optional int32 yaw = 2;
+  optional int32 roll = 3;
+  optional uint32 gender = 4;
+  optional uint32 age = 5;
+  optional uint32 emotion = 6;
+  optional uint32 glasses = 7;
+  optional uint32 mask = 8;
+  optional float occlusion = 9;
+  optional uint32 eye_status = 10;
+  optional uint32 mouth_status = 11;
+  optional uint32 makeup = 12;
+  optional uint32 fake_face = 13;
+  optional float blur = 14;
+  optional float brightness = 15;
+  optional float brightness_side_diff = 16;
+  optional float gender_confidence = 17;
+  optional float emotion_confidence = 18;
+  optional float glasses_confidence = 19;
+  optional float mask_confidence = 20;
+  optional float eye_status_confidence = 22;
+  optional float mouth_status_confidence = 23;
+  optional float makeup_confidence = 24;
+  optional float fake_face_confidence = 25;
+  optional float brightness_updown_diff = 26;
+  optional float tone_off_center = 27;
+  optional uint32 smoking = 28;
+  optional float smoking_confidence = 29;
+}
+
+message CloudFaceSearchResult{
+  optional string group_id = 1;
+  optional string user_id = 2;
+  optional string user_name = 3;
+  optional string user_info = 4;
+  optional string confidence = 5;
+}
+
+message CloudFaceSendMessage{
+  optional string log_id = 1;
+  optional uint32 face_num = 2;
+  optional string image = 3;
+  optional int32 task_type = 5;
+  optional uint32 error_code = 6;
+  optional string error_msg = 7;
+  optional float confidence = 8;
+  optional string face_id = 9;
+  optional int32 version = 10;
+  optional string feature = 11;
+  repeated CloudFaceFeatureResult feature_result = 17;
+  repeated CloudFaceDetectInfo face_infos = 18;
+  repeated CloudFaceAttributeResult face_attributes = 19;
+  repeated CloudFaceLivenessResult liveness_result = 20;
+  repeated CloudFaceSearchResult user_result=21;
+}

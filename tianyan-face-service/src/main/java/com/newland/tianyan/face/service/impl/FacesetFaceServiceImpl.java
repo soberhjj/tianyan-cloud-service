@@ -1,9 +1,10 @@
 package com.newland.tianyan.face.service.impl;
 
 import com.googlecode.protobuf.format.JsonFormat;
-import com.newland.tianyan.common.exception.BaseException;
-import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
-import com.newland.tianyan.common.model.vectorsearch.QueryResDTO;
+import com.newland.tianya.commons.base.exception.BaseException;
+import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
+import com.newland.tianya.commons.base.model.vectorsearch.QueryResDTO;
+import com.newland.tianya.commons.base.utils.*;
 import com.newland.tianyan.common.utils.*;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.face.constant.ArgumentErrorEnums;

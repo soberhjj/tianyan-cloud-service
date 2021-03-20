@@ -1,10 +1,11 @@
 package com.newland.tianyan.image.controller;
 
-import com.newland.tianyan.core.api.IImageStorageApi;
-import com.newland.tianyan.common.model.imagestrore.DownloadReqDTO;
-import com.newland.tianyan.common.model.imagestrore.DownloadResDTO;
-import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
-import com.newland.tianyan.common.model.imagestrore.UploadResDTO;
+
+import com.newland.tianya.commons.base.model.imagestrore.DownloadReqDTO;
+import com.newland.tianya.commons.base.model.imagestrore.DownloadResDTO;
+import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
+import com.newland.tianya.commons.base.model.imagestrore.UploadResDTO;
+import com.newland.tianyan.commons.webcore.api.IImageStorageApi;
 import com.newland.tianyan.image.service.IImageStoreService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

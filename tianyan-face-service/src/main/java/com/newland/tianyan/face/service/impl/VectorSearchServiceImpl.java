@@ -1,12 +1,11 @@
 package com.newland.tianyan.face.service.impl;
 
 
-import com.newland.tianyan.common.exception.BaseException;
-import com.newland.tianyan.common.model.vectorsearch.*;
-import com.newland.tianyan.common.utils.FeaturesTool;
+import com.newland.tianya.commons.base.exception.BaseException;
+import com.newland.tianya.commons.base.model.vectorsearch.*;
+import com.newland.tianya.commons.base.utils.FeaturesTool;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.constant.SystemErrorEnums;
-import com.newland.tianyan.face.feign.ReportException;
 import com.newland.tianyan.face.feign.client.VectorSearchFeignService;
 import com.newland.tianyan.face.service.IVectorSearchService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +40,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
         List<QueryResDTO> result;
         try {
             result = vectorSearchService.query(queryReq);
-        } catch (ReportException exception) {
+        } catch (BaseException exception) {
             throw SystemErrorEnums.VECTOR_QUERY_ERROR.toException();
         }
         return result;
@@ -59,7 +58,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                     .entityId(id)
                     .build();
             vectorSearchService.delete(deleteReq);
-        } catch (ReportException exception) {
+        } catch (BaseException exception) {
             throw SystemErrorEnums.VECTOR_DELETE_ERROR.toException();
         }
     }
@@ -76,7 +75,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                     .entityIds(idList)
                     .build();
             vectorSearchService.batchDelete(batchDeleteReq);
-        } catch (ReportException exception) {
+        } catch (BaseException exception) {
             throw SystemErrorEnums.VECTOR_DELETE_ERROR.toException();
         }
     }
@@ -94,7 +93,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
         Long result;
         try {
             result = vectorSearchService.insert(insertReq);
-        } catch (ReportException exception) {
+        } catch (BaseException exception) {
             throw SystemErrorEnums.VECTOR_INSERT_ERROR.toException();
         }
         return result;
@@ -126,7 +125,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
         List<Long> result;
         try {
             result = vectorSearchService.batchInsert(batchInsertReq);
-        } catch (ReportException exception) {
+        } catch (BaseException exception) {
             throw SystemErrorEnums.VECTOR_INSERT_ERROR.toException();
         }
         return result;
@@ -143,7 +142,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                     .appId(getCollectionName(collectionId))
                     .build();
             vectorSearchService.createCollection(createColReq);
-        } catch (ReportException exception) {
+        } catch (BaseException exception) {
             throw SystemErrorEnums.VECTOR_CREATE_ERROR.toException();
         }
     }
@@ -155,7 +154,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                     .appId(getCollectionName(collectionId))
                     .build();
             vectorSearchService.dropCollection(deleteColReq);
-        } catch (ReportException exception) {
+        } catch (BaseException exception) {
             throw SystemErrorEnums.VECTOR_DROP_ERROR.toException();
         }
     }

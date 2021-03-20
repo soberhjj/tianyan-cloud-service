@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.mq;
 
 
-import com.newland.tianyan.common.exception.SysException;
+import com.newland.tianya.commons.base.exception.SysException;
 import com.newland.tianyan.face.constant.SystemErrorEnums;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.AmqpTemplate;

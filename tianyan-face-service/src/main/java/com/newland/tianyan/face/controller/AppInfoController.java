@@ -2,10 +2,10 @@ package com.newland.tianyan.face.controller;
 
 
 import com.github.pagehelper.PageInfo;
+import com.newland.tianya.commons.base.constants.TaskTypeEnums;
+import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.dto.*;
-import com.newland.tianyan.common.constants.TaskTypeEnums;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import com.newland.tianyan.face.service.AppInfoService;
 import lombok.extern.slf4j.Slf4j;

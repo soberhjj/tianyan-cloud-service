@@ -1,6 +1,7 @@
 package com.newland.tianyan.vectorsearch.constant;
 
-import com.newland.tianyan.common.exception.BusinessException;
+
+import com.newland.tianya.commons.base.exception.BusinessException;
 
 /**
  * @author: RojiaHuang

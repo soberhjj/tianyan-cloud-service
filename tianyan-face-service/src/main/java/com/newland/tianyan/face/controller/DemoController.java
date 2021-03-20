@@ -1,9 +1,9 @@
 package com.newland.tianyan.face.controller;
 
 
-import com.newland.tianyan.common.exception.BaseException;
-import com.newland.tianyan.common.exception.SysException;
-import com.newland.tianyan.common.model.auth.AuthClientReqDTO;
+import com.newland.tianya.commons.base.exception.BaseException;
+import com.newland.tianya.commons.base.exception.SysException;
+import com.newland.tianya.commons.base.model.auth.AuthClientReqDTO;
 import com.newland.tianyan.face.feign.client.AuthClientFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

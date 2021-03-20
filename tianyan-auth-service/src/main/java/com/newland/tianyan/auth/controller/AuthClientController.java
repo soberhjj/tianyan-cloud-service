@@ -1,7 +1,8 @@
 package com.newland.tianyan.auth.controller;
 
-import com.newland.tianyan.core.api.IAuthClientApi;
-import com.newland.tianyan.common.model.auth.AuthClientReqDTO;
+
+import com.newland.tianya.commons.base.model.auth.AuthClientReqDTO;
+import com.newland.tianyan.commons.webcore.api.IAuthClientApi;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;

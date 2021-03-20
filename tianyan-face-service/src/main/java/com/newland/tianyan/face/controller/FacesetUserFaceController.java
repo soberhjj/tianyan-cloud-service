@@ -1,11 +1,11 @@
 package com.newland.tianyan.face.controller;
 
 
-import com.newland.tianyan.common.constants.TaskTypeEnums;
-import com.newland.tianyan.common.exception.BaseException;
+import com.newland.tianya.commons.base.constants.TaskTypeEnums;
+import com.newland.tianya.commons.base.exception.BaseException;
+import com.newland.tianya.commons.base.utils.LogUtils;
+import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.common.utils.LogUtils;
-import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceAddReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceDeleteReqDTO;

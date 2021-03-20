@@ -1,6 +1,7 @@
 package com.newland.tianyan.face.service;
 
-import com.newland.tianyan.common.exception.BaseException;
+
+import com.newland.tianya.commons.base.exception.BaseException;
 
 import java.util.List;
 

@@ -1,6 +1,7 @@
 package com.newland.tianyan.image.constant;
 
-import com.newland.tianyan.common.exception.BusinessException;
+
+import com.newland.tianya.commons.base.exception.BusinessException;
 
 /**
  * @author: RojiaHuang
