@@ -3,7 +3,7 @@ package com.newland.tianyan.face.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.newland.tianya.commons.base.exception.BaseException;
-import com.newland.tianya.commons.base.utils.JsonUtils;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.face.constant.EntityStatusConstants;
@@ -44,16 +44,14 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         //判断用户组是否存在
         groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (groupInfoMapper.selectCount(groupInfoDO) > 0) {
-            throw ExceptionEnum.GROUP_ALREADY_EXISTS.toException(receive.getGroupId());
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_ALREADY_EXISTS, receive.getGroupId());
         }
 
         //添加用户组
         groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         groupInfoDO.setFaceNumber(0);
         groupInfoDO.setUserNumber(0);
-        if (groupInfoMapper.insertSelective(groupInfoDO) < 0) {
-            throw ExceptionEnum.DB_INSERT_ERROR.toException(JsonUtils.toJson(groupInfoDO));
-        }
+        groupInfoMapper.insertSelective(groupInfoDO);
 
         //发布事件。由于新增了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值加1
         publisher.publishEvent(new AbstractGroupCreateEvent(receive.getAppId(), receive.getGroupId()));
@@ -91,7 +89,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         GroupInfoDO groupToDelete = groupInfoMapper.selectOne(groupInfoDO);
         if (groupToDelete == null) {
-            throw ExceptionEnum.GROUP_NOT_FOUND.toException(receive.getGroupId());
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, receive.getGroupId());
         }
 
         //todo 删除该组所有用户的所有人脸-可以做个闲时的人脸删除
@@ -99,9 +97,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         faceCacheHelper.deleteBatch(groupInfoDO.getAppId(), faceIdList);
 
         //逻辑删除
-        if (groupInfoMapper.updateToDelete(EntityStatusConstants.DELETE, groupToDelete.getId()) < 0) {
-            throw ExceptionEnum.DB_DELETE_ERROR.toException();
-        }
+        groupInfoMapper.updateToDelete(EntityStatusConstants.DELETE, groupToDelete.getId());
 
         //发布事件。由于删除了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值减1
         publisher.publishEvent(new AbstractGroupDeleteEvent(groupToDelete.getAppId(), groupToDelete.getGroupId()));

@@ -29,7 +29,7 @@ public class ExceptionSupport {
     public static BaseException toException(IExceptionEnums iExceptionSupport, Throwable throwable, Object... args) {
         switch (iExceptionSupport.getTypeEnums()) {
             case ARGUMENT_EXCEPTION:
-                return new ArgumentException(iExceptionSupport.getErrorCode(), iExceptionSupport.getErrorMsg(), throwable, args;
+                return new ArgumentException(iExceptionSupport.getErrorCode(), iExceptionSupport.getErrorMsg(), throwable, args);
             case BUSINESS_EXCEPTION:
                 return new BusinessException(iExceptionSupport.getErrorCode(), iExceptionSupport.getErrorMsg(), throwable, args);
             case SYSTEM_EXCEPTION:

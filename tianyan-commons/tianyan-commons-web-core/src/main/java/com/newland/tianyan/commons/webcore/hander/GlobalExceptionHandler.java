@@ -6,6 +6,7 @@ import com.newland.tianya.commons.base.exception.ArgumentException;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.exception.BusinessException;
 import com.newland.tianya.commons.base.exception.SysException;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.JsonErrorObject;
 import com.newland.tianya.commons.base.utils.LogUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +52,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public JsonErrorObject handleBusinessException(BusinessException e) {
-        log.warn("抛出业务异常:[{}:{}],{}", e.getErrorCode(),e.getErrorMsg(),e);
+        log.warn("抛出业务异常:[{}:{}],{}", e.getErrorCode(), e.getErrorMsg(), e);
         return toJsonObject(e);
     }
 
@@ -78,7 +79,7 @@ public class GlobalExceptionHandler {
     public JsonErrorObject handleOtherException(Exception e) {
         log.warn("抛出系统异常", e);
         e.printStackTrace();
-        return toJsonObject(GlobalExceptionEnum.SYSTEM_ERROR.toException());
+        return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR));
     }
 
     /**
@@ -102,9 +103,9 @@ public class GlobalExceptionHandler {
     public JsonErrorObject handleMediaTypeException(HttpMediaTypeNotSupportedException e) {
         log.warn("抛出http异常", e);
         if (!MediaType.APPLICATION_JSON.getType().equals(Objects.requireNonNull(e.getContentType()).getType())) {
-            return toJsonObject(GlobalExceptionEnum.JSON_CONTENT_FORMAT_ERROR.toException());
+            return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.JSON_CONTENT_FORMAT_ERROR));
         } else {
-            return toJsonObject(GlobalExceptionEnum.SYSTEM_ERROR.toException());
+            return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR));
         }
     }
 
@@ -115,7 +116,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public JsonErrorObject handleNoHandlerException(NoHandlerFoundException e, HttpServletRequest request) {
         log.warn("抛出参数[URI不支持]异常", e);
-        return toJsonObject(GlobalExceptionEnum.INVALID_METHOD.toException(request.getRequestURI()));
+        return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.INVALID_METHOD, request.getRequestURI()));
     }
 
     /**
@@ -125,7 +126,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public JsonErrorObject handleSqlException(SQLException e) {
         log.warn("抛出SQL异常", e);
-        return toJsonObject(GlobalExceptionEnum.SQL_NOT_VALID.toException());
+        return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SQL_NOT_VALID));
     }
 
     protected static JsonErrorObject toJsonObject(BaseException baseException) {
@@ -160,6 +161,6 @@ public class GlobalExceptionHandler {
             default:
                 errorEnums = GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR;
         }
-        return (ArgumentException) errorEnums.toException(field);
+        return (ArgumentException) ExceptionSupport.toException(errorEnums);
     }
 }
