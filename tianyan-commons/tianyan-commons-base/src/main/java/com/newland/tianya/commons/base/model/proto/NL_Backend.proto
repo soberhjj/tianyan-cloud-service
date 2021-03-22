@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package newlandBackend;
 
-option java_package = "com.newland.tianyan.common.utils.message";
+option java_package = "com.newland.tianya.commons.base.model.proto";
 
 message BackendAllRequest {
     string log_id = 1;

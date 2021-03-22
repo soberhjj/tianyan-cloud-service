@@ -1,12 +1,12 @@
 package com.newland.tianyan.auth.service.impl;
 
+import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.auth.constant.ExceptionEnum;
 import com.newland.tianyan.auth.entity.Account;
 import com.newland.tianyan.auth.service.IAccountService;
 import com.newland.tianyan.auth.service.ILoginService;
-import com.newland.tianyan.common.utils.message.NLBackend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

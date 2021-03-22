@@ -1,12 +1,13 @@
 package com.newland.tianyan.face.service;
 
 
-import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianya.commons.base.model.proto.NLBackend;
+import com.newland.tianya.commons.base.model.proto.NLFace;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceCompareReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceDetectReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceSearchReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceDetectReqDTO;
-import newlandFace.NLFace;
+
 
 import java.io.IOException;
 

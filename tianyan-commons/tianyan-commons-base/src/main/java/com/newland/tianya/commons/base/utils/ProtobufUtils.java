@@ -7,7 +7,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.googlecode.protobuf.format.JsonFormat;
-import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianya.commons.base.model.proto.NLBackend;
 import org.springframework.data.domain.Page;
 import org.springframework.util.ConcurrentReferenceHashMap;
 

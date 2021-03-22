@@ -4,11 +4,10 @@ import com.newland.tianya.commons.base.constants.TaskTypeEnums;
 import com.newland.tianya.commons.base.model.auth.LoginCheckUniqueReqDTO;
 import com.newland.tianya.commons.base.model.auth.LoginGetInfoReqDTO;
 import com.newland.tianya.commons.base.model.auth.LoginRegisterReqDTO;
+import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.auth.entity.Account;
 import com.newland.tianyan.auth.service.ILoginService;
-
-import com.newland.tianyan.common.utils.message.NLBackend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

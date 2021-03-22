@@ -3,15 +3,15 @@ package com.newland.tianyan.face.controller;
 
 import com.newland.tianya.commons.base.constants.TaskTypeEnums;
 import com.newland.tianya.commons.base.exception.BaseException;
+import com.newland.tianya.commons.base.model.proto.NLBackend;
+import com.newland.tianya.commons.base.model.proto.NLFace;
 import com.newland.tianya.commons.base.utils.LogUtils;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
-import com.newland.tianyan.common.utils.message.NLBackend;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceAddReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceDeleteReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceSetUserFaceGetListReqDTO;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
-import newlandFace.NLFace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;

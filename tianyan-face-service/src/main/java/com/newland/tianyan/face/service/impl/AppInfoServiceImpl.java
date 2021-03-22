@@ -4,10 +4,11 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.auth.AuthClientReqDTO;
+import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.AppUtils;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
-import com.newland.tianyan.common.utils.message.NLBackend;
+
 import com.newland.tianyan.face.constant.EntityStatusConstants;
 import com.newland.tianyan.face.constant.ExceptionEnum;
 import com.newland.tianyan.face.dao.AppInfoMapper;

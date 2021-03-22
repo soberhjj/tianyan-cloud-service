@@ -1,7 +1,7 @@
 package com.newland.tianyan.auth.service;
 
+import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianyan.auth.entity.Account;
-import com.newland.tianyan.common.utils.message.NLBackend;
 
 /**
  * @author: RojiaHuang

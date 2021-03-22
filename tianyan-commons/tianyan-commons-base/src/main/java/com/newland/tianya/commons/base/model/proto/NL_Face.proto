@@ -1,6 +1,7 @@
 syntax = "proto2";
 
-package newlandFace;
+option java_package = "com.newland.tianya.commons.base.model.proto";
+
 
 message CloudFaceAllRequest{
   optional string log_id = 1;

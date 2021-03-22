@@ -1,7 +1,7 @@
 package com.newland.tianyan.face.service;
 
 
-import com.newland.tianyan.common.utils.message.NLBackend;
+import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 
 import java.io.IOException;
