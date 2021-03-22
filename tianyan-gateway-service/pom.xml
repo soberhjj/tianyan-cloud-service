@@ -67,6 +67,11 @@
             <artifactId>apm-toolkit-trace</artifactId>
             <version>8.4.0</version>
         </dependency>
+        <!--gateway 限流-->
+        <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+		</dependency>
     </dependencies>
 
     <build>
