@@ -3,6 +3,7 @@ package com.newland.tianyan.face.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.newland.tianya.commons.base.exception.BaseException;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
@@ -25,6 +26,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -97,7 +99,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         srcGroupInfo.setIsDelete(EntityStatusConstants.NOT_DELETE);
         boolean sourceInvalid = groupInfoMapper.selectCount(srcGroupInfo) > 0;
         if (!sourceInvalid) {
-            throw ExceptionEnum.GROUP_NOT_FOUND.toException(srcGroupId);
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, sourceInvalid);
         }
         GroupInfoDO dstGroupInfo = new GroupInfoDO();
         dstGroupInfo.setAppId(queryUser.getAppId());
@@ -106,19 +108,19 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         dstGroupInfo = groupInfoMapper.selectOne(dstGroupInfo);
         boolean targetInvalid = dstGroupInfo != null;
         if (!targetInvalid) {
-            throw ExceptionEnum.GROUP_NOT_FOUND.toException(dstGroupId);
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, dstGroupId);
         }
 
         queryUser.setGroupId(srcGroupId);
         log.info("人脸复制-源用户组的用户{}有效性检查", JsonUtils.toJson(queryUser));
         UserInfoDO sourceUserInfoDO = userInfoMapper.selectOne(queryUser);
         if (sourceUserInfoDO == null) {
-            throw ExceptionEnum.USER_NOT_FOUND.toException(userId);
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, userId);
         }
         //待复制的源用户的人脸资料
         List<FaceDO> srcFace = this.queryFace(appId, srcGroupId, userId);
         if (CollectionUtils.isEmpty(srcFace)) {
-            throw ExceptionEnum.FACE_NOT_FOUND.toException();
+            throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_FOUND);
         }
         List<FaceDO> insertList = new ArrayList<>(srcFace.size());
         queryUser.setGroupId(dstGroupId);
@@ -128,7 +130,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         log.info("人脸复制-目标用户组的不存在同名用户，开始新建用户");
         if (targetUserInfoDO == null) {
             if (dstGroupInfo.getUserNumber() > MAX_USER_NUMBER) {
-                throw ExceptionEnum.OVER_USE_MAX_NUMBER.toException();
+                throw ExceptionSupport.toException(ExceptionEnum.OVER_USE_MAX_NUMBER);
             }
             userNumber = 1;
             faceNumber = srcFace.size();
@@ -170,11 +172,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         }
         log.info("人脸复制-请求向量搜索服务添加人脸");
         faceCacheHelper.addBatch(insertList);
-        try {
-            faceMapper.insertBatch(insertList);
-        } catch (Exception e) {
-            throw ExceptionEnum.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertList));
-        }
+        faceMapper.insertBatch(insertList);
         //存在同名用户：组下用户数+0，人脸数+新增数
         publisher.publishEvent(new UserCopyEvent(appId, dstGroupId, userId, faceNumber, userNumber));
     }
@@ -224,7 +222,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             userInfoDO.setGroupId(query.getGroupId());
             userInfoDO = userInfoMapper.selectOne(userInfoDO);
             if (userInfoDO == null) {
-                throw ExceptionEnum.USER_NOT_FOUND.toException(receive.getUserId());
+                throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
             }
 
             //缓存中删除用户的所有人脸
@@ -233,16 +231,10 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             //物理删除用户及人脸
             int userCount;
             userCount = userInfoMapper.delete(query);
-            if (userCount < 0) {
-                throw ExceptionEnum.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
-            }
             FaceDO faceDO = new FaceDO();
             faceDO.setGroupId(group);
             faceDO.setUserId(userInfoDO.getUserId());
             faceDO.setAppId(receive.getAppId());
-            if (faceMapper.delete(faceDO) < 0) {
-                throw ExceptionEnum.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
-            }
 
             publisher.publishEvent(new UserDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId(), userInfoDO.getFaceNumber(), userCount));
 

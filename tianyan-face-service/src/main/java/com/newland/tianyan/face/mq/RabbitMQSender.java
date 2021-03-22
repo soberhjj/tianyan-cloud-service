@@ -2,6 +2,7 @@ package com.newland.tianyan.face.mq;
 
 
 import com.newland.tianya.commons.base.exception.SysException;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianyan.face.constant.ExceptionEnum;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -22,7 +23,7 @@ public class RabbitMQSender {
             exception.printStackTrace();
         }
         if (receive == null) {
-            throw ExceptionEnum.RABBIT_MQ_RETURN_NONE.toException();
+            throw ExceptionSupport.toException(ExceptionEnum.RABBIT_MQ_RETURN_NONE);
         }
         return (byte[]) receive;
     }

@@ -12,6 +12,8 @@ import reactor.core.publisher.Mono;
 
 import java.text.ParseException;
 
+import static com.newland.tianya.commons.base.constants.TokenConstants.*;
+
 
 /**
  * 授权解析token信息并统一填充header中
@@ -25,34 +27,25 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         if (token == null || token.isEmpty()) {
             return chain.filter(exchange);
         }
-        String clientCredential = "client_credentials";
-        String passwordCredential = "password";
-        String headAppId = "app_id";
-        String tokenAppId1 = "app_id";
-        String tokenAppId2 = "appId";
-
-        String headAccount = "account";
-        String tokenAccount1 = "account";
-        String tokenAccount2 = "user_name";
         try {
             String realToken = token.replace("Bearer ", "");
             JWSObject jwsObject = JWSObject.parse(realToken);
             String info = jwsObject.getPayload().toString();
             JSONObject jsonObject = JSON.parseObject(info);
             String grantType = jsonObject.getString("grant_type");
-            if (clientCredential.equals(grantType)) {
+            if (CLIENT_CREDENTIAL.equals(grantType)) {
                 String appId = "";
-                if (jsonObject.containsKey(tokenAppId1)) {
-                    appId = jsonObject.getString(tokenAppId1);
-                } else if (jsonObject.containsKey(tokenAppId2)) {
-                    appId = jsonObject.getString(tokenAppId2);
+                if (jsonObject.containsKey(TOKEN_APP_ID_1)) {
+                    appId = jsonObject.getString(TOKEN_APP_ID_1);
+                } else if (jsonObject.containsKey(TOKEN_APP_ID_2)) {
+                    appId = jsonObject.getString(TOKEN_APP_ID_2);
                 }
-                ServerHttpRequest request = exchange.getRequest().mutate().header(headAppId, appId)
-                        .header(headAccount, jsonObject.getString(tokenAccount1))
+                ServerHttpRequest request = exchange.getRequest().mutate().header(HEAD_APP_ID, appId)
+                        .header(HEAD_ACCOUNT, jsonObject.getString(TOKEN_ACCOUNT_1))
                         .build();
                 exchange = exchange.mutate().request(request).build();
-            } else if (passwordCredential.equals(grantType)) {
-                ServerHttpRequest request = exchange.getRequest().mutate().header(headAccount, jsonObject.getString(tokenAccount2)).build();
+            } else if (PASSWORD_CREDENTIAL.equals(grantType)) {
+                ServerHttpRequest request = exchange.getRequest().mutate().header(HEAD_ACCOUNT, jsonObject.getString(TOKEN_ACCOUNT_2)).build();
                 exchange = exchange.mutate().request(request).build();
             }
         } catch (ParseException e) {

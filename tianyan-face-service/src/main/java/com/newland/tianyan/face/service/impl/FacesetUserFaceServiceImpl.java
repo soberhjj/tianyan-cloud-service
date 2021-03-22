@@ -6,6 +6,7 @@ import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.imagestrore.DownloadReqDTO;
 import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.FeaturesTool;
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
@@ -109,7 +110,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             insertFaceDO.setGroupId(groupId);
 
             if (groupInfoDO.getUserNumber() > MAX_USER_NUMBER) {
-                throw ExceptionEnum.OVER_USE_MAX_NUMBER.toException();
+                throw ExceptionSupport.toException(ExceptionEnum.OVER_USE_MAX_NUMBER);
             }
             UserInfoDO queryUser = new UserInfoDO();
             queryUser.setAppId(query.getAppId());
@@ -139,9 +140,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber() + 1));
                 log.info("人脸添加-请求向量搜索添加人脸向量");
                 faceCacheHelper.add(insertFaceDO);
-                if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                    throw ExceptionEnum.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
-                }
+                faceMapper.insertSelective(insertFaceDO);
                 publisher.publishEvent(new UserCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId(), 1, 1));
                 log.info("人脸添加-添加人脸成功");
             } else {
@@ -153,9 +152,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), sourceUser.getFaceNumber() + 1));
                     faceCacheHelper.add(insertFaceDO);
                     //添加人脸
-                    if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                        throw ExceptionEnum.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
-                    }
+                    faceMapper.insertSelective(insertFaceDO);
                     publisher.publishEvent(new FaceCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
                 } else if ("replace".equals(actionType)) {
                     log.info("人脸添加-清空并添加新的人脸replace");
@@ -170,14 +167,10 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     }
                     int deleteCount;
                     deleteCount = faceMapper.delete(faceDO);
-                    if (deleteCount < 0) {
-                        throw ExceptionEnum.DB_DELETE_ERROR.toException(JsonUtils.toJson(faceDO));
-                    }
 
                     faceCacheHelper.add(insertFaceDO);
-                    if (faceMapper.insertSelective(insertFaceDO) <= 0) {
-                        throw ExceptionEnum.DB_INSERT_ERROR.toException(JsonUtils.toJson(insertFaceDO));
-                    }
+                    faceMapper.insertSelective(insertFaceDO);
+
                     //添加该用户新的人脸（只有一张）
                     userInfoMapper.faceNumberIncrease(receive.getAppId(), groupId, receive.getUserId(), 1 - deleteCount);
                     groupInfoMapper.faceNumberIncrease(receive.getAppId(), groupId, 1 - deleteCount);
@@ -314,7 +307,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         try {
             JsonFormat.merge(json, result);
         } catch (JsonFormat.ParseException e) {
-            throw ExceptionEnum.PROTO_PARSE_ERROR.toException();
+            throw ExceptionSupport.toException(ExceptionEnum.PROTO_PARSE_ERROR);
         }
         return result.build();
     }
@@ -381,7 +374,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             groupInfoDO.setGroupId(groupInfoDO.getGroupId());
             groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
             if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
-                throw ExceptionEnum.GROUP_NOT_FOUND.toException(query.getGroupId());
+                throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, query.getGroupId());
             }
         }
 
@@ -391,21 +384,19 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         userInfoDO.setGroupId(receive.getGroupId());
         userInfoDO.setUserId(receive.getUserId());
         if (userInfoMapper.selectCount(userInfoDO) <= 0) {
-            throw ExceptionEnum.USER_NOT_FOUND.toException(query.getUserId());
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, query.getUserId());
         }
 
         //然后直接去face表中查询是否存在这张人脸图片的记录，若不存在则抛出异常，存在则删除该人脸
         FaceDO faceDO = faceMapper.selectOne(query);
         if (faceDO == null) {
-            throw ExceptionEnum.FACE_NOT_FOUND.toException();
+            throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_FOUND);
         }
 
         //缓存中删除用户指定的人脸
         faceCacheHelper.delete(query.getAppId(), faceDO.getId());
         //物理删除人脸
-        if (faceMapper.delete(query) < 0) {
-            throw ExceptionEnum.DB_DELETE_ERROR.toException(JsonUtils.toJson(query));
-        }
+        faceMapper.delete(query);
         publisher.publishEvent(new FaceDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
     }
 
@@ -418,7 +409,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             boolean append = ACTION_TYPE_APPEND.equals(item);
             boolean replace = ACTION_TYPE_REPLACE.equals(item);
             if ((!append) && (!replace)) {
-                throw ExceptionEnum.WRONG_ACTION_TYPE.toException();
+                throw ExceptionSupport.toException(ExceptionEnum.WRONG_ACTION_TYPE);
             }
         }
     }

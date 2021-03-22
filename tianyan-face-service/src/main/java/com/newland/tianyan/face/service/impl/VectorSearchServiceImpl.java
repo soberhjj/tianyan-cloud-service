@@ -4,7 +4,6 @@ package com.newland.tianyan.face.service.impl;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.vectorsearch.*;
 import com.newland.tianya.commons.base.utils.FeaturesTool;
-import com.newland.tianyan.face.constant.ExceptionEnum;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.feign.client.VectorSearchFeignService;
 import com.newland.tianyan.face.service.IVectorSearchService;
@@ -37,13 +36,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                 .feature(feature)
                 .topK(topK)
                 .build();
-        List<QueryResDTO> result;
-        try {
-            result = vectorSearchService.query(queryReq);
-        } catch (BaseException exception) {
-            throw ExceptionEnum.VECTOR_QUERY_ERROR.toException();
-        }
-        return result;
+        return vectorSearchService.query(queryReq);
     }
 
     /**
@@ -52,15 +45,11 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
     @Override
     public void delete(Long collectionId, Long id) throws BaseException {
 
-        try {
-            DeleteReqDTO deleteReq = DeleteReqDTO.builder()
-                    .appId(getCollectionName(collectionId))
-                    .entityId(id)
-                    .build();
-            vectorSearchService.delete(deleteReq);
-        } catch (BaseException exception) {
-            throw ExceptionEnum.VECTOR_DELETE_ERROR.toException();
-        }
+        DeleteReqDTO deleteReq = DeleteReqDTO.builder()
+                .appId(getCollectionName(collectionId))
+                .entityId(id)
+                .build();
+        vectorSearchService.delete(deleteReq);
     }
 
     /**
@@ -69,15 +58,11 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
     @Override
     public void deleteBatch(Long collectionId, List<Long> idList) throws BaseException {
 
-        try {
-            BatchDeleteReqDTO batchDeleteReq = BatchDeleteReqDTO.builder()
-                    .appId(getCollectionName(collectionId))
-                    .entityIds(idList)
-                    .build();
-            vectorSearchService.batchDelete(batchDeleteReq);
-        } catch (BaseException exception) {
-            throw ExceptionEnum.VECTOR_DELETE_ERROR.toException();
-        }
+        BatchDeleteReqDTO batchDeleteReq = BatchDeleteReqDTO.builder()
+                .appId(getCollectionName(collectionId))
+                .entityIds(idList)
+                .build();
+        vectorSearchService.batchDelete(batchDeleteReq);
     }
 
     @Override
@@ -90,13 +75,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                 .entityId(dto.getId())
                 .feature(feature)
                 .build();
-        Long result;
-        try {
-            result = vectorSearchService.insert(insertReq);
-        } catch (BaseException exception) {
-            throw ExceptionEnum.VECTOR_INSERT_ERROR.toException();
-        }
-        return result;
+        return vectorSearchService.insert(insertReq);
     }
 
     @Override
@@ -122,13 +101,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                 .entityIds(entityIds)
                 .features(features)
                 .build();
-        List<Long> result;
-        try {
-            result = vectorSearchService.batchInsert(batchInsertReq);
-        } catch (BaseException exception) {
-            throw ExceptionEnum.VECTOR_INSERT_ERROR.toException();
-        }
-        return result;
+        return vectorSearchService.batchInsert(batchInsertReq);
     }
 
     public List<Float> convertByteArrayToList(FaceDO entity) throws BaseException {
@@ -137,25 +110,17 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
 
     @Override
     public void createCollection(Long collectionId) throws BaseException {
-        try {
-            CreateColReqDTO createColReq = CreateColReqDTO.builder()
-                    .appId(getCollectionName(collectionId))
-                    .build();
-            vectorSearchService.createCollection(createColReq);
-        } catch (BaseException exception) {
-            throw ExceptionEnum.VECTOR_CREATE_ERROR.toException();
-        }
+        CreateColReqDTO createColReq = CreateColReqDTO.builder()
+                .appId(getCollectionName(collectionId))
+                .build();
+        vectorSearchService.createCollection(createColReq);
     }
 
     @Override
     public void deleteCollection(Long collectionId) throws BaseException {
-        try {
-            DeleteColReqDTO deleteColReq = DeleteColReqDTO.builder()
-                    .appId(getCollectionName(collectionId))
-                    .build();
-            vectorSearchService.dropCollection(deleteColReq);
-        } catch (BaseException exception) {
-            throw ExceptionEnum.VECTOR_DROP_ERROR.toException();
-        }
+        DeleteColReqDTO deleteColReq = DeleteColReqDTO.builder()
+                .appId(getCollectionName(collectionId))
+                .build();
+        vectorSearchService.dropCollection(deleteColReq);
     }
 }

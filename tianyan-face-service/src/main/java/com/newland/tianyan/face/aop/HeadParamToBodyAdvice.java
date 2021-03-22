@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
+import static com.newland.tianya.commons.base.constants.TokenConstants.*;
+
 /**
  * 授权解析token信息统一填充请求体
  *
@@ -56,14 +58,14 @@ public class HeadParamToBodyAdvice implements RequestBodyAdvice {
     @Override
     public Object afterBodyRead(Object body, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
         Class clazz = body.getClass();
-        String headerAccount = request.getHeader("account");
-        String headerAppId = request.getHeader("app_id");
+        String headerAccount = request.getHeader(HEAD_ACCOUNT);
+        String headerAppId = request.getHeader(HEAD_APP_ID);
 
         for (Field field : clazz.getDeclaredFields()) {
-            if ((!StringUtils.isEmpty(headerAccount)) && "account".equals(field.getName())) {
+            if ((!StringUtils.isEmpty(headerAccount)) && REQUEST_ACCOUNT.equals(field.getName())) {
                 setValue(body, field, headerAccount);
             }
-            if ((!StringUtils.isEmpty(headerAppId)) && "appId".equals(field.getName())) {
+            if ((!StringUtils.isEmpty(headerAppId)) && REQUEST_BODY_APP_ID.equals(field.getName())) {
                 setValue(body, field, Long.valueOf(headerAppId));
             }
         }

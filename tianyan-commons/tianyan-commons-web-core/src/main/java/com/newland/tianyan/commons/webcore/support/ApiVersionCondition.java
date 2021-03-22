@@ -1,6 +1,7 @@
 package com.newland.tianyan.commons.webcore.support;
 
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 import lombok.Data;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 
@@ -46,7 +47,7 @@ public class ApiVersionCondition implements RequestCondition<ApiVersionCondition
                 return this;
             }
         }
-        throw GlobalExceptionEnum.INVALID_METHOD.toException(request.getRequestURI());
+        throw ExceptionSupport.toException(GlobalExceptionEnum.INVALID_METHOD, request.getRequestURI());
     }
 
     /**
