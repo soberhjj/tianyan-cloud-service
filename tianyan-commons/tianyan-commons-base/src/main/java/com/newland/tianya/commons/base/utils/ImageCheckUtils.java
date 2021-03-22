@@ -2,7 +2,7 @@ package com.newland.tianya.commons.base.utils;
 
 
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
-import com.newland.tianya.commons.base.exception.ArgumentException;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 
 import java.util.regex.Pattern;
 
@@ -22,17 +22,14 @@ public class ImageCheckUtils {
     public static void imageCheck(String image) {
         String base64 = image.replaceAll("[\\s*\t\n\r]", "");
         if (!Pattern.matches(BASE64_PATTERN, base64)) {
-            throw new ArgumentException(GlobalExceptionEnum.BASE64_FORMAT_ILLEGAL.getErrorCode(),
-                    GlobalExceptionEnum.BASE64_FORMAT_ILLEGAL.getErrorMsg());
+            throw ExceptionSupport.toException(GlobalExceptionEnum.BASE64_FORMAT_ILLEGAL);
         }
         if ((!image.startsWith(JPG_BASE64_PREFIX)) && (!image.startsWith(PNG_BASE64_PREFIX)) && (!image.startsWith(BMP_BASE64_PREFIX))) {
-            throw new ArgumentException(GlobalExceptionEnum.IMAGE_FORMAT_ILLEGAL.getErrorCode(),
-                    GlobalExceptionEnum.IMAGE_FORMAT_ILLEGAL.getErrorMsg());
+            throw ExceptionSupport.toException(GlobalExceptionEnum.IMAGE_FORMAT_ILLEGAL);
         }
         int length = image.length();
         if (length > MAX_IMAGE_SIZE) {
-            throw new ArgumentException(GlobalExceptionEnum.IMAGE_SIZE_OVER_2MB.getErrorCode(),
-                    GlobalExceptionEnum.IMAGE_SIZE_OVER_2MB.getErrorMsg());
+            throw ExceptionSupport.toException(GlobalExceptionEnum.IMAGE_SIZE_OVER_2MB);
         }
     }
 

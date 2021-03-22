@@ -1,5 +1,6 @@
 package com.newland.tianyan.auth.service.impl;
 
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.auth.constant.ExceptionEnum;
 import com.newland.tianyan.auth.entity.Account;
@@ -47,11 +48,11 @@ public class LoginServiceImpl implements ILoginService {
         Account account = ProtobufUtils.parseTo(receive, Account.class);
         // check account exist
         if (accountService.checkExits("account", account.getAccount())) {
-            throw ExceptionEnum.ACCOUNT_NOT_FOUND.toException(account.getAccount());
+            throw ExceptionSupport.toException(ExceptionEnum.ACCOUNT_NOT_FOUND,account.getAccount());
         }
         // check mailbox exist
         if (accountService.checkExits("mailbox", account.getMailbox())) {
-            throw ExceptionEnum.MAIL_BOX_NOT_FOUND.toException(account.getMailbox());
+            throw ExceptionSupport.toException(ExceptionEnum.MAIL_BOX_NOT_FOUND,account.getMailbox());
         }
         account.setPassword(encoder.encode(account.getPassword()));
         // register account
@@ -65,7 +66,7 @@ public class LoginServiceImpl implements ILoginService {
         if (accountService.checkExits("mailbox", account.getMailbox())) {
             accountService.resetPassword(account.getMailbox(), encoder.encode(account.getPassword()));
         } else {
-            throw ExceptionEnum.MAIL_BOX_NOT_FOUND.toException(account.getMailbox());
+            throw ExceptionSupport.toException(ExceptionEnum.MAIL_BOX_NOT_FOUND,account.getMailbox());
         }
     }
 
@@ -82,7 +83,7 @@ public class LoginServiceImpl implements ILoginService {
             }
         }
         if (account == null) {
-            throw ExceptionEnum.ACCOUNT_NOT_FOUND.toException(receive.getAccount());
+            throw ExceptionSupport.toException(ExceptionEnum.ACCOUNT_NOT_FOUND,account.getAccount());
         }
         return account;
     }
