@@ -1,5 +1,8 @@
 package com.newland.tianya.commons.base.utils;
 
+import lombok.Builder;
+
+@Builder
 public class JsonErrorObject {
 
     private String logId;

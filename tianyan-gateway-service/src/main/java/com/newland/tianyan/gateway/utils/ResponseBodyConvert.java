@@ -13,6 +13,6 @@ import org.slf4j.MDC;
 public class ResponseBodyConvert {
 
     public static String convert(GlobalExceptionEnum exceptionEnum) {
-        return "{\"trace_id\":" + MDC.get("traceId") + ",\"error_code\":" + exceptionEnum.getErrorCode() + ",\"error_msg\": \"" + exceptionEnum.getErrorMsg() + "\"}";
+        return "{\"log_id\":" + MDC.get("traceId") + ",\"error_code\":" + exceptionEnum.getErrorCode() + ",\"error_msg\": \"" + exceptionEnum.getErrorMsg() + "\"}";
     }
 }
