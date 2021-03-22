@@ -25,25 +25,34 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         if (token == null || token.isEmpty()) {
             return chain.filter(exchange);
         }
+        String clientCredential = "client_credentials";
+        String passwordCredential = "password";
+        String headAppId = "app_id";
+        String tokenAppId1 = "app_id";
+        String tokenAppId2 = "appId";
+
+        String headAccount = "account";
+        String tokenAccount1 = "account";
+        String tokenAccount2 = "user_name";
         try {
             String realToken = token.replace("Bearer ", "");
             JWSObject jwsObject = JWSObject.parse(realToken);
             String info = jwsObject.getPayload().toString();
             JSONObject jsonObject = JSON.parseObject(info);
             String grantType = jsonObject.getString("grant_type");
-            if ("client_credentials".equals(grantType)) {
+            if (clientCredential.equals(grantType)) {
                 String appId = "";
-                if (jsonObject.containsKey("app_id")) {
-                    appId = jsonObject.getString("app_id");
-                } else if (jsonObject.containsKey("appId")) {
-                    appId = jsonObject.getString("appId");
+                if (jsonObject.containsKey(tokenAppId1)) {
+                    appId = jsonObject.getString(tokenAppId1);
+                } else if (jsonObject.containsKey(tokenAppId2)) {
+                    appId = jsonObject.getString(tokenAppId2);
                 }
-                ServerHttpRequest request = exchange.getRequest().mutate().header("app_id", appId)
-                        .header("account", jsonObject.getString("account"))
+                ServerHttpRequest request = exchange.getRequest().mutate().header(headAppId, appId)
+                        .header(headAccount, jsonObject.getString(tokenAccount1))
                         .build();
                 exchange = exchange.mutate().request(request).build();
-            } else if ("password".equals(grantType)) {
-                ServerHttpRequest request = exchange.getRequest().mutate().header("account", jsonObject.getString("user_name")).build();
+            } else if (passwordCredential.equals(grantType)) {
+                ServerHttpRequest request = exchange.getRequest().mutate().header(headAccount, jsonObject.getString(tokenAccount2)).build();
                 exchange = exchange.mutate().request(request).build();
             }
         } catch (ParseException e) {

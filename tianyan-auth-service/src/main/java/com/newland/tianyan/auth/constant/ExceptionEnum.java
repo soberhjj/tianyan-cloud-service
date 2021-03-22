@@ -1,16 +1,14 @@
 package com.newland.tianyan.auth.constant;
 
 import com.newland.tianya.commons.base.constants.ExceptionTypeEnums;
-import com.newland.tianya.commons.base.exception.BaseException;
-import com.newland.tianya.commons.base.support.ExceptionSupport;
-import lombok.Getter;
+import com.newland.tianya.commons.base.support.IExceptionEnums;
 
 /**
  * @author: RojiaHuang
  * @description:
  * @date: 2021/3/20
  */
-public enum ExceptionEnum {
+public enum ExceptionEnum implements IExceptionEnums {
     /**
      * 存在性验证
      */
@@ -30,37 +28,24 @@ public enum ExceptionEnum {
 
     private ExceptionTypeEnums typeEnums;
 
-    public int getErrorCode() {
-        return errorCode;
-    }
-
-    public String getErrorMsg() {
-        return errorMsg;
-    }
-
-    public ExceptionTypeEnums getTypeEnums() {
-        return typeEnums;
-    }
-
     ExceptionEnum(int errorCode, String errorMsg, ExceptionTypeEnums typeEnums) {
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
         this.typeEnums = typeEnums;
     }
 
-    public BaseException toException() {
-        return ExceptionSupport.toException(getTypeEnums(), getErrorCode(), getErrorMsg());
+    @Override
+    public int getErrorCode() {
+        return this.errorCode;
     }
 
-    public BaseException toException(Object... args) {
-        return ExceptionSupport.toException(getTypeEnums(), getErrorCode(), getErrorMsg(), args);
+    @Override
+    public String getErrorMsg() {
+        return this.errorMsg;
     }
 
-    public BaseException toException(Throwable throwable) {
-        return ExceptionSupport.toException(getTypeEnums(), getErrorCode(), getErrorMsg(), throwable);
-    }
-
-    public BaseException toException(Throwable throwable, Object... args) {
-        return ExceptionSupport.toException(getTypeEnums(), getErrorCode(), getErrorMsg(), throwable, args);
+    @Override
+    public ExceptionTypeEnums getTypeEnums() {
+        return this.typeEnums;
     }
 }

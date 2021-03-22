@@ -1,9 +1,11 @@
 package com.newland.tianya.commons.base.support;
 
-import com.newland.tianya.commons.base.constants.ExceptionTypeEnums;
+
+import com.newland.tianya.commons.base.exception.ArgumentException;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.exception.BusinessException;
 import com.newland.tianya.commons.base.exception.SysException;
+
 
 /**
  * @author: RojiaHuang
@@ -12,55 +14,28 @@ import com.newland.tianya.commons.base.exception.SysException;
  */
 public class ExceptionSupport {
 
-    public static BaseException toException(ExceptionTypeEnums exceptionTypeEnums, Integer code, String message) {
-        if (ExceptionTypeEnums.ARGUMENT_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new BaseException(code, message);
-        }
-        if (ExceptionTypeEnums.SYSTEM_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new SysException(code, message);
-        }
-        if (ExceptionTypeEnums.BUSINESS_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new BusinessException(code, message);
-        }
-        return null;
+    public static BaseException toException(IExceptionEnums iExceptionSupport) {
+        return toException(iExceptionSupport, null, (Object) null);
     }
 
-    public static BaseException toException(ExceptionTypeEnums exceptionTypeEnums, Integer code, String message, Object... args) {
-        if (ExceptionTypeEnums.ARGUMENT_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new BaseException(code, message, args);
-        }
-        if (ExceptionTypeEnums.SYSTEM_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new SysException(code, message, args);
-        }
-        if (ExceptionTypeEnums.BUSINESS_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new BusinessException(code, message, args);
-        }
-        return null;
+    public static BaseException toException(IExceptionEnums iExceptionSupport, Object... args) {
+        return toException(iExceptionSupport, null, args);
     }
 
-    public static BaseException toException(ExceptionTypeEnums exceptionTypeEnums, Integer code, String message, Throwable throwable) {
-        if (ExceptionTypeEnums.ARGUMENT_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new BaseException(code, message, throwable);
-        }
-        if (ExceptionTypeEnums.SYSTEM_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new SysException(code, message, throwable);
-        }
-        if (ExceptionTypeEnums.BUSINESS_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new BusinessException(code, message, throwable);
-        }
-        return null;
+    public static BaseException toException(IExceptionEnums iExceptionSupport, Throwable throwable) {
+        return toException(iExceptionSupport, null, throwable);
     }
 
-    public static BaseException toException(ExceptionTypeEnums exceptionTypeEnums, Integer code, String message, Throwable throwable, Object... args) {
-        if (ExceptionTypeEnums.ARGUMENT_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new BaseException(code, message, throwable, args);
+    public static BaseException toException(IExceptionEnums iExceptionSupport, Throwable throwable, Object... args) {
+        switch (iExceptionSupport.getTypeEnums()) {
+            case ARGUMENT_EXCEPTION:
+                return new ArgumentException(iExceptionSupport.getErrorCode(), iExceptionSupport.getErrorMsg(), throwable, args;
+            case BUSINESS_EXCEPTION:
+                return new BusinessException(iExceptionSupport.getErrorCode(), iExceptionSupport.getErrorMsg(), throwable, args);
+            case SYSTEM_EXCEPTION:
+                return new SysException(iExceptionSupport.getErrorCode(), iExceptionSupport.getErrorMsg(), throwable, args);
+            default:
+                return new SysException(iExceptionSupport.getErrorCode(), iExceptionSupport.getErrorMsg(), iExceptionSupport.getErrorMsg(), throwable, args);
         }
-        if (ExceptionTypeEnums.SYSTEM_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new SysException(code, message, throwable, args);
-        }
-        if (ExceptionTypeEnums.BUSINESS_EXCEPTION.equals(exceptionTypeEnums)) {
-            return new BusinessException(code, message, throwable, args);
-        }
-        return null;
     }
 }

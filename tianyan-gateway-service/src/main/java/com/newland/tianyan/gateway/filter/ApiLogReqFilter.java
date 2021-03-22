@@ -131,7 +131,8 @@ public class ApiLogReqFilter implements GlobalFilter, Ordered {
     private List<String> getGlobalTraceId() {
         String traceId = TraceContext.traceId();
         List<String> traceIdList = new ArrayList<>();
-        if (!"N/A".equals(traceId)) {
+        String invalidTraceId = "N/A";
+        if (!invalidTraceId.equals(traceId)) {
             traceIdList.add(traceId);
         }
         return traceIdList;
