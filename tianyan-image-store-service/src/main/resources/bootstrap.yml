@@ -2,14 +2,14 @@ spring:
   application:
     name: image-store-service
   profiles:
-    active: dev
+#    active: dev
+    active: test
   cloud:
     nacos:
       config:
         server-addr: 192.168.136.210:8848
-        #server-addr: 192.168.2.219:8848
         file-extension: yml
-        namespace: tianyan-cloud
+#        namespace: tianyan-cloud
         prefix: ${spring.application.name}
 
 

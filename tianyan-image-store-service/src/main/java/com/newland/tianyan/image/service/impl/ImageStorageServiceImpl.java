@@ -36,12 +36,13 @@ public class ImageStorageServiceImpl implements IImageStoreService {
      */
     @Override
     public String uploadImage(String image) throws IOException {
-        log.info("我是业务日志{}","123Oh~");
         ImageCheckUtils.imageCheck(image);
         BASE64Decoder decoder = new BASE64Decoder();
         byte[] bytes = decoder.decodeBuffer(image);
         StorePath storePath = fastFileStorageClient.uploadFile(new ByteArrayInputStream(bytes), bytes.length, "jpg", null);
-        return storePath.getFullPath();
+        String imagePath = storePath.getFullPath();
+        log.info("image savded successfully,image path:{}", imagePath);
+        return imagePath;
     }
 
     /**
@@ -64,7 +65,9 @@ public class ImageStorageServiceImpl implements IImageStoreService {
             imageFormat = "bmp";
         }
         StorePath storePath = fastFileStorageClient.uploadFile(new ByteArrayInputStream(bytes), bytes.length, imageFormat, null);
-        return storePath.getFullPath();
+        String imagePath = storePath.getFullPath();
+        log.info("image saved successfully,image path:{}", imagePath);
+        return imagePath;
     }
 
     @Override
@@ -95,12 +98,12 @@ public class ImageStorageServiceImpl implements IImageStoreService {
         } else {
             imageFormat = "bmp";
         }
-        long startTime = System.currentTimeMillis();
+//        long startTime = System.currentTimeMillis();
         StorePath storePath = fastFileStorageClient.uploadFile(new ByteArrayInputStream(bytes), bytes.length, imageFormat, null);
-        long endTime = System.currentTimeMillis();
-        log.info(String.format("图片存储耗时：%d ms", endTime - startTime));
+//        long endTime = System.currentTimeMillis();
+//        log.info(String.format("图片存储耗时：%d ms", endTime - startTime));
         String imagePath = storePath.getFullPath();
-        log.info(String.format("图片存储路径：%s", imagePath));
+        log.info("image saved successfully,image path:{}", imagePath);
         return AsyncResult.forValue(imagePath);
     }
 }

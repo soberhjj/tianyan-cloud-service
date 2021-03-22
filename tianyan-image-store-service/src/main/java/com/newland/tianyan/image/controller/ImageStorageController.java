@@ -1,7 +1,6 @@
 package com.newland.tianyan.image.controller;
 
 import com.newland.tianyan.common.api.IImageStorageApi;
-import com.newland.tianyan.common.exception.BaseException;
 import com.newland.tianyan.common.model.imagestrore.DownloadReqDTO;
 import com.newland.tianyan.common.model.imagestrore.DownloadResDTO;
 import com.newland.tianyan.common.model.imagestrore.UploadReqDTO;
@@ -28,7 +27,6 @@ public class ImageStorageController implements IImageStorageApi {
     @Override
     @PostMapping("/upload")
     public UploadResDTO upload(@RequestBody UploadReqDTO uploadReq) throws IOException {
-        log.info("我是业务日志{}","123");
         UploadResDTO res = new UploadResDTO();
         res.setImagePath(imageStorageService.uploadImage(uploadReq.getImage()));
         return res;
