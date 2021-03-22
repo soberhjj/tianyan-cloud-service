@@ -23,6 +23,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,10 @@ import static com.newland.tianya.commons.base.constants.GlobalTraceConstant.GATE
 import static org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter.ROUTE_TO_URL_FILTER_ORDER;
 
 /**
+ * 会话请求信息打印，
+ * 生成日志链路追踪TraceId并传入header中
+ *
  * @author: RojiaHuang
- * @description: 会话请求打印，生成日志链路追踪TraceId并传入header中
  * @date: 2021/2/27
  */
 @Component

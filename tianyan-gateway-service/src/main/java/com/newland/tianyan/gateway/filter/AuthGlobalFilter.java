@@ -14,6 +14,8 @@ import java.text.ParseException;
 
 
 /**
+ * 授权解析token信息并统一填充header中
+ *
  * @Author: huangJunJie  2021-03-04 16:25
  */
 public class AuthGlobalFilter implements GlobalFilter, Ordered {

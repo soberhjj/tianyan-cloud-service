@@ -20,6 +20,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 /**
+ * 授权解析token信息统一填充请求体
+ *
  * @Author: huangJunJie  2021-03-05 10:57
  */
 @RestControllerAdvice

@@ -21,8 +21,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 /**
+ * 会话响应信息打印
+ *
  * @author: RojiaHuang
- * @description: 会话请求打印，生成日志链路追踪TraceId并传入header中
  * @date: 2021/2/27
  */
 @Component

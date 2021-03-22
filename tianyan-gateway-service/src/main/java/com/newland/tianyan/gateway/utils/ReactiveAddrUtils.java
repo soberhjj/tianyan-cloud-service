@@ -9,8 +9,9 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 /**
+ * 网关获取客户端ip工具类
+ *
  * @author: RojiaHuang
- * @description: 获取ip工具
  * @date: 2021/2/27
  */
 @Slf4j
@@ -27,9 +28,9 @@ public class ReactiveAddrUtils {
             List<String> searchIpHeads = Arrays.asList("Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_CLIENT_IP", "HTTP_X_FORWARDED_FOR");
             for (String head : searchIpHeads) {
                 ip = headers.get(head);
-                if (!isEmptyIp(ip)){
+                if (!isEmptyIp(ip)) {
                     break;
-                }else if ("HTTP_X_FORWARDED_FOR".equals(head)){
+                } else if ("HTTP_X_FORWARDED_FOR".equals(head)) {
                     ip = Objects.requireNonNull(request.getRemoteAddress()).getAddress().getHostAddress();
                     if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {
                         // 根据网卡取本机配置的IP

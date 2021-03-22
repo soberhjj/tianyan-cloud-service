@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * 授权服务器配置类
  * @Author: huangJunJie  2021-03-04 13:54
  */
 
