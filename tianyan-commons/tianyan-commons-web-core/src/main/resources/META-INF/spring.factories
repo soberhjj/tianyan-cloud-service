@@ -1,0 +1,8 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.newland.tianyan.commons.webcore.filter.ApiReqAdvice,\
+  com.newland.tianyan.commons.webcore.filter.ApiRespAdvice,\
+  com.newland.tianyan.commons.webcore.intercept.ApiMethodLogIntercept,\
+  com.newland.tianyan.commons.webcore.config.VersionConfiguration,\
+  com.newland.tianyan.commons.webcore.config.WebMvcConfig,\
+  com.newland.tianyan.commons.webcore.hander.GlobalExceptionHandler,\
+  com.newland.tianyan.commons.webcore.hander.VersionRequestMappingHandlerMapping

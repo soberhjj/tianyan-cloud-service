@@ -1,8 +1,8 @@
 package com.newland.tianyan.face.mq;
 
 
-import com.newland.tianyan.common.exception.SysException;
-import com.newland.tianyan.face.constant.SysErrorEnums;
+import com.newland.tianya.commons.base.exception.SysException;
+import com.newland.tianyan.face.constant.ExceptionEnum;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class RabbitMQSender {
             exception.printStackTrace();
         }
         if (receive == null) {
-            throw SysErrorEnums.RABBIT_MQ_RETURN_NONE.toException();
+            throw ExceptionEnum.RABBIT_MQ_RETURN_NONE.toException();
         }
         return (byte[]) receive;
     }

@@ -2,9 +2,9 @@ package com.newland.tianyan.face.controller;
 
 
 import com.github.pagehelper.PageInfo;
-import com.newland.tianyan.common.constans.TaskType;
+import com.newland.tianya.commons.base.constants.TaskTypeEnums;
+import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.common.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.dto.FaceSetGroupAddReqDTO;
 import com.newland.tianyan.face.domain.dto.FaceSetGroupDeleteReqDTO;
@@ -37,7 +37,7 @@ public class GroupInfoController {
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage add(@RequestBody @Validated FaceSetGroupAddReqDTO receive) {
-        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         groupInfoService.create(request);
         return ProtobufUtils.buildFacesetSendMessage();
     }
@@ -47,7 +47,7 @@ public class GroupInfoController {
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage checkUnique(@RequestBody @Validated FaceSetGroupGetListReqDTO receive) {
-        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         PageInfo<GroupInfoDO> pageInfo = groupInfoService.getList(request);
         return ProtobufUtils.buildFacesetSendMessage(pageInfo.getList(), pageInfo.getSize());
     }
@@ -57,7 +57,7 @@ public class GroupInfoController {
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated FaceSetGroupDeleteReqDTO receive) {
-        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskType.BACKEND_APP_GET_INFO);
+        NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         groupInfoService.delete(request);
         return ProtobufUtils.buildFacesetSendMessage();
     }

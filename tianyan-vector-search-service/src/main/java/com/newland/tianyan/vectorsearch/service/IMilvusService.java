@@ -1,6 +1,7 @@
 package com.newland.tianyan.vectorsearch.service;
 
-import com.newland.tianyan.common.model.vectorsearch.QueryResDTO;
+
+import com.newland.tianya.commons.base.model.vectorsearch.QueryResDTO;
 
 import java.util.List;
 

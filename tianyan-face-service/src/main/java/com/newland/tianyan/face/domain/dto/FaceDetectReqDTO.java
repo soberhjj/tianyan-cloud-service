@@ -1,7 +1,6 @@
 package com.newland.tianyan.face.domain.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -12,8 +11,7 @@ import javax.validation.constraints.NotBlank;
  * @description:
  * @author: THE KING
  **/
-@Getter
-@Setter
+@Data
 public class FaceDetectReqDTO {
 
     @NotBlank

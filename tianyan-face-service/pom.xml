@@ -25,6 +25,10 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
         <!--微服务调用-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -37,7 +41,7 @@
         <!--项目公共组件-->
         <dependency>
             <groupId>com.newland.tianyan</groupId>
-            <artifactId>tianyan-common</artifactId>
+            <artifactId>tianyan-commons-web-core</artifactId>
             <version>1.0.0</version>
         </dependency>
         <!--分页-->

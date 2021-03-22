@@ -1,14 +1,12 @@
 package com.newland.tianyan.face.domain.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-@Getter
-@Setter
+@Data
 public class FaceSetFaceAddReqDTO {
 
     @NotBlank
@@ -34,7 +32,7 @@ public class FaceSetFaceAddReqDTO {
     private String userInfo;
     /**
      * action_type取值有两种("append"和"replace")。
-     * */
+     */
     private String actionType;
 
     private int type;

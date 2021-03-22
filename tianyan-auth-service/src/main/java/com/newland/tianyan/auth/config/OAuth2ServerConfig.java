@@ -1,5 +1,6 @@
 package com.newland.tianyan.auth.config;
 
+
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 import com.newland.tianyan.auth.filter.JsonToUrlEncodedAuthenticationFilter;
@@ -50,6 +51,7 @@ public class OAuth2ServerConfig {
 
     @Bean
     public ProtobufJsonFormatHttpMessageConverter protobufJsonFormatHttpMessageConverter() {
+
         JsonFormat.Printer printer = JsonFormat.printer().preservingProtoFieldNames();
         JsonFormat.Parser parser = JsonFormat.parser();
         return new ProtobufJsonFormatHttpMessageConverter(parser, printer) {

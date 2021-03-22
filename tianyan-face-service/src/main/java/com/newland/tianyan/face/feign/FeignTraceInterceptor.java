@@ -5,7 +5,8 @@ import feign.RequestTemplate;
 import org.slf4j.MDC;
 import org.springframework.util.StringUtils;
 
-import static com.newland.tianyan.common.constans.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
+import static com.newland.tianya.commons.base.constants.GlobalTraceConstant.GATEWAY_TRACE_HEAD;
+
 
 /**
  * @author: RojiaHuang

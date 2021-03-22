@@ -3,7 +3,8 @@ package com.newland.tianyan.image.service.impl;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.domain.proto.storage.DownloadByteArray;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
-import com.newland.tianyan.common.utils.ImageCheckUtils;
+
+import com.newland.tianya.commons.base.utils.ImageCheckUtils;
 import com.newland.tianyan.image.service.IImageStoreService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

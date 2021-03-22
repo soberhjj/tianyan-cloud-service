@@ -1,7 +1,6 @@
 package com.newland.tianyan.face.domain.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.validation.constraints.*;
 
@@ -10,8 +9,7 @@ import javax.validation.constraints.*;
  * @description:
  * @author: THE KING
  **/
-@Getter
-@Setter
+@Data
 public class FaceSetFaceSearchReqDTO {
 
     @NotNull
@@ -35,7 +33,7 @@ public class FaceSetFaceSearchReqDTO {
     private int maxFaceNum = 1;
 
     @Min(1)
-    @Max(10)
+    @Max(50)
     private int maxUserNum = 1;
 
     private String faceFields;

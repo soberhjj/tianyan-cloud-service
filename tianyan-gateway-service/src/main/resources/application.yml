@@ -5,11 +5,3 @@ spring:
         locator:
           enabled: true
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://localhost:18081/rsa/publicKey
-
-
-log-dir: H:\framework\hzsy\hzsy-api\logs\gateway-service
