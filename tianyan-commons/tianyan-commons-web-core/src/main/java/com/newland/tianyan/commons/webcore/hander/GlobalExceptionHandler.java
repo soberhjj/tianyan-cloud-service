@@ -23,6 +23,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.util.Objects;
 
 /**
@@ -122,9 +123,9 @@ public class GlobalExceptionHandler {
     /**
      * SQL异常
      */
-    @ExceptionHandler(SQLException.class)
+    @ExceptionHandler({SQLException.class, SQLSyntaxErrorException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public JsonErrorObject handleSqlException(SQLException e) {
+    public JsonErrorObject handleSqlException(Exception e) {
         log.warn("抛出SQL异常", e);
         return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SQL_NOT_VALID));
     }

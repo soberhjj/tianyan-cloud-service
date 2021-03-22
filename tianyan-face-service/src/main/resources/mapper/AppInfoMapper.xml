@@ -5,10 +5,10 @@
 
     <update id="update">
         UPDATE `app_info`
-        SET app_name = #{appInfoDO.appName},
-            app_info = #{appInfoDO.appInfo},
-            api_list = #{appInfoDO.apiList}
-        WHERE id = #{appInfoDO.appId}
+        SET app_name = #{appInfo.appName},
+            app_info = #{appInfo.appInfo},
+            api_list = #{appInfo.apiList}
+        WHERE id = #{appInfo.appId}
     </update>
 
     <update id="updateToDelete">
