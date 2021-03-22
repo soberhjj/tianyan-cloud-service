@@ -1,4 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.newland.tianyan.common.utils.LogUtils,\
-  com.newland.tianyan.common.utils.ServerAddressUtils,\
-  com.newland.tianyan.common.utils.LogFixColumnUtils

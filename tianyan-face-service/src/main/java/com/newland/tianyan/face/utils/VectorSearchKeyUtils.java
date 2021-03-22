@@ -1,6 +1,7 @@
 package com.newland.tianyan.face.utils;
 
-import com.newland.tianyan.face.constant.BusinessErrorEnums;
+import com.newland.tianya.commons.base.exception.BusinessException;
+import com.newland.tianyan.face.constant.ExceptionEnum;
 
 import java.text.NumberFormat;
 
@@ -24,7 +25,8 @@ public class VectorSearchKeyUtils {
 
     public static Long generatedKey(Long gid, Long uid, int faceNoLong) {
         if (faceNoLong > MAX_FACE_NUMBER) {
-            throw BusinessErrorEnums.OVER_FACE_MAX_NUMBER.toException();
+            throw new BusinessException(ExceptionEnum.OVER_FACE_MAX_NUMBER.getErrorCode(),
+                    ExceptionEnum.OVER_FACE_MAX_NUMBER.getErrorMsg());
         }
         //最高位占位1，giddy8位，uid8位，faceNum 2位
         String key = "1" + lpad(gid, G_LONG) + lpad(uid, U_LONG) + lpad(faceNoLong, F_LONG);
@@ -52,7 +54,7 @@ public class VectorSearchKeyUtils {
     }
 
     public static String lpad(Integer value, int maxLength) {
-       return lpad(new Long(value),maxLength);
+        return lpad(new Long(value), maxLength);
     }
 
     public static void main(String[] args) {

@@ -18,4 +18,5 @@ public class SysException extends BaseException {
     public SysException(Integer errorCode, String errorMsg, Object... args) {
         super(errorCode, errorMsg, args);
     }
+
 }

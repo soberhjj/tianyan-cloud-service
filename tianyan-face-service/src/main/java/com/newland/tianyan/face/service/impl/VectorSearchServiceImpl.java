@@ -4,8 +4,8 @@ package com.newland.tianyan.face.service.impl;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.vectorsearch.*;
 import com.newland.tianya.commons.base.utils.FeaturesTool;
+import com.newland.tianyan.face.constant.ExceptionEnum;
 import com.newland.tianyan.face.domain.entity.FaceDO;
-import com.newland.tianyan.face.constant.SystemErrorEnums;
 import com.newland.tianyan.face.feign.client.VectorSearchFeignService;
 import com.newland.tianyan.face.service.IVectorSearchService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
         try {
             result = vectorSearchService.query(queryReq);
         } catch (BaseException exception) {
-            throw SystemErrorEnums.VECTOR_QUERY_ERROR.toException();
+            throw ExceptionEnum.VECTOR_QUERY_ERROR.toException();
         }
         return result;
     }
@@ -59,7 +59,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                     .build();
             vectorSearchService.delete(deleteReq);
         } catch (BaseException exception) {
-            throw SystemErrorEnums.VECTOR_DELETE_ERROR.toException();
+            throw ExceptionEnum.VECTOR_DELETE_ERROR.toException();
         }
     }
 
@@ -76,7 +76,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                     .build();
             vectorSearchService.batchDelete(batchDeleteReq);
         } catch (BaseException exception) {
-            throw SystemErrorEnums.VECTOR_DELETE_ERROR.toException();
+            throw ExceptionEnum.VECTOR_DELETE_ERROR.toException();
         }
     }
 
@@ -94,7 +94,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
         try {
             result = vectorSearchService.insert(insertReq);
         } catch (BaseException exception) {
-            throw SystemErrorEnums.VECTOR_INSERT_ERROR.toException();
+            throw ExceptionEnum.VECTOR_INSERT_ERROR.toException();
         }
         return result;
     }
@@ -126,7 +126,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
         try {
             result = vectorSearchService.batchInsert(batchInsertReq);
         } catch (BaseException exception) {
-            throw SystemErrorEnums.VECTOR_INSERT_ERROR.toException();
+            throw ExceptionEnum.VECTOR_INSERT_ERROR.toException();
         }
         return result;
     }
@@ -143,7 +143,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                     .build();
             vectorSearchService.createCollection(createColReq);
         } catch (BaseException exception) {
-            throw SystemErrorEnums.VECTOR_CREATE_ERROR.toException();
+            throw ExceptionEnum.VECTOR_CREATE_ERROR.toException();
         }
     }
 
@@ -155,7 +155,7 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
                     .build();
             vectorSearchService.dropCollection(deleteColReq);
         } catch (BaseException exception) {
-            throw SystemErrorEnums.VECTOR_DROP_ERROR.toException();
+            throw ExceptionEnum.VECTOR_DROP_ERROR.toException();
         }
     }
 }

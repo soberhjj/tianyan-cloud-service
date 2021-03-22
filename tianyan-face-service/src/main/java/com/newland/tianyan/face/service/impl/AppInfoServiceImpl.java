@@ -2,16 +2,14 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.auth.AuthClientReqDTO;
 import com.newland.tianya.commons.base.utils.AppUtils;
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.face.constant.BusinessErrorEnums;
 import com.newland.tianyan.face.constant.EntityStatusConstants;
-import com.newland.tianyan.face.constant.SystemErrorEnums;
+import com.newland.tianyan.face.constant.ExceptionEnum;
 import com.newland.tianyan.face.dao.AppInfoMapper;
 import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import com.newland.tianyan.face.domain.entity.FaceDO;
@@ -54,7 +52,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         appInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (appInfoMapper.selectCount(appInfoDO) > 0) {
-            throw BusinessErrorEnums.APP_ALREADY_EXISTS.toException(appInfoDO.getAppId());
+            throw ExceptionEnum.APP_ALREADY_EXISTS.toException(appInfoDO.getAppId());
         }
         appInfoDO.setApiKey(AppUtils.generateApiKey());
         appInfoDO.setSecretKey(AppUtils.generateSecretKey());
@@ -121,7 +119,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         queryAppInfoDO.setAppId(appInfoDO.getAppId());
         queryAppInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (appInfoMapper.selectCount(queryAppInfoDO) <= 0) {
-            throw BusinessErrorEnums.APP_NOT_FOUND.toException(receive.getAppId());
+            throw ExceptionEnum.APP_NOT_FOUND.toException(receive.getAppId());
         }
         //是否存在同名应用
         Example example = new Example(AppInfoDO.class);
@@ -134,13 +132,9 @@ public class AppInfoServiceImpl implements AppInfoService {
         criteria.andEqualTo("isDelete", EntityStatusConstants.NOT_DELETE);
         criteria.andNotEqualTo("appId", appInfoDO.getAppId());
         if (appInfoMapper.selectCountByExample(example) > 0) {
-            throw BusinessErrorEnums.APP_ALREADY_EXISTS.toException(receive.getAppName());
+            throw ExceptionEnum.APP_NOT_FOUND.toException(JsonUtils.toJson(example));
         }
-        try {
-            appInfoMapper.update(appInfoDO);
-        } catch (Exception e) {
-            throw SystemErrorEnums.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
-        }
+        appInfoMapper.update(appInfoDO);
     }
 
 
@@ -159,7 +153,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         appInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         AppInfoDO appToDelete = appInfoMapper.selectOne(appInfoDO);
         if (appToDelete == null) {
-            throw BusinessErrorEnums.APP_NOT_FOUND.toException(receive.getAppId());
+            throw ExceptionEnum.APP_NOT_FOUND.toException(receive.getAppId());
         }
         //milvus删除人脸集合
         faceFaceCacheHelper.deleteCollection(appInfoDO.getAppId());
@@ -167,7 +161,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         try {
             appInfoMapper.updateToDelete(EntityStatusConstants.DELETE, appInfoDO.getAppId());
         } catch (Exception e) {
-            throw SystemErrorEnums.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
+            throw ExceptionEnum.DB_UPDATE_ERROR.toException(JsonUtils.toJson(appInfoDO));
         }
 
         // 远程调用

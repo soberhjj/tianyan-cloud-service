@@ -5,12 +5,9 @@ import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
 import com.newland.tianya.commons.base.model.vectorsearch.QueryResDTO;
 import com.newland.tianya.commons.base.utils.*;
-import com.newland.tianyan.common.utils.*;
 import com.newland.tianyan.common.utils.message.NLBackend;
-import com.newland.tianyan.face.constant.ArgumentErrorEnums;
-import com.newland.tianyan.face.constant.BusinessErrorEnums;
 import com.newland.tianyan.face.constant.EntityStatusConstants;
-import com.newland.tianyan.face.constant.SystemErrorEnums;
+import com.newland.tianyan.face.constant.ExceptionEnum;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.domain.dto.FaceDetectReqDTO;
@@ -88,11 +85,11 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             GroupInfoDO group = groupInfoMapper.selectOne(groupInfoDO);
             if (group != null) {
                 if (group.getUserNumber() == 0) {
-                    throw BusinessErrorEnums.EMPTY_GROUP.toException(groupId);
+                    throw ExceptionEnum.EMPTY_GROUP.toException(groupId);
                 }
                 groupList.add(group.getId());
             } else {
-                throw BusinessErrorEnums.GROUP_NOT_FOUND.toException(groupId);
+                throw ExceptionEnum.GROUP_NOT_FOUND.toException(groupId);
             }
         }
         log.info("人脸搜索，用户组筛查通过，请求计算图片特征值");
@@ -102,7 +99,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         log.info("人脸搜索，图片特征值已获得，开始向量搜索中。");
         List<QueryResDTO> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw, request.getMaxUserNum());
         if (CollectionUtils.isEmpty(queryFaceList)) {
-            throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
+            throw ExceptionEnum.FACE_NOT_FOUND.toException();
         }
         log.info("人脸搜索，向量搜索得到结果，开始筛选结果集并封装");
         NLFace.CloudFaceSendMessage.Builder resultBuilder = NLFace.CloudFaceSendMessage.newBuilder();
@@ -147,7 +144,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             builder.setConfidence(String.valueOf(milvusQueryRes.getDistance()));
         }
         if (unUseResult == queryFaceList.size()) {
-            throw BusinessErrorEnums.FACE_NOT_FOUND.toException();
+            throw ExceptionEnum.FACE_NOT_FOUND.toException();
         }
         log.info("人脸搜索-搜索已结束，开始请求活体或5~106点坐标");
         this.checkFaceField(request.getFaceFields());
@@ -188,7 +185,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         try {
             JsonFormat.merge(json, result);
         } catch (JsonFormat.ParseException e) {
-            throw SystemErrorEnums.PROTO_PARSE_ERROR.toException(e);
+            throw ExceptionEnum.PROTO_PARSE_ERROR.toException(e);
         }
         NLFace.CloudFaceSendMessage build = result.build();
         if (!StringUtils.isEmpty(build.getErrorMsg())) {
@@ -549,16 +546,16 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         return faceDO;
     }
 
-    private void checkFaceField(String faceField){
-        if (StringUtils.isEmpty(faceField)){
+    private void checkFaceField(String faceField) {
+        if (StringUtils.isEmpty(faceField)) {
             return;
         }
         String[] faceFields = faceField.split(",");
-        for (String item :faceFields){
+        for (String item : faceFields) {
             boolean coordinate = FACE_FIELD_COORDINATE.equals(item);
             boolean liveNess = FACE_FIELD_LIVENESS.equals(item);
             if ((!coordinate) && (!liveNess)) {
-                throw ArgumentErrorEnums.WRONG_FACE_FIELD.toException();
+                throw ExceptionEnum.WRONG_FACE_FIELD.toException();
             }
         }
     }

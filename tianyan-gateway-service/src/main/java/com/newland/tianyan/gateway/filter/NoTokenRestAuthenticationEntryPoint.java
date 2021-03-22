@@ -1,6 +1,6 @@
 package com.newland.tianyan.gateway.filter;
 
-import com.newland.tianya.commons.base.constants.GlobalArgumentErrorEnums;
+import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import org.slf4j.MDC;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +27,7 @@ public class NoTokenRestAuthenticationEntryPoint implements ServerAuthentication
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.OK);
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        GlobalArgumentErrorEnums errorEnums = GlobalArgumentErrorEnums.NO_TOKEN;
+        GlobalExceptionEnum errorEnums = GlobalExceptionEnum.NO_TOKEN;
         String body = "{\"trace_id\":" + MDC.get("traceId") + ",\"error_code\":" + errorEnums.getErrorCode() + ",\"error_msg\": \"" + errorEnums.getErrorMsg() + "\"}";
         DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
         return response.writeWith(Mono.just(buffer));

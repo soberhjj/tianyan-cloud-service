@@ -18,4 +18,5 @@ public class BusinessException extends BaseException {
     public BusinessException(Integer errorCode, String errorMsg, Object... args) {
         super(errorCode, errorMsg, args);
     }
+
 }

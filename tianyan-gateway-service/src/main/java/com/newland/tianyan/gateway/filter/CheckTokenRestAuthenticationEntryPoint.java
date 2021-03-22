@@ -1,6 +1,6 @@
 package com.newland.tianyan.gateway.filter;
 
-import com.newland.tianya.commons.base.constants.GlobalArgumentErrorEnums;
+import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import org.slf4j.MDC;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
@@ -30,12 +30,12 @@ public class CheckTokenRestAuthenticationEntryPoint implements ServerAuthenticat
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
         String message = e.getMessage();
         if (message.startsWith("Jwt expired")) {
-            GlobalArgumentErrorEnums errorEnums = GlobalArgumentErrorEnums.TOKEN_EXPIRED;
+            GlobalExceptionEnum errorEnums = GlobalExceptionEnum.TOKEN_EXPIRED;
             String body = "{\"trace_id\":" + MDC.get("traceId") + ",\"error_code\":" + errorEnums.getErrorCode() + ",\"error_msg\": \"" + errorEnums.getErrorMsg() + "\"}";
             DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
             return response.writeWith(Mono.just(buffer));
         } else {
-            GlobalArgumentErrorEnums errorEnums = GlobalArgumentErrorEnums.TOKEN_INVALID;
+            GlobalExceptionEnum errorEnums = GlobalExceptionEnum.TOKEN_INVALID;
             String body = "{\"trace_id\":" + MDC.get("traceId") + ",\"error_code\":" + errorEnums.getErrorCode() + ",\"error_msg\": \"" + errorEnums.getErrorMsg() + "\"}";
             DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
             return response.writeWith(Mono.just(buffer));

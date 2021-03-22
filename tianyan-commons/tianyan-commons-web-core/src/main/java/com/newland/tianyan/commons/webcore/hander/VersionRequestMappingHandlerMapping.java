@@ -7,6 +7,7 @@ package com.newland.tianyan.commons.webcore.hander;
  */
 
 import com.newland.tianyan.commons.webcore.annotation.ApiVersion;
+import com.newland.tianyan.commons.webcore.support.ApiVersionCondition;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
@@ -38,4 +39,5 @@ public class VersionRequestMappingHandlerMapping extends RequestMappingHandlerMa
         Assert.isTrue(value >= 1, "Api Version Must be greater than or equal to 1");
         return new ApiVersionCondition(value);
     }
+
 }

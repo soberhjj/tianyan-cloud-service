@@ -2,7 +2,7 @@ package com.newland.tianyan.commons.webcore.filter;
 
 
 import com.alibaba.fastjson.JSON;
-import com.newland.tianya.commons.base.constants.GlobalArgumentErrorEnums;
+import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.constants.GlobalTraceConstant;
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -41,12 +41,12 @@ public class ApiRespAdvice implements ResponseBodyAdvice {
             log.info("responseParams：{}", JsonUtils.toJson(o));
 
             if (o instanceof Exception) {
-                GlobalArgumentErrorEnums errorEnums = null;
+                GlobalExceptionEnum errorEnums = null;
                 if ("用户名或密码错误".equals(((Exception) o).getMessage())) {
-                    errorEnums = GlobalArgumentErrorEnums.CLIENT_SECRET_ERROR;
+                    errorEnums = GlobalExceptionEnum.CLIENT_SECRET_ERROR;
                 }
                 if (((Exception) o).getMessage().contains("Unauthorized grant type") || ((Exception) o).getMessage().contains("Unsupported grant type")) {
-                    errorEnums = GlobalArgumentErrorEnums.GRANT_TYPE_INVALID;
+                    errorEnums = GlobalExceptionEnum.GRANT_TYPE_INVALID;
                 }
 
                 Map<String, Object> map = new HashMap<>();

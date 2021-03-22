@@ -1,16 +1,15 @@
 package com.newland.tianyan.auth.service.impl;
 
-import com.newland.tianya.commons.base.utils.JsonUtils;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
+import com.newland.tianyan.auth.constant.ExceptionEnum;
 import com.newland.tianyan.auth.entity.Account;
-import com.newland.tianyan.auth.constant.BusinessErrorEnums;
-import com.newland.tianyan.auth.constant.SystemErrorEnums;
 import com.newland.tianyan.auth.service.IAccountService;
 import com.newland.tianyan.auth.service.ILoginService;
 import com.newland.tianyan.common.utils.message.NLBackend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -43,22 +42,20 @@ public class LoginServiceImpl implements ILoginService {
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void register(NLBackend.BackendAllRequest receive) {
         Account account = ProtobufUtils.parseTo(receive, Account.class);
         // check account exist
         if (accountService.checkExits("account", account.getAccount())) {
-            throw BusinessErrorEnums.ACCOUNT_NOT_FOUND.toException(account.getAccount());
+            throw ExceptionEnum.ACCOUNT_NOT_FOUND.toException(account.getAccount());
         }
         // check mailbox exist
         if (accountService.checkExits("mailbox", account.getMailbox())) {
-            throw BusinessErrorEnums.MAIL_BOX_NOT_FOUND.toException(account.getMailbox());
+            throw ExceptionEnum.MAIL_BOX_NOT_FOUND.toException(account.getMailbox());
         }
         account.setPassword(encoder.encode(account.getPassword()));
         // register account
-        if (accountService.insert(account) == 0) {
-            throw SystemErrorEnums.DB_INSERT_ERROR.toException(JsonUtils.toJson(account));
-        }
+        accountService.insert(account);
     }
 
     @Override
@@ -68,7 +65,7 @@ public class LoginServiceImpl implements ILoginService {
         if (accountService.checkExits("mailbox", account.getMailbox())) {
             accountService.resetPassword(account.getMailbox(), encoder.encode(account.getPassword()));
         } else {
-            throw BusinessErrorEnums.MAIL_BOX_NOT_FOUND.toException(request.getMailbox());
+            throw ExceptionEnum.MAIL_BOX_NOT_FOUND.toException(account.getMailbox());
         }
     }
 
@@ -85,7 +82,7 @@ public class LoginServiceImpl implements ILoginService {
             }
         }
         if (account == null) {
-            throw BusinessErrorEnums.ACCOUNT_NOT_FOUND.toException(receive.getAccount());
+            throw ExceptionEnum.ACCOUNT_NOT_FOUND.toException(receive.getAccount());
         }
         return account;
     }
