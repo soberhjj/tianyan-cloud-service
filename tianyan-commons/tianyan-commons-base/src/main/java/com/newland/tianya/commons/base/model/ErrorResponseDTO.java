@@ -16,7 +16,7 @@ public class ErrorResponseDTO {
 	private String logId;
 	
 	@JSONField(name = "error_code")
-	private String errorCode;
+	private int errorCode;
 	
 	@JSONField(name = "error_msg")
 	private String errorMsg;
