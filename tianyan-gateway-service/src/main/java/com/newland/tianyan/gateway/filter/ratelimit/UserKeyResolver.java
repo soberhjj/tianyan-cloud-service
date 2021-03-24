@@ -5,6 +5,7 @@ import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.alibaba.fastjson.JSON;
+import com.newland.tianya.commons.base.constants.TokenConstants;
 import com.newland.tianyan.gateway.model.RateLimitKey;
 
 import reactor.core.publisher.Mono;
@@ -18,8 +19,6 @@ public class UserKeyResolver implements KeyResolver {
 
     public static final String BEAN_NAME = "userKeyResolver";
     
-    private static final String ACCOUNT_KEY ="account";
-    
     @Value("${spring.profiles.active}")
     private String environment;
 
@@ -27,7 +26,7 @@ public class UserKeyResolver implements KeyResolver {
     public Mono<String> resolve(ServerWebExchange exchange) {
     	RateLimitKey rateLimitKey = new RateLimitKey();
     	rateLimitKey.setEnvironment(environment);
-    	rateLimitKey.setAccount(exchange.getRequest().getHeaders().getFirst(ACCOUNT_KEY));
+    	rateLimitKey.setAccount(exchange.getRequest().getHeaders().getFirst(TokenConstants.HEAD_ACCOUNT));
         return Mono.just(JSON.toJSONString(rateLimitKey));
     }
 
