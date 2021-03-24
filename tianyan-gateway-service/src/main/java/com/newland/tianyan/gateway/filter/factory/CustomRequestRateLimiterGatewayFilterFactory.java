@@ -24,12 +24,14 @@ import com.newland.tianya.commons.base.model.JsonErrorObject;
 import com.newland.tianya.commons.base.utils.LogIdUtils;
 import com.newland.tianyan.gateway.constant.ErrorCodeEnum;
 
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 /**
  * User Request Rate Limiter filter. See https://stripe.com/blog/rate-limiters and
  */
 @ConfigurationProperties("spring.cloud.gateway.filter.request-rate-limiter")
+@Slf4j
 public class CustomRequestRateLimiterGatewayFilterFactory extends
 		AbstractGatewayFilterFactory<CustomRequestRateLimiterGatewayFilterFactory.Config> {
 
@@ -116,7 +118,7 @@ public class CustomRequestRateLimiterGatewayFilterFactory extends
 					if (response.isAllowed()) {
 						return chain.filter(exchange);
 					}
-
+					log.info("request: {} qps limit reache", key);
 					ServerHttpResponse rs = exchange.getResponse();
 					rs.setStatusCode(config.getStatusCode());
                     rs.getHeaders().add("Content-Type", "application/json;charset=UTF-8");
