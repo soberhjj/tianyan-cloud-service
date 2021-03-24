@@ -19,4 +19,7 @@ public class SysException extends BaseException {
         super(errorCode, errorMsg, args);
     }
 
+    public SysException(Integer errorCode, String errorMsg, Throwable e, Object... args) {
+        super(errorCode, errorMsg, e, args);
+    }
 }

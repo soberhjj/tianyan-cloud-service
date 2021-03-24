@@ -1,14 +1,15 @@
 package com.newland.tianyan.commons.webcore.hander;
 
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.exception.ArgumentException;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.exception.BusinessException;
 import com.newland.tianya.commons.base.exception.SysException;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
-import com.newland.tianya.commons.base.utils.JsonErrorObject;
-import com.newland.tianya.commons.base.utils.LogUtils;
+import com.newland.tianya.commons.base.model.JsonErrorObject;
+import com.newland.tianya.commons.base.utils.LogIdUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -88,11 +89,22 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public JsonErrorObject handleArgumentException(MethodArgumentNotValidException e) {
+    public JsonErrorObject handleArgumentNotValidException(MethodArgumentNotValidException e) {
         log.warn("抛出参数异常", e);
         FieldError fieldError = e.getBindingResult().getFieldError();
         assert fieldError != null;
         ArgumentException argumentException = getError(Objects.requireNonNull(fieldError.getCode()), fieldError.getField());
+        return toJsonObject(argumentException);
+    }
+
+    @ExceptionHandler(InvalidFormatException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public JsonErrorObject handleArgumentInvalidFormatException(InvalidFormatException e) {
+        log.warn("抛出参数异常", e);
+        Object[] args = new Object[]{};
+        args[0] = e.getValue();
+        args[1] = e.getMessage();
+        ArgumentException argumentException = (ArgumentException) ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_INVALID_FORMAT,args);
         return toJsonObject(argumentException);
     }
 
@@ -131,11 +143,11 @@ public class GlobalExceptionHandler {
     }
 
     protected static JsonErrorObject toJsonObject(BaseException baseException) {
-        return new JsonErrorObject(LogUtils.traceId(), baseException.getErrorCode(), baseException.getErrorMsg());
+        return new JsonErrorObject(LogIdUtils.traceId(), baseException.getErrorCode(), baseException.getErrorMsg());
     }
 
     protected static JsonErrorObject toJsonObjectWithDefaultMsg(BaseException baseException, String defaultErrorMsg) {
-        return new JsonErrorObject(LogUtils.traceId(), baseException.getErrorCode(), defaultErrorMsg);
+        return new JsonErrorObject(LogIdUtils.traceId(), baseException.getErrorCode(), defaultErrorMsg);
     }
 
     protected static ArgumentException getError(String code, String field) {
@@ -162,6 +174,6 @@ public class GlobalExceptionHandler {
             default:
                 errorEnums = GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR;
         }
-        return (ArgumentException) ExceptionSupport.toException(errorEnums);
+        return (ArgumentException) ExceptionSupport.toException(errorEnums, field);
     }
 }

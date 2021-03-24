@@ -5,7 +5,7 @@ import com.newland.tianya.commons.base.constants.TaskTypeEnums;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.model.proto.NLFace;
-import com.newland.tianya.commons.base.utils.LogUtils;
+import com.newland.tianya.commons.base.utils.LogIdUtils;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.dto.FaceSetFaceAddReqDTO;
@@ -45,7 +45,7 @@ public class FacesetUserFaceController {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         FaceDO faceDO = facesetUserFaceService.create(request);
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-        result.setLogId(LogUtils.traceId());
+        result.setLogId(LogIdUtils.traceId());
         result.setFaceId(faceDO.getId().toString());
 
         if (receive.getType() == 101) {

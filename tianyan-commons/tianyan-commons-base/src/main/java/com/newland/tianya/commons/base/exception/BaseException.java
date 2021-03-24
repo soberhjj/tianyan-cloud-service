@@ -48,4 +48,12 @@ public class BaseException extends RuntimeException {
     protected static String formatMsg(String str, Object... args) {
         return args != null && args.length != 0 ? MessageFormat.format(str, args) : str;
     }
+
+    public static void main(String[] args) {
+        String str = "param [{0}] should not be empty";
+        String arg = "account";
+        //String result = MessageFormat.format(str, arg);
+        String result = formatMsg(str, arg);
+        System.out.println(result);
+    }
 }

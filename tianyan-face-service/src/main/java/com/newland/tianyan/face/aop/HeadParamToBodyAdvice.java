@@ -28,9 +28,9 @@ import static com.newland.tianya.commons.base.constants.TokenConstants.*;
  */
 @RestControllerAdvice
 public class HeadParamToBodyAdvice implements RequestBodyAdvice {
-
-    @Autowired
-    private HttpServletRequest request;
+//
+//    @Autowired
+//    private HttpServletRequest request;
 
     @Bean
     public ProtobufJsonFormatHttpMessageConverter protobufJsonFormatHttpMessageConverter() {
@@ -57,16 +57,21 @@ public class HeadParamToBodyAdvice implements RequestBodyAdvice {
 
     @Override
     public Object afterBodyRead(Object body, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
-        Class clazz = body.getClass();
-        String headerAccount = request.getHeader(HEAD_ACCOUNT);
-        String headerAppId = request.getHeader(HEAD_APP_ID);
 
-        for (Field field : clazz.getDeclaredFields()) {
-            if ((!StringUtils.isEmpty(headerAccount)) && REQUEST_ACCOUNT.equals(field.getName())) {
-                setValue(body, field, headerAccount);
-            }
-            if ((!StringUtils.isEmpty(headerAppId)) && REQUEST_BODY_APP_ID.equals(field.getName())) {
-                setValue(body, field, Long.valueOf(headerAppId));
+        HttpHeaders headers = httpInputMessage.getHeaders();
+        if (headers.containsKey(HEAD_ACCOUNT)) {
+            String headerAccount = headers.getFirst(HEAD_ACCOUNT);
+            String headerAppId = headers.getFirst(HEAD_APP_ID);
+
+            Class clazz = body.getClass();
+
+            for (Field field : clazz.getDeclaredFields()) {
+                if ((!StringUtils.isEmpty(headerAccount)) && REQUEST_ACCOUNT.equals(field.getName())) {
+                    setValue(body, field, headerAccount);
+                }
+                if ((!StringUtils.isEmpty(headerAppId)) && REQUEST_BODY_APP_ID.equals(field.getName())) {
+                    setValue(body, field, Long.valueOf(headerAppId));
+                }
             }
         }
         return body;

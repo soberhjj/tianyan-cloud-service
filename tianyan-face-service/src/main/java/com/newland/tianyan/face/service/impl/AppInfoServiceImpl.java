@@ -53,15 +53,15 @@ public class AppInfoServiceImpl implements AppInfoService {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         appInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (appInfoMapper.selectCount(appInfoDO) > 0) {
-            throw ExceptionSupport.toException(ExceptionEnum.APP_ALREADY_EXISTS,appInfoDO.getAppId());
+            throw ExceptionSupport.toException(ExceptionEnum.APP_ALREADY_EXISTS,appInfoDO.getAppName());
         }
         appInfoDO.setApiKey(AppUtils.generateApiKey());
         appInfoDO.setSecretKey(AppUtils.generateSecretKey());
 
+        appInfoMapper.insertSelective(appInfoDO);
+
         log.info("请求向量搜索服务服务创建向量集合");
         faceFaceCacheHelper.createCollection(appInfoMapper.selectOne(appInfoDO).getAppId());
-
-        appInfoMapper.insertSelective(appInfoDO);
 
         log.info("请求授权服务增加客户端");
         // 查询app的主键
