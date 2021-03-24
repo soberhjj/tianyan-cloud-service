@@ -1,9 +1,9 @@
 package com.newland.tianyan.commons.webcore.filter;
 
 
-import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.constants.GlobalTraceConstant;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
+import com.newland.tianya.commons.base.support.JsonSkipSupport;
 import com.newland.tianya.commons.base.support.ResponseBodyConvert;
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +14,6 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-
-import java.util.Map;
 
 
 /**
@@ -38,33 +36,7 @@ public class ApiRespAdvice implements ResponseBodyAdvice {
                                   ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         String traceId = TraceContext.traceId();
         serverHttpResponse.getHeaders().add(GlobalTraceConstant.GATEWAY_TRACE_HEAD, traceId);
-        if (!mediaType.equals(MediaType.APPLICATION_JSON) || o instanceof Exception) {
-            log.info("responseParams：{}", JsonUtils.toJson(o));
-
-            if (o instanceof Exception) {
-                GlobalExceptionEnum errorEnums = null;
-                if ("用户名或密码错误".equals(((Exception) o).getMessage())) {
-                    errorEnums = GlobalExceptionEnum.CLIENT_SECRET_ERROR;
-                }
-                if (((Exception) o).getMessage().contains("Unauthorized grant type") || ((Exception) o).getMessage().contains("Unsupported grant type")) {
-                    errorEnums = GlobalExceptionEnum.GRANT_TYPE_INVALID;
-                }
-                if (errorEnums == null) {
-                    errorEnums = GlobalExceptionEnum.SYSTEM_ERROR;
-                }
-                return ResponseBodyConvert.toSnakeCaseObject(ExceptionSupport.toException(errorEnums));
-            }
-        } else {
-            Map<String, Object> map = JsonUtils.toMap(o);
-            if (map != null) {
-                if (map.containsKey("image")) {
-                    map.remove("image");
-                    map.put("image", "(base转码图片，省略不打印)");
-                }
-                log.info("responseParams：{}", JsonUtils.toJson(map));
-            }
-        }
-
+        log.info("responseParams：{}", JsonSkipSupport.toJson(o));
         return o;
     }
 }

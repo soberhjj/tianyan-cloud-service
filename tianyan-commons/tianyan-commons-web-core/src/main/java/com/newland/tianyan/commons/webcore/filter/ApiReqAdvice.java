@@ -1,6 +1,6 @@
 package com.newland.tianyan.commons.webcore.filter;
 
-import com.newland.tianya.commons.base.utils.JsonUtils;
+import com.newland.tianya.commons.base.support.JsonSkipSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -12,7 +12,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.util.Map;
 
 /**
  * @author: RojiaHuang
@@ -44,16 +43,7 @@ public class ApiReqAdvice implements RequestBodyAdvice {
 
     @Override
     public Object afterBodyRead(Object o, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
-        Map<String, Object> map = JsonUtils.toMap(o);
-        if (map.containsKey("image")) {
-            map.remove("image");
-            map.put("image", "(base转码图片，省略不打印)");
-        }
-        if (map.containsKey("Image")) {
-            map.remove("Image");
-            map.put("image", "(base转码图片，省略不打印)");
-        }
-        log.info("requestParams：{}", map);
+        log.info("requestParams：{}", JsonSkipSupport.toJson(o));
         return o;
     }
 
