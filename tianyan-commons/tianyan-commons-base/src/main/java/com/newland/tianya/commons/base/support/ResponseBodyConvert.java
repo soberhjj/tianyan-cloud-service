@@ -41,5 +41,7 @@ public class ResponseBodyConvert {
     public static void main(String[] args) {
         String result = ResponseBodyConvert.toSnakeCaseJsonString(ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR, "account"));
         System.out.println(result);
+        String result1 = ResponseBodyConvert.toJsonString(ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR,"account"));
+        System.out.println(result1);
     }
 }
