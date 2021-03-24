@@ -1,9 +1,10 @@
 package com.newland.tianyan.commons.webcore.filter;
 
 
-import com.alibaba.fastjson.JSON;
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.constants.GlobalTraceConstant;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
+import com.newland.tianya.commons.base.support.ResponseBodyConvert;
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
@@ -11,10 +12,9 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -23,9 +23,10 @@ import java.util.Map;
  * @description:
  * @date: 2021/2/25
  */
-@ControllerAdvice
+@RestControllerAdvice
 @Slf4j
 public class ApiRespAdvice implements ResponseBodyAdvice {
+
     @Override
     public boolean supports(MethodParameter methodParameter, Class aClass) {
         return true;
@@ -48,26 +49,20 @@ public class ApiRespAdvice implements ResponseBodyAdvice {
                 if (((Exception) o).getMessage().contains("Unauthorized grant type") || ((Exception) o).getMessage().contains("Unsupported grant type")) {
                     errorEnums = GlobalExceptionEnum.GRANT_TYPE_INVALID;
                 }
-
-                Map<String, Object> map = new HashMap<>();
-                map.put("trace_id", traceId);
-                if (errorEnums != null) {
-                    map.put("error_code", errorEnums.getErrorCode());
-                    map.put("error_msg", errorEnums.getErrorMsg());
-                } else {
-                    map.put("error_code", "6000");
-                    map.put("error_msg", "system error");
+                if (errorEnums == null) {
+                    errorEnums = GlobalExceptionEnum.SYSTEM_ERROR;
                 }
-
-                return JSON.toJSON(map);
+                return ResponseBodyConvert.toSnakeCaseObject(ExceptionSupport.toException(errorEnums));
             }
         } else {
             Map<String, Object> map = JsonUtils.toMap(o);
-            if (map.containsKey("image")) {
-                map.remove("image");
-                map.put("image", "(base转码图片，省略不打印)");
+            if (map != null) {
+                if (map.containsKey("image")) {
+                    map.remove("image");
+                    map.put("image", "(base转码图片，省略不打印)");
+                }
+                log.info("responseParams：{}", JsonUtils.toJson(map));
             }
-            log.info("responseParams：{}", JsonUtils.toJson(map));
         }
 
         return o;

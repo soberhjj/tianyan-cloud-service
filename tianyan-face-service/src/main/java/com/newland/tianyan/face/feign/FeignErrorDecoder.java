@@ -3,7 +3,7 @@ package com.newland.tianyan.face.feign;
 import com.alibaba.fastjson.JSON;
 
 import com.newland.tianya.commons.base.exception.SysException;
-import com.newland.tianya.commons.base.utils.JsonErrorObject;
+import com.newland.tianya.commons.base.model.JsonErrorObject;
 import feign.FeignException;
 import feign.Response;
 import feign.Util;

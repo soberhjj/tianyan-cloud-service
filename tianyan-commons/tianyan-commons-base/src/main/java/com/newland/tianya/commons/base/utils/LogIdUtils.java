@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
  * @author newland
  */
 @Component
-public class LogUtils {
+public class LogIdUtils {
 
     /**
      * 生成traceId ，requestId，spanId 类似，设置不同的方法名即可

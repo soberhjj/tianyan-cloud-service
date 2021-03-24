@@ -30,11 +30,11 @@ public class ProtobufUtils {
     }
 
     public static <T extends Message> T buildMessage(Class<T> clazz) {
-        return buildMessage(clazz, LogUtils.traceId(), null);
+        return buildMessage(clazz, LogIdUtils.traceId(), null);
     }
 
     public static <T extends Message> T buildMessage(Class<T> clazz, Object value) {
-        return buildMessage(clazz, LogUtils.traceId(), value);
+        return buildMessage(clazz, LogIdUtils.traceId(), value);
     }
 
     private static <T extends Message> T buildMessage(Class<T> clazz, String logId, Object value) {
@@ -156,7 +156,7 @@ public class ProtobufUtils {
             e.printStackTrace();
         }
         builder.setTaskType(taskType);
-        builder.setLogId(LogUtils.traceId());
+        builder.setLogId(LogIdUtils.traceId());
         return builder.build();
     }
 
@@ -198,13 +198,13 @@ public class ProtobufUtils {
 
     public static NLBackend.BackendLoginSendMessage buildLoginSendMessage() {
         NLBackend.BackendLoginSendMessage.Builder builder = NLBackend.BackendLoginSendMessage.newBuilder();
-        builder.setLogId(LogUtils.traceId());
+        builder.setLogId(LogIdUtils.traceId());
         return builder.build();
     }
 
     public static NLBackend.BackendLoginSendMessage buildLoginSendMessage(String account, String mailbox) {
         NLBackend.BackendLoginSendMessage.Builder builder = NLBackend.BackendLoginSendMessage.newBuilder();
-        builder.setLogId(LogUtils.traceId());
+        builder.setLogId(LogIdUtils.traceId());
         builder.setMailbox(mailbox);
         builder.setAccount(account);
         return builder.build();
@@ -212,13 +212,13 @@ public class ProtobufUtils {
 
     public static NLBackend.BackendAppSendMessage buildAppSendMessage() {
         NLBackend.BackendAppSendMessage.Builder builder = NLBackend.BackendAppSendMessage.newBuilder();
-        builder.setLogId(LogUtils.traceId());
+        builder.setLogId(LogIdUtils.traceId());
         return builder.build();
     }
 
     public static NLBackend.BackendAppSendMessage buildAppSendMessage(List results, long count) {
         NLBackend.BackendAppSendMessage.Builder builder = NLBackend.BackendAppSendMessage.newBuilder();
-        builder.setLogId(LogUtils.traceId());
+        builder.setLogId(LogIdUtils.traceId());
         builder.setCount((int) count);
 
         NLBackend.BackendAppSendMessage.BackendAppTableMessage.Builder tableBuilder = NLBackend.BackendAppSendMessage.BackendAppTableMessage.newBuilder();
@@ -238,7 +238,7 @@ public class ProtobufUtils {
 
     public static NLBackend.BackendMailSendMessage buildMailSendMessage(List results, long count) {
         NLBackend.BackendMailSendMessage.Builder builder = NLBackend.BackendMailSendMessage.newBuilder();
-        builder.setLogId(LogUtils.traceId());
+        builder.setLogId(LogIdUtils.traceId());
         builder.setCount((int) count);
 
         NLBackend.BackendMailSendMessage.BackendMailDetailMessage.Builder tableBuilder = NLBackend.BackendMailSendMessage.BackendMailDetailMessage.newBuilder();
@@ -258,17 +258,17 @@ public class ProtobufUtils {
 
     public static NLBackend.BackendFacesetSendMessage buildFacesetSendMessage() {
         NLBackend.BackendFacesetSendMessage.Builder builder = NLBackend.BackendFacesetSendMessage.newBuilder();
-        builder.setLogId(LogUtils.traceId());
+        builder.setLogId(LogIdUtils.traceId());
         return builder.build();
     }
 
     public static NLBackend.BackendFacesetSendMessage buildFacesetSendMessage(List results, long count) {
-        return buildFacesetSendMessage(LogUtils.traceId(), results, count);
+        return buildFacesetSendMessage(LogIdUtils.traceId(), results, count);
     }
 
     public static NLBackend.BackendFacesetSendMessage buildFacesetSendMessage(String faceId) {
         NLBackend.BackendFacesetSendMessage.Builder builder = NLBackend.BackendFacesetSendMessage.newBuilder();
-        builder.setLogId(LogUtils.traceId());
+        builder.setLogId(LogIdUtils.traceId());
         builder.setFaceId(faceId);
         return builder.build();
     }

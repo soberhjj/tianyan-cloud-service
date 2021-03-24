@@ -19,4 +19,7 @@ public class ArgumentException extends BaseException {
         super(errorCode, errorMsg, args);
     }
 
+    public ArgumentException(Integer errorCode, String errorMsg, Throwable e, Object... args) {
+        super(errorCode, errorMsg, e, args);
+    }
 }

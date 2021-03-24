@@ -1,14 +1,11 @@
 package com.newland.tianya.commons.base.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.alibaba.fastjson.PropertyNamingStrategy;
+import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.newland.tianya.commons.base.constants.ExceptionTypeEnums;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
@@ -17,46 +14,40 @@ import java.util.Map;
  * @date: 2021/1/12
  */
 public class JsonUtils {
-    private static Gson g = new Gson();
-    private static Gson g1 = (new GsonBuilder()).disableHtmlEscaping().create();
-    private static ObjectMapper objectMapper = new ObjectMapper();
-
-    public JsonUtils() {
+    /**
+     * 默认驼峰
+     */
+    public static String toJson(Object jsonElement) {
+        return JSON.toJSONString(jsonElement);
     }
 
-    public static <T> T fromJson(String json, Type typeOfT) throws JsonSyntaxException {
-        return g.fromJson(json, typeOfT);
-    }
-
-    public static <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
-        return g.fromJson(json, classOfT);
-    }
-
-    public static Map<String,Object> toMap(Object object){
+    public static Map<String, Object> toMap(Object object) {
         return JSONObject.parseObject(JSONObject.toJSONString(object));
     }
 
-    public static String toJson(Object jsonElement) {
-        return g.toJson(jsonElement);
+    public static Object toObject(Object object) {
+        return JSONObject.parseObject(JSONObject.toJSONString(object));
     }
 
-    public static String toJsonNoCode(Object jsonElement) {
-        return g1.toJson(jsonElement);
+    /**
+     * 下划线
+     */
+    public static String toSnakeCaseJsonString(Object jsonElement) {
+        return JSON.toJSONString(jsonElement, getSnakeConfig());
     }
 
-    public static String writeValueAsString(Object value) {
-        try {
-            return objectMapper.writeValueAsString(value);
-        } catch (JsonProcessingException var2) {
-            throw new RuntimeException("对象转为json失败", var2);
-        }
+    public static Object toSnakeCaseObject(Object object) {
+        return JSON.toJSON(object, getSnakeConfig());
     }
 
-    public static <T> T readValue(String json, Class<T> classOfT) {
-        try {
-            return objectMapper.readValue(json, classOfT);
-        } catch (IOException var3) {
-            throw new RuntimeException("json转对象失败", var3);
-        }
+    private static SerializeConfig getSnakeConfig() {
+        SerializeConfig serializeConfig = new SerializeConfig();
+        serializeConfig.propertyNamingStrategy = PropertyNamingStrategy.SnakeCase;
+        return serializeConfig;
+    }
+
+    public static void main(String[] args) {
+        ExceptionTypeEnums exceptionTypeEnums = ExceptionTypeEnums.ARGUMENT_EXCEPTION;
+        System.out.println(JsonUtils.toSnakeCaseJsonString(exceptionTypeEnums));
     }
 }

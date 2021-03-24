@@ -1,7 +1,8 @@
 package com.newland.tianyan.gateway.filter;
 
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
-import com.newland.tianyan.gateway.utils.ResponseBodyConvert;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
+import com.newland.tianya.commons.base.support.ResponseBodyConvert;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class NoTokenRestAuthenticationEntryPoint implements ServerAuthentication
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.OK);
         response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        String body = ResponseBodyConvert.convert(GlobalExceptionEnum.NO_TOKEN);
+        String body = ResponseBodyConvert.toSnakeCaseJsonString(ExceptionSupport.toException(GlobalExceptionEnum.NO_TOKEN));
         DataBuffer buffer = response.bufferFactory().wrap(body.getBytes(Charset.forName("UTF-8")));
         return response.writeWith(Mono.just(buffer));
     }

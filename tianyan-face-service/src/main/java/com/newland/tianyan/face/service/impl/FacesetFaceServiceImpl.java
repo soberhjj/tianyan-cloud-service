@@ -472,7 +472,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         temp.setAppId(receive.getAppId());
         if (model == -20) {
             NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-            result.setLogId(LogUtils.traceId());
+            result.setLogId(LogIdUtils.traceId());
             ObjectInputStream in;
             float[] features = new float[512];
             try {
@@ -493,7 +493,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         }
 
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-        result.setLogId(LogUtils.traceId());
+        result.setLogId(LogIdUtils.traceId());
         result.setFeature(temp.getFeaturesNew());
         result.setVersion(temp.getVersion());
         NLFace.CloudFaceSendMessage build = result.build();
