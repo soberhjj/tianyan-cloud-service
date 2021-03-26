@@ -28,9 +28,6 @@ import static com.newland.tianya.commons.base.constants.TokenConstants.*;
  */
 @RestControllerAdvice
 public class HeadParamToBodyAdvice implements RequestBodyAdvice {
-//
-//    @Autowired
-//    private HttpServletRequest request;
 
     @Bean
     public ProtobufJsonFormatHttpMessageConverter protobufJsonFormatHttpMessageConverter() {

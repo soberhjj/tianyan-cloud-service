@@ -23,7 +23,7 @@ import java.util.Collections;
  **/
 @RestController
 @Slf4j
-@RequestMapping({"/app", "/backend/app","/faceset","/backend/faceset","/backend/app/{version}"})
+@RequestMapping({"/app", "/backend/app", "/faceset", "/backend/faceset", "/backend/app/{version}"})
 public class AppInfoController {
 
     @Autowired
@@ -57,6 +57,7 @@ public class AppInfoController {
 
     /**
      * 更新app数据(对内接口)
+     *
      * @Author Ljh
      * @Date 2020/10/21 18:19
      */
@@ -69,7 +70,7 @@ public class AppInfoController {
 
     /**
      * 获取一条app数据(对内接口)
-     * */
+     */
     @RequestMapping(value = "/getInfo", method = RequestMethod.POST)
     public NLBackend.BackendAppSendMessage getInfo(@RequestBody @Validated AppGetInfoReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
@@ -79,7 +80,7 @@ public class AppInfoController {
 
     /**
      * 获取多条app数据(对内接口)
-     * */
+     */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
     public NLBackend.BackendAppSendMessage findAll(@RequestBody @Validated AppGetListReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);

@@ -40,7 +40,8 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                 } else if (jsonObject.containsKey(TOKEN_APP_ID_2)) {
                     appId = jsonObject.getString(TOKEN_APP_ID_2);
                 }
-                ServerHttpRequest request = exchange.getRequest().mutate().header(HEAD_APP_ID, appId)
+                ServerHttpRequest request = exchange.getRequest().mutate()
+                        .header(HEAD_APP_ID, appId)
                         .header(HEAD_ACCOUNT, jsonObject.getString(TOKEN_ACCOUNT_1))
                         .build();
                 exchange = exchange.mutate().request(request).build();
@@ -56,6 +57,6 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -2000;
+        return -3000;
     }
 }

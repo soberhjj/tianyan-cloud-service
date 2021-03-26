@@ -29,6 +29,10 @@ public class ProtobufUtils {
         return config;
     }
 
+    public static <T extends Message> T buildMessage(Class<T> clazz, String logId) {
+        return buildMessage(clazz, logId, null);
+    }
+
     public static <T extends Message> T buildMessage(Class<T> clazz) {
         return buildMessage(clazz, LogIdUtils.traceId(), null);
     }

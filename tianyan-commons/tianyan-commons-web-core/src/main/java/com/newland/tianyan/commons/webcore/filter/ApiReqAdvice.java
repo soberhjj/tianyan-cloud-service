@@ -43,7 +43,7 @@ public class ApiReqAdvice implements RequestBodyAdvice {
 
     @Override
     public Object afterBodyRead(Object o, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
-        log.info("requestParams：{}", JsonSkipSupport.toJson(o));
+        log.info("requestParams：{}", JsonSkipSupport.toJson(aClass,o));
         return o;
     }
 

@@ -7,9 +7,8 @@ import com.newland.tianya.commons.base.exception.ArgumentException;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.exception.BusinessException;
 import com.newland.tianya.commons.base.exception.SysException;
-import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.model.JsonErrorObject;
-import com.newland.tianya.commons.base.utils.LogIdUtils;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -104,7 +103,7 @@ public class GlobalExceptionHandler {
         Object[] args = new Object[]{};
         args[0] = e.getValue();
         args[1] = e.getMessage();
-        ArgumentException argumentException = (ArgumentException) ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_INVALID_FORMAT,args);
+        ArgumentException argumentException = (ArgumentException) ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_INVALID_FORMAT, args);
         return toJsonObject(argumentException);
     }
 
@@ -143,11 +142,11 @@ public class GlobalExceptionHandler {
     }
 
     protected static JsonErrorObject toJsonObject(BaseException baseException) {
-        return new JsonErrorObject(LogIdUtils.traceId(), baseException.getErrorCode(), baseException.getErrorMsg());
+        return new JsonErrorObject(baseException.getErrorCode(), baseException.getErrorMsg());
     }
 
     protected static JsonErrorObject toJsonObjectWithDefaultMsg(BaseException baseException, String defaultErrorMsg) {
-        return new JsonErrorObject(LogIdUtils.traceId(), baseException.getErrorCode(), defaultErrorMsg);
+        return new JsonErrorObject(baseException.getErrorCode(), defaultErrorMsg);
     }
 
     protected static ArgumentException getError(String code, String field) {

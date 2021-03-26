@@ -32,7 +32,6 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
 import java.io.*;
 import java.util.*;
 
@@ -86,11 +85,11 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             GroupInfoDO group = groupInfoMapper.selectOne(groupInfoDO);
             if (group != null) {
                 if (group.getUserNumber() == 0) {
-                    throw ExceptionSupport.toException(ExceptionEnum.EMPTY_GROUP,groupId);
+                    throw ExceptionSupport.toException(ExceptionEnum.EMPTY_GROUP, groupId);
                 }
                 groupList.add(group.getId());
             } else {
-                throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND,groupId);
+                throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, groupId);
             }
         }
         log.info("人脸搜索，用户组筛查通过，请求计算图片特征值");
@@ -186,7 +185,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         try {
             JsonFormat.merge(json, result);
         } catch (JsonFormat.ParseException e) {
-            throw ExceptionSupport.toException(ExceptionEnum.PROTO_PARSE_ERROR,e);
+            throw ExceptionSupport.toException(ExceptionEnum.PROTO_PARSE_ERROR, e);
 
         }
         NLFace.CloudFaceSendMessage build = result.build();

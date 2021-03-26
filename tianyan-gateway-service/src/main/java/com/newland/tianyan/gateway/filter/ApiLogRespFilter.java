@@ -1,5 +1,8 @@
 package com.newland.tianyan.gateway.filter;
 
+import com.newland.tianya.commons.base.support.JsonSkipSupport;
+import com.newland.tianyan.gateway.support.GatewayLoggerSupport;
+import com.newland.tianyan.gateway.support.ResponseBodyTraceIdDecorator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
@@ -28,16 +31,14 @@ import java.time.LocalDateTime;
  */
 @Component
 @Slf4j
-public class ApiLogRespFilter implements GlobalFilter, Ordered {
+public class ApiLogRespFilter extends GatewayLoggerSupport implements GlobalFilter, Ordered {
 
     @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String responseTime = LocalDateTime.now().toString();
-        //响应参数
         ServerHttpResponse serverHttpResponse = exchange.getResponse();
         DataBufferFactory dataBufferFactory = serverHttpResponse.bufferFactory();
-        String finalRequestTime = "requestTime";
+        //后置过滤器，发生在ApiLogReqFilter后置过滤器顺序之后
         ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(serverHttpResponse) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
@@ -46,12 +47,14 @@ public class ApiLogRespFilter implements GlobalFilter, Ordered {
                     return super.writeWith(fluxBody.map(dataBuffer -> {
                         byte[] content = new byte[dataBuffer.readableByteCount()];
                         dataBuffer.read(content);
-
                         DataBufferUtils.release(dataBuffer);
-                        String responseBody = new String(content, StandardCharsets.UTF_8);
 
-                        log.info("requestTime:{},responseTime:{},responseBody:{}", finalRequestTime, responseTime, responseBody);
-                        byte[] uppedContent = new String(content, StandardCharsets.UTF_8).getBytes();
+                        String responseBody = new String(content, StandardCharsets.UTF_8);
+                        String traceId = getTradeIdFromHeads(serverHttpResponse);
+                        String makeUpTraceIdRequestBody = ResponseBodyTraceIdDecorator.putTraceId(responseBody,traceId);
+
+                        log.info("requestTime:{},responseTime:{},responseBody:{}", getRequestTimeFromHeads(serverHttpResponse), LocalDateTime.now().toString(), makeUpTraceIdRequestBody);
+                        byte[] uppedContent = makeUpTraceIdRequestBody.getBytes(StandardCharsets.UTF_8);
                         return dataBufferFactory.wrap(uppedContent);
                     }));
                 }
@@ -60,6 +63,7 @@ public class ApiLogRespFilter implements GlobalFilter, Ordered {
         };
         return chain.filter(exchange.mutate().response(decoratedResponse).build());
     }
+
 
     @Override
     public int getOrder() {
