@@ -154,6 +154,12 @@
 		<appender-ref ref="INFO_FILE"/>
 	</appender>
 
+	<logger name="com.newland.tianyan" value="INFO"  additivity="false" >
+		<appender-ref ref="CONSOLE"/>
+		<appender-ref ref="ASYNC-INFO"/>
+		<appender-ref ref="DEBUG_FILE"/>
+	</logger>
+
 	<!--开发环境:打印控制台-->
 	<springProfile name="dev">
 		<root level="info">
@@ -165,7 +171,6 @@
 	<!--测试环境:输出到文件-->
 	<springProfile name="test">
 		<root level="info">
-			<appender-ref ref="CONSOLE"/>
 			<appender-ref ref="DEBUG_FILE"/>
 			<appender-ref ref="INFO_FILE"/>
 			<appender-ref ref="WARN_FILE"/>
@@ -176,13 +181,11 @@
 	<!--生产环境:输出到文件-->
 	<springProfile name="prod">
 		<root level="info">
-			<appender-ref ref="CONSOLE"/>
 			<appender-ref ref="DEBUG_FILE"/>
 			<appender-ref ref="INFO_FILE"/>
 			<appender-ref ref="WARN_FILE"/>
 			<appender-ref ref="ERROR_FILE"/>
 		</root>
 	</springProfile>
-
 
 </configuration>
