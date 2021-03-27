@@ -11,3 +11,6 @@ spring:
         namespace: dev
         group: tianyan-cloud
         prefix: ${spring.application.name}
+
+log-dir:
+  D:\tianyan\logs

@@ -23,7 +23,6 @@ public class LogIdUtils {
         String invalidTraceId2 = "Ignored_Trace";
         if (invalidTraceId1.equals(traceId) || invalidTraceId2.equals(traceId)
                 || StringUtils.isEmpty(traceId)) {
-            //todo 替换别的id
             traceId = IdUtil.randomUUID();
         }
         return StringUtils.isEmpty(traceId) ? "" : traceId;
