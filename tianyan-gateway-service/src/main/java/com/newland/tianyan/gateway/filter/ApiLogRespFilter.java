@@ -52,8 +52,8 @@ public class ApiLogRespFilter extends GatewayLoggerSupport implements GlobalFilt
                         String responseBody = new String(content, StandardCharsets.UTF_8);
                         String traceId = getTradeIdFromHeads(serverHttpResponse);
                         String makeUpTraceIdRequestBody = ResponseBodyTraceIdDecorator.putTraceId(responseBody,traceId);
-
-                        log.info("requestTime:{},responseTime:{},responseBody:{}", getRequestTimeFromHeads(serverHttpResponse), LocalDateTime.now().toString(), makeUpTraceIdRequestBody);
+                        String requestTime = getRequestTimeFromHeads(serverHttpResponse);
+                        log.info("requestTime:{},responseTime:{},responseBody:{}", requestTime, LocalDateTime.now().toString(), makeUpTraceIdRequestBody);
                         byte[] uppedContent = makeUpTraceIdRequestBody.getBytes(StandardCharsets.UTF_8);
                         return dataBufferFactory.wrap(uppedContent);
                     }));

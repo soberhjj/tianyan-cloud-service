@@ -31,13 +31,15 @@ public class GatewayLoggerSupport {
         String serverIp = ReactiveAddrUtils.getLocalAddr();
 
         LogFixColumnUtils.init(url, clientIp, serverIp);
-        ServerHttpResponse serverHttpResponse = exchange.getResponse();
         //traceId
-        LogFixColumnUtils.init(this.addTradeIdToHeads(httpHeaders, serverHttpResponse));
-        log.info("requestTime:{},requestParam:{}", this.addRequestTimeToHeads(exchange.getResponse()), JsonSkipSupport.toJson(requestParam));
+        String traceId = this.addTradeIdToHeads(httpHeaders);
+        LogFixColumnUtils.init(traceId);
+
+        String requestTime = this.addRequestTimeToHeads(httpHeaders);
+        log.info("requestTime:{},requestParam:{}", requestTime, JsonSkipSupport.toJson(requestParam));
     }
 
-    public String addTradeIdToHeads(HttpHeaders httpHeaders, ServerHttpResponse serverHttpResponse) {
+    public String addTradeIdToHeads(HttpHeaders httpHeaders) {
         if (httpHeaders.containsKey(GATEWAY_TRACE_HEAD)) {
             return httpHeaders.getFirst(GATEWAY_TRACE_HEAD);
         }
@@ -45,8 +47,6 @@ public class GatewayLoggerSupport {
 
         //透传到下游微服务
         httpHeaders.put(GATEWAY_TRACE_HEAD, Collections.singletonList(traceId));
-        //透传到下一个后置filter的head中
-        serverHttpResponse.getHeaders().put(GATEWAY_TRACE_HEAD, Collections.singletonList(traceId));
         return traceId;
     }
 
@@ -55,10 +55,10 @@ public class GatewayLoggerSupport {
         return headers.containsKey(GATEWAY_TRACE_HEAD) ? headers.getFirst(GATEWAY_TRACE_HEAD) : null;
     }
 
-    public String addRequestTimeToHeads(ServerHttpResponse serverHttpRequest) {
+    public String addRequestTimeToHeads(HttpHeaders httpHeaders) {
         String requestTime = LocalDateTime.now().toString();
-        //透传到下一个后置filter的head中
-        serverHttpRequest.getHeaders().put(HEAD_REQUEST_TIME, Collections.singletonList(requestTime));
+        //透传到下游微服务
+        httpHeaders.put(HEAD_REQUEST_TIME, Collections.singletonList(requestTime));
         return requestTime;
     }
 
