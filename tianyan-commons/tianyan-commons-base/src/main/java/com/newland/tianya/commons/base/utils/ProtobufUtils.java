@@ -9,6 +9,7 @@ import com.google.protobuf.Message;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import org.springframework.data.domain.Page;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;
 
 import java.lang.reflect.Field;
@@ -226,17 +227,19 @@ public class ProtobufUtils {
         builder.setCount((int) count);
 
         NLBackend.BackendAppSendMessage.BackendAppTableMessage.Builder tableBuilder = NLBackend.BackendAppSendMessage.BackendAppTableMessage.newBuilder();
-
-        for (Object result : results) {
-            String jsonFormat = JSON.toJSONString(result, getConfig());
-            try {
-                JsonFormat.merge(jsonFormat, tableBuilder);
-                builder.addResult(tableBuilder);
-            } catch (JsonFormat.ParseException e) {
-                e.printStackTrace();
+        if (CollectionUtils.isEmpty(results)){
+            builder.setCount(0);
+        }else {
+            for (Object result : results) {
+                String jsonFormat = JSON.toJSONString(result, getConfig());
+                try {
+                    JsonFormat.merge(jsonFormat, tableBuilder);
+                    builder.addResult(tableBuilder);
+                } catch (JsonFormat.ParseException e) {
+                    e.printStackTrace();
+                }
             }
         }
-
         return builder.build();
     }
 

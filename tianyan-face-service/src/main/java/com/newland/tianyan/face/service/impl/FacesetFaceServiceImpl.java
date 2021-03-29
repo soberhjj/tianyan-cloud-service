@@ -111,13 +111,13 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             Long vectorId = milvusQueryRes.getEntityId();
             Long gid = VectorSearchKeyUtils.splitGid(vectorId);
             Long uid = VectorSearchKeyUtils.splitUid(vectorId);
-            NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
             //人脸筛选
             if (!groupList.contains(gid)) {
                 log.info("剔除非当前请求的用户组结果gid:{}", gid);
                 unUseResult++;
                 continue;
             }
+            NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
             //用户组信息
             GroupInfoDO conditionGroup = new GroupInfoDO();
             conditionGroup.setId(gid);
@@ -161,6 +161,9 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         amqpRequest.setImage(fileName);
         amqpRequest.setMaxFaceNum(maxFaceNum);
         byte[] message = amqpRequest.build().toByteArray();
+        if (taskType == 18) {
+            return jsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V18, message);
+        }
         if (taskType == -20) {
             return jsonSendHelper(RabbitMqQueueName.FACE_DETECT_QUEUE_V20_OLD, message);
         }

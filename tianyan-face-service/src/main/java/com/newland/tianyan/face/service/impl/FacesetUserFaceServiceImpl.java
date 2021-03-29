@@ -137,7 +137,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
                 insertFaceDO.setUid(userInfoDO.getId());
                 insertFaceDO.setGid(groupInfoDO.getId());
-                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber() + 1));
+                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber()));
                 log.info("人脸添加-请求向量搜索添加人脸向量");
                 faceCacheHelper.add(insertFaceDO);
                 faceMapper.insertSelective(insertFaceDO);
@@ -156,7 +156,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     publisher.publishEvent(new FaceCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
                 } else if ("replace".equals(actionType)) {
                     log.info("人脸添加-清空并添加新的人脸replace");
-                    insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
+
                     FaceDO faceDO = new FaceDO();
                     faceDO.setGroupId(groupId);
                     faceDO.setUserId(query.getUserId());
@@ -168,6 +168,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     int deleteCount;
                     deleteCount = faceMapper.delete(faceDO);
 
+                    insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
                     faceCacheHelper.add(insertFaceDO);
                     faceMapper.insertSelective(insertFaceDO);
 
@@ -340,7 +341,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             }
         }
 
-        PageInfo<FaceDO> facePageInfo = PageHelper.offsetPage(query.getStartIndex(), query.getLength())
+        PageInfo<FaceDO> facePageInfo = PageHelper.startPage(query.getStartIndex(), query.getLength())
                 .setOrderBy("create_time desc")
                 .doSelectPageInfo(
                         () -> faceMapper.select(query));

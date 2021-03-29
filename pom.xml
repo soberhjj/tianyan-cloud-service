@@ -27,17 +27,21 @@
     <packaging>pom</packaging>
     <version>1.0.0</version>
     <modules>
+        <module>tianyan-commons</module>
         <module>tianyan-auth-service</module>
-<!--        <module>tianyan-common</module>-->
         <module>tianyan-face-service</module>
         <module>tianyan-gateway-service</module>
         <module>tianyan-image-store-service</module>
         <module>tianyan-vector-search-service</module>
-<!--        <module>tianyan-web-core</module>-->
-        <module>tianyan-commons</module>
     </modules>
 
     <dependencies>
+        <!-- 热部署 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <!-- lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>

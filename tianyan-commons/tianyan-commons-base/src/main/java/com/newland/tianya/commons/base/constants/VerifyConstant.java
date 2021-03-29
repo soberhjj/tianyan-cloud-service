@@ -13,4 +13,15 @@ public class VerifyConstant {
     public static final String REGEX_DATE = "^(?:(?!0000)[0-9]{4}-(?:(?:0[1-9]|1[0-2])-(?:0[1-9]|1[0-9]|2[0-8])|(?:0[13-9]|1[0-2])-(?:29|30)|(?:0[13578]|1[02])-31)|(?:[0-9]{2}(?:0[48]|[2468][048]|[13579][26])|(?:0[48]|[2468][048]|[13579][26])00)-02-29)$";
     public static final String REGEX_TIME = "\\s{0}|(([01]\\d)|(2[0-3]))[0-5]\\d([0-5]\\d)?";
     public static final String REGEX_DATETIME = "^\\s{0}|\\d{4}((0[1-9])|(1[0-2]))((0[1-9])|([1-2][0-9])|(3([0|1])))((0[0-9])|([1-2][0-9]))((0[0-9])|([1-5][0-9]))((0[0-9])|([1-5][0-9]))$";
+
+    public static final String APP_LIST = "^[1-5,]+$";
+
+    /**
+     * GROUP_ID 仅有数字、英文、下划线，长度64
+     * */
+    public static final String GROUP_ID = "^[\\dA-Za-z_]{0,64}$";
+    /**
+     * USER_ID 仅有数字、英文、下划线，长度64
+     * */
+    public static final String USER_ID = "^[\\dA-Za-z_]{0,64}$";
 }

@@ -1,5 +1,6 @@
 package com.newland.tianyan.face.domain.dto;
 
+import com.newland.tianya.commons.base.constants.VerifyConstant;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -11,7 +12,7 @@ import javax.validation.constraints.Pattern;
 public class FaceSetGroupAddReqDTO {
 
     @NotEmpty
-    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
+    @Pattern(regexp = VerifyConstant.GROUP_ID)
     private String groupId;
 
     @NotNull

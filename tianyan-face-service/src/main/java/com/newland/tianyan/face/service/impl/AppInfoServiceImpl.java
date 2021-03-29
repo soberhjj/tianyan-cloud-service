@@ -22,7 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
+
+import java.util.ArrayList;
 
 /**
  * @description: 用户接口
@@ -83,7 +86,7 @@ public class AppInfoServiceImpl implements AppInfoService {
     @Override
     public PageInfo<AppInfoDO> getList(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
-        return PageHelper.offsetPage(appInfoDO.getStartIndex(), appInfoDO.getLength())
+        return PageHelper.startPage(receive.getStartIndex(), receive.getLength())
                 .doSelectPageInfo(
                         () -> {
                             Example example = new Example(AppInfoDO.class);

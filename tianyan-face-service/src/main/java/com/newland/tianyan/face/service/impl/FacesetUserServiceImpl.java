@@ -65,7 +65,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             return new PageInfo<>(new ArrayList<>());
         }
 
-        return PageHelper.offsetPage(query.getStartIndex(), query.getLength())
+        return PageHelper.startPage(query.getStartIndex(), query.getLength())
                 .doSelectPageInfo(
                         () -> {
                             Example example = new Example(UserInfoDO.class);
@@ -251,6 +251,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         //如果传入的参数中没有传入用户组的话，那么就根据传入的app_id去获取该app的所有用户组。
         List<String> groupIds = this.getGroupList(userQuery.getUserId(), userQuery.getAppId());
         if (CollectionUtils.isEmpty(groupIds)) {
+            //todo 当前应用下没有用户组
             return new ArrayList<>();
         }
         List<UserInfoDO> userList = new ArrayList<>();
@@ -265,6 +266,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
                 userList.add(userInfoDO);
             }
         }
+        //todo 当前应用下没有目标用户信息
         return userList;
     }
 

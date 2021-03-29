@@ -52,6 +52,12 @@ public class FacesetFaceController {
         return facesetFaceService.detect(request);
     }
 
+    @RequestMapping(value = "/features/v18/new", method = RequestMethod.POST)
+    public NLFace.CloudFaceSendMessage featuresV18(@RequestBody @Validated FaceSetFaceDetectReqDTO request) throws IOException {
+        NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskTypeEnums.BACKEND_APP_GET_INFO);
+        return facesetFaceService.features(receive, 18);
+    }
+
     @RequestMapping(value = "/features/v20", method = RequestMethod.POST)
     public NLFace.CloudFaceSendMessage featuresV20old(@RequestBody @Validated FaceSetFaceDetectReqDTO request) throws IOException {
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskTypeEnums.BACKEND_APP_GET_INFO);

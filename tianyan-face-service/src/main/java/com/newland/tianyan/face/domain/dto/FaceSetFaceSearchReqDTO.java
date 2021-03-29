@@ -22,7 +22,7 @@ public class FaceSetFaceSearchReqDTO {
     private String image;
 
     @NotBlank
-    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
+    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5,]{0,32}$")
     private String groupId;
 
     @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")

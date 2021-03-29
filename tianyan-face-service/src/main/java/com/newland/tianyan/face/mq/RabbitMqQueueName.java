@@ -12,6 +12,8 @@ public class RabbitMqQueueName {
      */
     public static String FACE_DETECT_QUEUE = "faceDetectQueue";
 
+    public static String FACE_DETECT_QUEUE_V18 = "faceDetectQueue_V18";
+
     public static String FACE_DETECT_QUEUE_V20 = "faceDetectQueue_V20";
 
     public static String FACE_DETECT_QUEUE_V20_OLD = "faceDetectQueue_V20_old";

@@ -1,5 +1,6 @@
 package com.newland.tianyan.face.domain.dto;
 
+import com.newland.tianya.commons.base.constants.VerifyConstant;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -13,14 +14,14 @@ public class FaceSetFaceAddReqDTO {
     private String image;
 
     @NotBlank
-    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
+    @Pattern(regexp = VerifyConstant.USER_ID)
     private String userId;
 
     @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
     private String userName;
 
     @NotBlank
-    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
+    @Pattern(regexp = VerifyConstant.GROUP_ID)
     private String groupId;
 
     @NotNull
