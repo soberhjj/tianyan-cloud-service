@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RateLimiter;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
@@ -19,6 +20,7 @@ import com.newland.tianyan.gateway.filter.AuthGlobalFilter;
 import com.newland.tianyan.gateway.filter.factory.CustomRequestRateLimiterGatewayFilterFactory;
 import com.newland.tianyan.gateway.filter.ratelimit.DynamicRedisRateLimiter;
 import com.newland.tianyan.gateway.filter.ratelimit.UserKeyResolver;
+import org.springframework.http.codec.ServerCodecConfigurer;
 
 /**
  * 网关配置类
@@ -31,29 +33,30 @@ public class GlobalGatewayConfig {
     public GlobalFilter globalFilter() {
         return new AuthGlobalFilter();
     }
+
     @Bean
     @Primary
     public UserKeyResolver userKeyResolver() {
         return new UserKeyResolver();
     }
- 
+
     @Bean
     @ConditionalOnMissingBean
-    public RedisRateLimiter redisRateLimiter(ReactiveStringRedisTemplate redisTemplate, 
-    										@Qualifier("redisRequestRateLimiterScript") RedisScript<List<Long>> redisScript, 
-    										ConfigurationService configurationService) {
+    public RedisRateLimiter redisRateLimiter(ReactiveStringRedisTemplate redisTemplate,
+                                             @Qualifier("redisRequestRateLimiterScript") RedisScript<List<Long>> redisScript,
+                                             ConfigurationService configurationService) {
         return new RedisRateLimiter(redisTemplate, redisScript, configurationService);
-        
+
     }
-    
+
     @Bean(name = "dynamicRedisRateLimiter")
     @Primary
     public DynamicRedisRateLimiter dynamicRedisRateLimiter(ReactiveStringRedisTemplate redisTemplate,
-                                                    @Qualifier("redisRequestRateLimiterScript") RedisScript<List<Long>> redisScript,
-                                                    ConfigurationService configurationService) {
+                                                           @Qualifier("redisRequestRateLimiterScript") RedisScript<List<Long>> redisScript,
+                                                           ConfigurationService configurationService) {
         return new DynamicRedisRateLimiter(redisTemplate, redisScript, configurationService);
     }
-    
+
     @Bean
     public CustomRequestRateLimiterGatewayFilterFactory customRequestRateLimiterGatewayFilterFactory(
             @Qualifier("dynamicRedisRateLimiter") RateLimiter dynamicRedisRateLimiter,

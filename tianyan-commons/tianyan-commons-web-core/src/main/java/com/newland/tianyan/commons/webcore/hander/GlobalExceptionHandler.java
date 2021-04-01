@@ -70,15 +70,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 业务异常
+     * 上游微服务异常
      */
     @ExceptionHandler(BaseException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
-    public JsonErrorObject handleMQBaseException(SysException e) {
-        log.warn("抛出系统异常", e);
+    public JsonErrorObject handleMQBaseException(BaseException e) {
+        log.warn("抛出上游微服务异常", e);
         e.printStackTrace();
-        return BaseExceptionConvert.toJsonObjectWithDefaultMsg(e, "system busy");
+        return BaseExceptionConvert.toJsonObject(e);
     }
 
     /**

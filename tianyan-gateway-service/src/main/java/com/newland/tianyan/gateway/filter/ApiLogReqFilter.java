@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.factory.rewrite.CachedBodyOutputMessage;
+import org.springframework.cloud.gateway.filter.factory.rewrite.MessageBodyDecoder;
 import org.springframework.cloud.gateway.support.BodyInserterContext;
 import org.springframework.cloud.gateway.support.DefaultServerRequest;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.stereotype.Component;
@@ -49,9 +51,12 @@ public class ApiLogReqFilter extends GatewayLoggerSupport implements GlobalFilte
         String contentType = serverHttpRequest.getHeaders().getFirst(CONTENT_TYPE);
         String method = serverHttpRequest.getMethodValue();
         AtomicReference<String> requestParam = new AtomicReference<>("");
-        // post且json请求
+        //设置最大request字节大小
+        ServerCodecConfigurer codecConfigurer = ServerCodecConfigurer.create();
+        codecConfigurer.defaultCodecs().maxInMemorySize(1024 * 1024 * 5);
+        // post且为json请求
         if (HttpMethod.POST.name().equalsIgnoreCase(method) && null != contentType && contentType.contains(CONTENT_TYPE_JSON)) {
-            ServerRequest serverRequest = new DefaultServerRequest(exchange);
+            ServerRequest serverRequest = ServerRequest.create(exchange, codecConfigurer.getReaders());
             Mono<String> modifiedBody = serverRequest.bodyToMono(String.class)
                     .flatMap(body -> {
                         requestParam.set(body);

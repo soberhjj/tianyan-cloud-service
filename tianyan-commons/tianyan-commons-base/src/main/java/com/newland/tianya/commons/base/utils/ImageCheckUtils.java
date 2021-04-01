@@ -16,7 +16,7 @@ public class ImageCheckUtils {
     private final static int MAX_IMAGE_SIZE = 1024 * 1024 * 2;
     private final static String JPG_BASE64_PREFIX = "/9j";
     private final static String PNG_BASE64_PREFIX = "iVBORw0KGgoA";
-    private final static String BMP_BASE64_PREFIX = "Qk0";
+    private final static String BMP_BASE64_PREFIX = "Qk";
 
 
     public static void imageCheck(String image) {

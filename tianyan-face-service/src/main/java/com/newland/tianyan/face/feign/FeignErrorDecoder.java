@@ -2,6 +2,7 @@ package com.newland.tianyan.face.feign;
 
 import com.alibaba.fastjson.JSON;
 
+import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.exception.SysException;
 import com.newland.tianya.commons.base.model.JsonErrorObject;
 import feign.FeignException;
@@ -23,7 +24,7 @@ public class FeignErrorDecoder implements ErrorDecoder {
             if (response.body() != null) {
                 String content = Util.toString(response.body().asReader(StandardCharsets.UTF_8));
                 JsonErrorObject exceptionInfo = JSON.parseObject(content, JsonErrorObject.class);
-                return new SysException(exceptionInfo.getErrorCode(), exceptionInfo.getErrorMsg());
+                return new BaseException(exceptionInfo.getErrorCode(), exceptionInfo.getErrorMsg());
             }
 
         } catch (Exception e) {
