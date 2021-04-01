@@ -6,6 +6,21 @@ package com.newland.tianyan.face.constant;
  * @date: 2021/3/9
  */
 public class BusinessArgumentConstants {
+    public static final String ID_SPLIT_REGEX = ",";
+
+    public static final String FIELD_SPLIT_REGEX = ",";
+
+    public static final Integer DEFAULT_PAGE_INDEX = 0;
+
+    public static final Integer DEFAULT_PAGE_SIZE = 100;
+
+    public static final Long MIN_APP_ID = 1599613749000L;
+    /**
+     * 单次请求用户组的数量上限
+     * */
+    public static final int MAX_GROUP_NUMBER = 10;
+
+    public static final int MAX_GROUP_LENGTH = 64;
     /**
      * 单个用户限制添加最多人脸数目
      */

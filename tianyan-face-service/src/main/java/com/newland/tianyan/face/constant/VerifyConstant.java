@@ -1,4 +1,4 @@
-package com.newland.tianya.commons.base.constants;
+package com.newland.tianyan.face.constant;
 
 /**
  * @author: RojiaHuang
@@ -16,12 +16,21 @@ public class VerifyConstant {
 
     public static final String APP_LIST = "^[1-5,]+$";
 
+    public static final String APP_NAME = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,255}$";
+
+    public static final String GROUP_ID_OLD = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,64}$";
     /**
      * GROUP_ID 仅有数字、英文、下划线，长度64
      * */
     public static final String GROUP_ID = "^[\\dA-Za-z_]{0,64}$";
+
+    public static final String GROUP_ID_LIST = "^[\\dA-Za-z_,]{0,649}$";
+
+    public static final String USER_ID_OLD = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,64}$";
     /**
      * USER_ID 仅有数字、英文、下划线，长度64
      * */
     public static final String USER_ID = "^[\\dA-Za-z_]{0,64}$";
+
+    public static final String USER_NAME = "[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$";
 }

@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianya.commons.base.exception.BaseException;
+import com.newland.tianya.commons.base.exception.BusinessException;
 import com.newland.tianya.commons.base.model.imagestrore.DownloadReqDTO;
 import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
@@ -28,6 +29,7 @@ import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
+import com.newland.tianyan.face.service.GroupInfoService;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +43,9 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.*;
 
+import static com.newland.tianya.commons.base.constants.GlobalExceptionEnum.BASE64_FORMAT_ILLEGAL;
 import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
+import static com.newland.tianyan.face.constant.ExceptionEnum.PICTURE_HAS_NO_FACE;
 import static java.lang.Math.abs;
 
 /**
@@ -62,6 +66,8 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Autowired
     private GroupInfoMapper groupInfoMapper;
     @Autowired
+    private GroupInfoService groupInfoService;
+    @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
     private RabbitMQSender rabbitMqSender;
@@ -71,6 +77,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     public FaceDO create(NLBackend.BackendAllRequest receive) throws IOException {
         String actionType = receive.getActionType();
         this.checkOperationType(actionType);
+        Set<String> groupIdSet = groupInfoService.splitGroupIdList(receive.getGroupId());
         int qualityControl = receive.getQualityControl();
         if (qualityControl != 0) {
             this.handleImageQualityControl(qualityControl, receive.getImage());
@@ -84,9 +91,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         insertFaceDO.setAppId(receive.getAppId());
         insertFaceDO.setUserId(receive.getUserId());
 
-        String[] groups = receive.getGroupId().split(",");
-        //去重
-        Set<String> groupIdSet = new HashSet<>(Arrays.asList(groups));
         for (String groupId : groupIdSet) {
             query.setGroupId(groupId);
             GroupInfoDO groupInfoDO = new GroupInfoDO();
@@ -310,7 +314,19 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         } catch (JsonFormat.ParseException e) {
             throw ExceptionSupport.toException(ExceptionEnum.PROTO_PARSE_ERROR);
         }
-        return result.build();
+        NLFace.CloudFaceSendMessage build = result.build();
+        if (!StringUtils.isEmpty(build.getErrorMsg())) {
+            int errorCode = build.getErrorCode();
+            switch (errorCode) {
+                case 6201:
+                    throw ExceptionSupport.toException(BASE64_FORMAT_ILLEGAL);
+                case 6402:
+                    throw ExceptionSupport.toException(PICTURE_HAS_NO_FACE);
+                default:
+                    throw new BusinessException(build.getErrorCode(), build.getErrorMsg());
+            }
+        }
+        return build;
     }
 
     private void uploadImage(FaceDO faceDO, String image) throws IOException {
@@ -322,7 +338,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
     private void handleFeatures(FaceDO faceDO, String image) {
         NLFace.CloudFaceSendMessage feature =
-                amqpHelper(image, 1, 2);
+                this.amqpHelper(image, 1, 2);
         NLFace.CloudFaceSendMessage.Builder builder = feature.toBuilder();
         List<Float> featureList = builder.getFeatureResult(0).getFeaturesList();
         faceDO.setFeatures(FeaturesTool.normalizeConvertToByte(featureList));

@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     public JsonErrorObject handleArgumentException2(ArgumentException e) {
         log.warn("抛出参数异常", e);
         e.printStackTrace();
-        return toJsonObject(e);
+        return BaseExceptionConvert.toJsonObject(e);
     }
 
     /**
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public JsonErrorObject handleBusinessException(BusinessException e) {
         log.warn("抛出业务异常:[{}:{}],{}", e.getErrorCode(), e.getErrorMsg(), e);
-        return toJsonObject(e);
+        return BaseExceptionConvert.toJsonObject(e);
     }
 
     /**
@@ -66,9 +66,20 @@ public class GlobalExceptionHandler {
     public JsonErrorObject handleSystemException(SysException e) {
         log.warn("抛出系统异常", e);
         e.printStackTrace();
-        return toJsonObjectWithDefaultMsg(e, "system busy");
+        return BaseExceptionConvert.toJsonObjectWithDefaultMsg(e, "system busy");
     }
 
+    /**
+     * 业务异常
+     */
+    @ExceptionHandler(BaseException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseBody
+    public JsonErrorObject handleMQBaseException(SysException e) {
+        log.warn("抛出系统异常", e);
+        e.printStackTrace();
+        return BaseExceptionConvert.toJsonObjectWithDefaultMsg(e, "system busy");
+    }
 
     /**
      * 系统异常(未知)
@@ -80,7 +91,7 @@ public class GlobalExceptionHandler {
     public JsonErrorObject handleOtherException(Exception e) {
         log.warn("抛出系统异常", e);
         e.printStackTrace();
-        return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR));
+        return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR));
     }
 
     /**
@@ -93,7 +104,7 @@ public class GlobalExceptionHandler {
         FieldError fieldError = e.getBindingResult().getFieldError();
         assert fieldError != null;
         ArgumentException argumentException = getError(Objects.requireNonNull(fieldError.getCode()), fieldError.getField());
-        return toJsonObject(argumentException);
+        return BaseExceptionConvert.toJsonObject(argumentException);
     }
 
     @ExceptionHandler(InvalidFormatException.class)
@@ -104,7 +115,7 @@ public class GlobalExceptionHandler {
         args[0] = e.getValue();
         args[1] = e.getMessage();
         ArgumentException argumentException = (ArgumentException) ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_INVALID_FORMAT, args);
-        return toJsonObject(argumentException);
+        return BaseExceptionConvert.toJsonObject(argumentException);
     }
 
     /**
@@ -115,9 +126,9 @@ public class GlobalExceptionHandler {
     public JsonErrorObject handleMediaTypeException(HttpMediaTypeNotSupportedException e) {
         log.warn("抛出http异常", e);
         if (!MediaType.APPLICATION_JSON.getType().equals(Objects.requireNonNull(e.getContentType()).getType())) {
-            return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.JSON_CONTENT_FORMAT_ERROR));
+            return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.JSON_CONTENT_FORMAT_ERROR));
         } else {
-            return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR));
+            return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR));
         }
     }
 
@@ -128,7 +139,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public JsonErrorObject handleNoHandlerException(NoHandlerFoundException e, HttpServletRequest request) {
         log.warn("抛出参数[URI不支持]异常", e);
-        return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.INVALID_METHOD, request.getRequestURI()));
+        return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.INVALID_METHOD, request.getRequestURI()));
     }
 
     /**
@@ -138,16 +149,9 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public JsonErrorObject handleSqlException(Exception e) {
         log.warn("抛出SQL异常", e);
-        return toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SQL_NOT_VALID));
+        return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SQL_NOT_VALID));
     }
 
-    protected static JsonErrorObject toJsonObject(BaseException baseException) {
-        return new JsonErrorObject(baseException.getErrorCode(), baseException.getErrorMsg());
-    }
-
-    protected static JsonErrorObject toJsonObjectWithDefaultMsg(BaseException baseException, String defaultErrorMsg) {
-        return new JsonErrorObject(baseException.getErrorCode(), defaultErrorMsg);
-    }
 
     protected static ArgumentException getError(String code, String field) {
         GlobalExceptionEnum errorEnums;

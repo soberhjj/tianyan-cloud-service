@@ -1,11 +1,14 @@
 package com.newland.tianyan.face.domain.dto;
 
-import com.newland.tianya.commons.base.constants.VerifyConstant;
+import com.newland.tianyan.face.constant.VerifyConstant;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MIN_APP_ID;
 
 @Data
 public class AppUpdateReqDTO {
@@ -14,7 +17,7 @@ public class AppUpdateReqDTO {
     private String account;
 
     @NotEmpty
-    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
+    @Pattern(regexp = VerifyConstant.APP_NAME)
     private String appName;
 
     @Pattern(regexp = VerifyConstant.APP_LIST)
@@ -23,7 +26,8 @@ public class AppUpdateReqDTO {
     @NotEmpty
     private String appInfo;
 
-    @Min(1)
+    @Min(1599613749000L)
+    @NotNull
     private Long appId;
 
 }

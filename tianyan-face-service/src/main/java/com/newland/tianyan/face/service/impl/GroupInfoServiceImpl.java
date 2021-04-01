@@ -2,6 +2,7 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
@@ -18,9 +19,12 @@ import com.newland.tianyan.face.service.GroupInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.List;
+import java.util.*;
+
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
 
 /**
  * @Author: huangJunJie  2020-11-02 14:11
@@ -101,5 +105,33 @@ public class GroupInfoServiceImpl implements GroupInfoService {
 
         //发布事件。由于删除了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值减1
         publisher.publishEvent(new AbstractGroupDeleteEvent(groupToDelete.getAppId(), groupToDelete.getGroupId()));
+    }
+
+    @Override
+    public List<GroupInfoDO> queryBatch(Long appId, String requestGroupIdsStr) {
+        Set<String> groupIdList = this.splitGroupIdList(requestGroupIdsStr);
+
+        List<GroupInfoDO> groupList = groupInfoMapper.queryBatch(appId, groupIdList);
+        if (CollectionUtils.isEmpty(groupList)) {
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, requestGroupIdsStr);
+        }
+        return groupList;
+    }
+
+
+    @Override
+    public Set<String> splitGroupIdList(String requestGroupIdsStr) {
+        Set<String> groupIdSet = new HashSet<>();
+        Collections.addAll(groupIdSet, requestGroupIdsStr.split(ID_SPLIT_REGEX));
+        if (groupIdSet.size() > MAX_GROUP_NUMBER) {
+            throw ExceptionSupport.toException(ExceptionEnum.OVER_GROUP_MAX_NUMBER);
+        }
+
+        for (String item : groupIdSet) {
+            if (item.length() > MAX_GROUP_LENGTH) {
+                throw ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_SIZE_MAX, "group_id:" + item);
+            }
+        }
+        return groupIdSet;
     }
 }

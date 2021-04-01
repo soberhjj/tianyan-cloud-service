@@ -1,6 +1,9 @@
 package com.newland.tianyan.commons.webcore.filter;
 
+import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import com.newland.tianya.commons.base.support.JsonSkipSupport;
+import com.newland.tianya.commons.base.utils.GsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -43,7 +46,7 @@ public class ApiReqAdvice implements RequestBodyAdvice {
 
     @Override
     public Object afterBodyRead(Object o, HttpInputMessage httpInputMessage, MethodParameter methodParameter, Type type, Class<? extends HttpMessageConverter<?>> aClass) {
-        log.info("requestParams：{}", JsonSkipSupport.toJson(aClass,o));
+        log.info("requestParams：{}", JsonSkipSupport.toJson(o));
         return o;
     }
 

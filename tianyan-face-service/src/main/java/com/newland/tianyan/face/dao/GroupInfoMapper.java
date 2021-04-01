@@ -7,6 +7,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * @Author: huangJunJie  2020-11-02 14:37
  */
@@ -34,4 +37,6 @@ public interface GroupInfoMapper extends CommonMapper<GroupInfoDO> {
      * 插入groupInfo并且groupInfo.id被赋予自增Id
      */
     int insertGetId(GroupInfoDO groupInfoDO);
+
+    List<GroupInfoDO> queryBatch(@Param("appId") Long appId, Set<String> groupIdSet);
 }

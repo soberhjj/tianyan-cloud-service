@@ -21,4 +21,18 @@ public class RabbitMqQueueName {
     public static String FACE_DETECT_QUEUE_V34 = "faceDetectQueue_V34";
 
     public static String FACE_DETECT_QUEUE_V36 = "faceDetectQueue_V36";
+    /**
+     * 人脸feature队列
+     */
+    public static String FACE_FEATURE_QUEUE = "faceFeatureQueue";
+
+    public static String FACE_FEATURE_QUEUE_V18 = "faceFeatureQueue_V18";
+
+    public static String FACE_FEATURE_QUEUE_V20 = "faceFeatureQueue_V20";
+
+    public static String FACE_FEATURE_QUEUE_V20_OLD = "faceFeatureQueue_V20_old";
+
+    public static String FACE_FEATURE_QUEUE_V34 = "faceFeatureQueue_V34";
+
+    public static String FACE_FEATURE_QUEUE_V36 = "faceFeatureQueue_V36";
 }

@@ -2,13 +2,13 @@ package com.newland.tianyan.face.service.impl;
 
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianya.commons.base.exception.BaseException;
+import com.newland.tianya.commons.base.exception.BusinessException;
 import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.model.proto.NLFace;
 import com.newland.tianya.commons.base.model.vectorsearch.QueryResDTO;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.*;
-import com.newland.tianyan.face.constant.EntityStatusConstants;
 import com.newland.tianyan.face.constant.ExceptionEnum;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.dao.UserInfoMapper;
@@ -23,6 +23,7 @@ import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.service.FacesetFaceService;
+import com.newland.tianyan.face.service.GroupInfoService;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
@@ -32,11 +33,14 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static com.newland.tianyan.face.constant.BusinessArgumentConstants.FACE_FIELD_COORDINATE;
-import static com.newland.tianyan.face.constant.BusinessArgumentConstants.FACE_FIELD_LIVENESS;
+import static com.newland.tianya.commons.base.constants.GlobalExceptionEnum.BASE64_FORMAT_ILLEGAL;
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
+import static com.newland.tianyan.face.constant.ExceptionEnum.PICTURE_HAS_NO_FACE;
 import static java.lang.Math.abs;
 
 /**
@@ -50,7 +54,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Autowired
     private RabbitMQSender rabbitMqSender;
     @Autowired
-    private GroupInfoMapper groupInfoMapper;
+    private GroupInfoService groupInfoService;
     @Autowired
     private UserInfoMapper userInfoMapper;
     @Autowired
@@ -70,86 +74,94 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     @Override
     public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReqDTO request) throws BaseException {
-        String fileName = request.getImage();
+        this.checkFaceField(request.getFaceFields());
+        log.info("人脸搜索，输入用户组{},进入用户组有效性筛查：用户组存在且不为空", request.getGroupId());
+        Map<Long, String> gidWithGroupIdMaps = this.convertToEffectiveGidMaps(request.getAppId(), request.getGroupId());
         log.info("人脸搜索，开始检查图片有效性");
+        String fileName = request.getImage();
         ImageCheckUtils.imageCheck(fileName);
-        List<String> groupIdList = new ArrayList<>();
-        Collections.addAll(groupIdList, request.getGroupId().split(","));
-        log.info("人脸搜索，输入用户组{},进入用户组有效性筛查：用户组存在且不为空", groupIdList);
-        List<Long> groupList = new ArrayList<>(groupIdList.size());
-        for (String groupId : groupIdList) {
-            GroupInfoDO groupInfoDO = new GroupInfoDO();
-            groupInfoDO.setAppId(request.getAppId());
-            groupInfoDO.setGroupId(groupId);
-            groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
-            GroupInfoDO group = groupInfoMapper.selectOne(groupInfoDO);
-            if (group != null) {
-                if (group.getUserNumber() == 0) {
-                    throw ExceptionSupport.toException(ExceptionEnum.EMPTY_GROUP, groupId);
-                }
-                groupList.add(group.getId());
-            } else {
-                throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, groupId);
-            }
-        }
+
         log.info("人脸搜索，用户组筛查通过，请求计算图片特征值");
         NLFace.CloudFaceSendMessage feature =
-                amqpHelper(fileName, request.getMaxFaceNum(), TASK_TYPE.get("feature"));
+                this.amqpHelper(fileName, request.getMaxFaceNum(), TASK_TYPE.get("feature"));
         List<Float> featureRaw = FeaturesTool.normalizeConvertToList(feature.getFeatureResultList().get(0).getFeaturesList());
-        log.info("人脸搜索，图片特征值已获得，开始向量搜索中。");
-        List<QueryResDTO> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw, request.getMaxUserNum());
-        if (CollectionUtils.isEmpty(queryFaceList)) {
-            throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_FOUND);
-        }
-        log.info("人脸搜索，向量搜索得到结果，开始筛选结果集并封装");
+        log.info("人脸搜索，图片特征值已获得，开始向量搜索中...");
+        List<QueryResDTO> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw);
+        int unUseResult = 0;
         NLFace.CloudFaceSendMessage.Builder resultBuilder = NLFace.CloudFaceSendMessage.newBuilder();
         resultBuilder.setLogId(UUID.randomUUID().toString());
         resultBuilder.setFaceNum(feature.getFaceNum());
-        int unUseResult = 0;
-        for (QueryResDTO milvusQueryRes : queryFaceList) {
-            //拆解根据规则拼接的向量id获得gid、uid
-            Long vectorId = milvusQueryRes.getEntityId();
-            Long gid = VectorSearchKeyUtils.splitGid(vectorId);
-            Long uid = VectorSearchKeyUtils.splitUid(vectorId);
-            //人脸筛选
-            if (!groupList.contains(gid)) {
-                log.info("剔除非当前请求的用户组结果gid:{}", gid);
-                unUseResult++;
-                continue;
+        if (!CollectionUtils.isEmpty(queryFaceList)) {
+            log.info("人脸搜索，向量搜索得到结果，开始筛选结果集并封装");
+            int countTopK = 0;
+            for (QueryResDTO vectorsQueryRes : queryFaceList) {
+                if (countTopK > request.getMaxUserNum()) {
+                    break;
+                }
+                //拆解根据规则拼接的向量id获得gid、uid
+                Long vectorId = vectorsQueryRes.getEntityId();
+                Long gid = VectorSearchKeyUtils.splitGid(vectorId);
+                Long uid = VectorSearchKeyUtils.splitUid(vectorId);
+                //人脸筛选-用户组
+                if (!gidWithGroupIdMaps.containsKey(gid)) {
+                    log.info("剔除非指定或数据库已删除的无效用户组信息gid:{}", gid);
+                    unUseResult++;
+                    continue;
+                }
+                //人脸筛选-用户
+                UserInfoDO conditionUser = new UserInfoDO();
+                conditionUser.setId(uid);
+                UserInfoDO queryUser = userInfoMapper.selectOne(conditionUser);
+                if (queryUser == null) {
+                    log.info("剔除数据库已删除的无效用户信息uid:{}", uid);
+                    unUseResult++;
+                    continue;
+                }
+                String requestUserId = request.getUserId();
+                String queryUserId = queryUser.getUserId();
+                if (!StringUtils.isEmpty(requestUserId) && !requestUserId.equals(queryUserId)) {
+                    log.info("剔除非用户指定用户信息uid:{}", uid);
+                    unUseResult++;
+                    continue;
+                }
+                NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
+                //用户组信息
+                builder.setGroupId(gidWithGroupIdMaps.get(gid));
+                builder.setUserId(queryUser.getUserId());
+                builder.setUserName(queryUser.getUserName());
+                builder.setUserInfo(queryUser.getUserInfo());
+                //置信度
+                builder.setConfidence(String.valueOf(vectorsQueryRes.getDistance()));
+                countTopK++;
             }
-            NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
-            //用户组信息
-            GroupInfoDO conditionGroup = new GroupInfoDO();
-            conditionGroup.setId(gid);
-            GroupInfoDO queryGroup = groupInfoMapper.selectOne(conditionGroup);
-            if (queryGroup == null) {
-                log.info("剔除db已删除用户组信息gid:{}", gid);
-                unUseResult++;
-                continue;
+            log.info("人脸搜索-搜索已结束，开始请求活体或5~106点坐标");
+            this.doHandleFaceField(request.getFaceFields(), resultBuilder, fileName);
+            if (unUseResult == queryFaceList.size()) {
+                throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_MATCH);
             }
-            builder.setGroupId(queryGroup.getGroupId());
-            //用户信息
-            UserInfoDO conditionUser = new UserInfoDO();
-            conditionUser.setId(uid);
-            UserInfoDO queryUser = userInfoMapper.selectOne(conditionUser);
-            if (queryUser == null) {
-                log.info("剔除db已删除用户信息uid:{}", uid);
-                unUseResult++;
-                continue;
-            }
-            builder.setUserId(queryUser.getUserId());
-            builder.setUserName(queryUser.getUserName());
-            builder.setUserInfo(queryUser.getUserInfo());
-            //置信度
-            builder.setConfidence(String.valueOf(milvusQueryRes.getDistance()));
+            return resultBuilder.build();
+        } else {
+            throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_MATCH);
         }
-        if (unUseResult == queryFaceList.size()) {
-            throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_FOUND);
+    }
+
+    private Map<Long, String> convertToEffectiveGidMaps(Long appId, String groupIdReqParam) {
+        List<GroupInfoDO> groupList = groupInfoService.queryBatch(appId, groupIdReqParam);
+
+        int groupEmptyCounters = 0;
+        Map<Long, String> effectiveGidMaps = new ConcurrentHashMap<>(groupList.size());
+        for (GroupInfoDO item : groupList) {
+            if (item.getFaceNumber() == 0) {
+                groupEmptyCounters++;
+            }
+            effectiveGidMaps.put(item.getId(), item.getGroupId());
         }
-        log.info("人脸搜索-搜索已结束，开始请求活体或5~106点坐标");
-        this.checkFaceField(request.getFaceFields());
-        this.faceFieldHelper(request.getFaceFields(), resultBuilder, fileName);
-        return resultBuilder.build();
+
+        //if all group is invalid, the error_msg will be given to client
+        if (groupEmptyCounters == groupList.size()) {
+            throw ExceptionSupport.toException(ExceptionEnum.EMPTY_GROUP, groupIdReqParam);
+        }
+        return effectiveGidMaps;
     }
 
     private NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) throws BaseException {
@@ -193,14 +205,22 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         }
         NLFace.CloudFaceSendMessage build = result.build();
         if (!StringUtils.isEmpty(build.getErrorMsg())) {
-            throw new BaseException(build.getErrorCode(), build.getErrorMsg());
+            int errorCode = build.getErrorCode();
+            switch (errorCode) {
+                case 6201:
+                    throw ExceptionSupport.toException(BASE64_FORMAT_ILLEGAL);
+                case 6402:
+                    throw ExceptionSupport.toException(PICTURE_HAS_NO_FACE);
+                default:
+                    throw new BusinessException(build.getErrorCode(), build.getErrorMsg());
+            }
         }
         return build;
     }
 
 
-    public void faceFieldHelper(String faceFieldsStr, NLFace.CloudFaceSendMessage.Builder result,
-                                String fileName) throws BaseException {
+    public void doHandleFaceField(String faceFieldsStr, NLFace.CloudFaceSendMessage.Builder result,
+                                  String fileName) throws BaseException {
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
@@ -226,6 +246,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     @Override
     public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request) throws IOException {
+        this.checkFaceField(request.getFaceFields());
         String image1 = request.getFirstImage();
         String image2 = request.getSecondImage();
         //检查图片
@@ -250,14 +271,16 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         result.setConfidence(distance);
         result.setLogId(logId);
 
-        this.checkFaceField(request.getFaceFields());
-        faceFieldHelper(request.getFaceFields(), result, image1);
-        faceFieldHelper(request.getFaceFields(), result, image2);
+        doHandleFaceField(request.getFaceFields(), result, image1);
+        doHandleFaceField(request.getFaceFields(), result, image2);
         return result.build();
     }
 
     @Override
     public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReqDTO vo) throws IOException {
+        String faceFieldsStr = vo.getFaceFields();
+        this.checkFaceField(faceFieldsStr);
+
         String image = vo.getImage();
         //检查图片
         ImageCheckUtils.imageCheck(image);
@@ -269,9 +292,6 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String logId = UUID.randomUUID().toString();
 
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
-
-        String faceFieldsStr = vo.getFaceFields();
-        this.checkFaceField(faceFieldsStr);
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
@@ -291,6 +311,9 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     @Override
     public NLFace.CloudFaceSendMessage liveness(FaceDetectReqDTO vo) throws IOException {
+        String faceFieldsStr = vo.getFaceFields();
+        this.checkFaceField(faceFieldsStr);
+
         String image = vo.getImage();
         //检查图片
         ImageCheckUtils.imageCheck(image);
@@ -302,9 +325,6 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String logId = UUID.randomUUID().toString();
 
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
-
-        String faceFieldsStr = vo.getFaceFields();
-        this.checkFaceField(faceFieldsStr);
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
@@ -324,6 +344,9 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     @Override
     public NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectReqDTO request) throws IOException {
+        String faceFieldsStr = request.getFaceFields();
+        this.checkFaceField(faceFieldsStr);
+
         String image = request.getImage();
         //检查图片
         ImageCheckUtils.imageCheck(image);
@@ -335,9 +358,6 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String logId = UUID.randomUUID().toString();
 
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
-
-        String faceFieldsStr = request.getFaceFields();
-        this.checkFaceField(faceFieldsStr);
         if (!StringUtils.isEmpty(faceFieldsStr)) {
             String[] faceFields = faceFieldsStr.split(",");
             for (String faceField : faceFields) {
@@ -554,7 +574,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         if (StringUtils.isEmpty(faceField)) {
             return;
         }
-        String[] faceFields = faceField.split(",");
+        String[] faceFields = faceField.split(FIELD_SPLIT_REGEX);
         for (String item : faceFields) {
             boolean coordinate = FACE_FIELD_COORDINATE.equals(item);
             boolean liveNess = FACE_FIELD_LIVENESS.equals(item);

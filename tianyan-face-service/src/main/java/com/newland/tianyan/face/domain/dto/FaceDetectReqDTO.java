@@ -18,8 +18,8 @@ public class FaceDetectReqDTO {
     private String image;
 
     @Min(1)
-    @Max(120)
-    private int maxFaceNum = 1;
+    @Max(20)
+    private Integer maxFaceNum = 1;
 
     private String faceFields;
 

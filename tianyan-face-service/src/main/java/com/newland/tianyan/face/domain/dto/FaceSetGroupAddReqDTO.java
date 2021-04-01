@@ -1,12 +1,11 @@
 package com.newland.tianyan.face.domain.dto;
 
-import com.newland.tianya.commons.base.constants.VerifyConstant;
+import com.newland.tianyan.face.constant.VerifyConstant;
 import lombok.Data;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
+
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MIN_APP_ID;
 
 @Data
 public class FaceSetGroupAddReqDTO {
@@ -16,6 +15,7 @@ public class FaceSetGroupAddReqDTO {
     private String groupId;
 
     @NotNull
+    @Min(1599613749000L)
     private Long appId;
 
     @NotBlank

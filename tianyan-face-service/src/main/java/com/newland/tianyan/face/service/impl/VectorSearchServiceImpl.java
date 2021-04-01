@@ -30,11 +30,12 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
         return "FACE_" + appId;
     }
 
-    public List<QueryResDTO> query(Long appId, List<Float> feature, Integer topK) throws BaseException {
+    public List<QueryResDTO> query(Long appId, List<Float> feature) throws BaseException {
+        Integer defaultTopK = 100;
         QueryReqDTO queryReq = QueryReqDTO.builder()
                 .appId(getCollectionName(appId))
                 .feature(feature)
-                .topK(topK)
+                .topK(defaultTopK)
                 .build();
         return vectorSearchService.query(queryReq);
     }

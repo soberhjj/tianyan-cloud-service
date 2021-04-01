@@ -29,7 +29,7 @@ public class ApiRespAdvice implements ResponseBodyAdvice {
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter,
                                   MediaType mediaType, Class aClass,
                                   ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        log.info("responseParams：{}", JsonSkipSupport.toJson(aClass,o));
+        log.info("responseParams：{}", "x-protobuf".equals(mediaType.getSubtype()) ? o.toString() : JsonSkipSupport.toJson(o));
         return o;
     }
 }

@@ -6,33 +6,50 @@
         UPDATE `group_info`
         SET user_number = user_number + #{count}
         WHERE app_id = #{appId}
-        AND group_id = #{groupId}
+          AND group_id = #{groupId}
     </update>
 
     <update id="faceNumberIncrease">
         UPDATE `group_info`
         SET face_number = face_number + #{count}
         WHERE app_id = #{appId}
-        AND group_id = #{groupId}
+          AND group_id = #{groupId}
     </update>
 
     <update id="userNumberDecrease">
         UPDATE `group_info`
         SET user_number = user_number - #{count}
         WHERE app_id = #{appId}
-        AND group_id = #{groupId}
+          AND group_id = #{groupId}
     </update>
 
     <update id="faceNumberDecrease">
         UPDATE `group_info`
         SET face_number = face_number - #{count}
         WHERE app_id = #{appId}
-        AND group_id = #{groupId}
+          AND group_id = #{groupId}
     </update>
 
-    <insert id="insertGetId" parameterType="com.newland.tianyan.face.domain.entity.UserInfoDO" useGeneratedKeys="true" keyProperty="id"
+    <insert id="insertGetId" parameterType="com.newland.tianyan.face.domain.entity.UserInfoDO" useGeneratedKeys="true"
+            keyProperty="id"
             keyColumn="id">
-        INSERT INTO group_info ( app_id,group_id,user_number,face_number,is_delete )
-        VALUES( #{appId},#{groupId},#{userNumber},#{faceNumber},#{isDelete})
+        INSERT INTO group_info (app_id, group_id, user_number, face_number, is_delete)
+        VALUES (#{appId}, #{groupId}, #{userNumber}, #{faceNumber}, #{isDelete})
     </insert>
+
+    <select id="queryBatch" resultType="com.newland.tianyan.face.domain.entity.GroupInfoDO">
+        SELECT
+        id,
+        group_id,
+        face_number
+        FROM
+        group_info
+        WHERE
+        app_id = #{appId}
+        AND group_id IN
+        <foreach collection="groupIdSet" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND is_delete = 0;
+    </select>
 </mapper>

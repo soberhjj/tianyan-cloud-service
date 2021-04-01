@@ -44,7 +44,6 @@ public enum GlobalExceptionEnum implements IExceptionEnums {
      * 暂不支持JPG、PNG、BMP以外的图片格式
      */
     IMAGE_FORMAT_ILLEGAL(6315, "image file format error", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
-
     /**
      * auth校验异常
      */

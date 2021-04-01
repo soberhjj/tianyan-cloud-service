@@ -1,11 +1,15 @@
 package com.newland.tianyan.face.domain.dto;
 
+import com.newland.tianyan.face.constant.VerifyConstant;
 import lombok.Data;
 import lombok.NonNull;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MIN_APP_ID;
 
 @Data
 public class FaceSetUserDeleteReqDTO {
@@ -13,15 +17,15 @@ public class FaceSetUserDeleteReqDTO {
     @NotBlank
     private String account;
 
-    @Min(0)
-    @NonNull
+    @NotNull
+    @Min(1599613749000L)
     private Long appId;
 
     @NotBlank
-    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
+    @Pattern(regexp = VerifyConstant.GROUP_ID_OLD)
     private String groupId;
 
     @NotBlank
-    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
+    @Pattern(regexp = VerifyConstant.USER_ID_OLD)
     private String userId;
 }

@@ -1,14 +1,22 @@
 package com.newland.tianyan.face.domain.dto;
 
-import com.newland.tianya.commons.base.constants.VerifyConstant;
+import com.newland.tianyan.face.constant.VerifyConstant;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
+
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MIN_APP_ID;
 
 @Data
 public class FaceSetFaceAddReqDTO {
+
+    @NotBlank
+    private String account;
+
+    @NotNull
+    @Min(1599613749000L)
+    private Long appId;
 
     @NotBlank
     private String image;
@@ -17,18 +25,12 @@ public class FaceSetFaceAddReqDTO {
     @Pattern(regexp = VerifyConstant.USER_ID)
     private String userId;
 
-    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
+    @Length(max=256)
     private String userName;
 
     @NotBlank
-    @Pattern(regexp = VerifyConstant.GROUP_ID)
+    @Pattern(regexp = VerifyConstant.GROUP_ID_LIST)
     private String groupId;
-
-    @NotNull
-    private long appId;
-
-    @NotBlank
-    private String account;
 
     private String userInfo;
     /**

@@ -170,7 +170,7 @@
 
 	<!--测试环境:输出到文件-->
 	<springProfile name="test">
-		<root level="info">
+		<root level="warn">
 			<appender-ref ref="DEBUG_FILE"/>
 			<appender-ref ref="INFO_FILE"/>
 			<appender-ref ref="WARN_FILE"/>

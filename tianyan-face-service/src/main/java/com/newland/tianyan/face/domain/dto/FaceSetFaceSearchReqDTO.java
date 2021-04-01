@@ -1,8 +1,12 @@
 package com.newland.tianyan.face.domain.dto;
 
+import com.newland.tianyan.face.constant.VerifyConstant;
 import lombok.Data;
 
 import javax.validation.constraints.*;
+
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MAX_FACE_NUMBER;
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MIN_APP_ID;
 
 /**
  * @program: newland-cloud
@@ -12,24 +16,25 @@ import javax.validation.constraints.*;
 @Data
 public class FaceSetFaceSearchReqDTO {
 
-    @NotNull
-    private Long appId;
-
     @NotBlank
     private String account;
+
+    @NotNull
+    @Min(1599613749000L)
+    private Long appId;
 
     @NotBlank
     private String image;
 
     @NotBlank
-    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5,]{0,32}$")
+    @Pattern(regexp = VerifyConstant.GROUP_ID_LIST)
     private String groupId;
 
-    @Pattern(regexp = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$")
+    @Pattern(regexp = VerifyConstant.USER_ID_OLD)
     private String userId;
 
     @Min(1)
-    @Max(120)
+    @Max(20)
     private int maxFaceNum = 1;
 
     @Min(1)

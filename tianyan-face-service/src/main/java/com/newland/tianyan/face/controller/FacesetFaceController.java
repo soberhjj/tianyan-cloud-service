@@ -25,7 +25,7 @@ import java.io.IOException;
 public class FacesetFaceController {
 
     @Autowired
-    FacesetFaceService facesetFaceService;
+    private FacesetFaceService facesetFaceService;
 
     @PostMapping(value = "/search")
     public NLFace.CloudFaceSendMessage search(@RequestBody @Validated FaceSetFaceSearchReqDTO request) {

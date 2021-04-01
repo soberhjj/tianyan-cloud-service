@@ -25,6 +25,7 @@ public enum ExceptionEnum implements IExceptionEnums {
     GROUP_NOT_FOUND(6403, "group[{0}] is not found", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     GROUP_ALREADY_EXISTS(6404, "group[{0}] already exists", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     EMPTY_GROUP(6405, "no user in group[{0}]", ExceptionTypeEnums.BUSINESS_EXCEPTION),
+    OVER_GROUP_MAX_NUMBER(6413, "group number is over limit", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     /**
      * user
      */
@@ -35,8 +36,10 @@ public enum ExceptionEnum implements IExceptionEnums {
     /**
      * face
      */
-    FACE_NOT_FOUND(6409, "face is not found", ExceptionTypeEnums.BUSINESS_EXCEPTION),
+    PICTURE_HAS_NO_FACE(6409, "pic has no face", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
     OVER_FACE_MAX_NUMBER(6410, "the number of user's faces is beyond the limit", ExceptionTypeEnums.BUSINESS_EXCEPTION),
+    FACE_NOT_FOUND(6411, "face is not exists", ExceptionTypeEnums.BUSINESS_EXCEPTION),
+    FACE_NOT_MATCH(6412, "match user is not found", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     /**
      * 人脸算法服务异常
      */
