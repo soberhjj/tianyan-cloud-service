@@ -29,7 +29,6 @@ import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
-import com.newland.tianyan.face.service.GroupInfoService;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +40,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static com.newland.tianya.commons.base.constants.GlobalExceptionEnum.BASE64_FORMAT_ILLEGAL;
 import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
@@ -66,8 +67,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Autowired
     private GroupInfoMapper groupInfoMapper;
     @Autowired
-    private GroupInfoService groupInfoService;
-    @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
     private RabbitMQSender rabbitMqSender;
@@ -75,114 +74,125 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public FaceDO create(NLBackend.BackendAllRequest receive) throws IOException {
+        //参数验证
         String actionType = receive.getActionType();
         this.checkOperationType(actionType);
-        Set<String> groupIdSet = groupInfoService.splitGroupIdList(receive.getGroupId());
         int qualityControl = receive.getQualityControl();
         if (qualityControl != 0) {
             this.handleImageQualityControl(qualityControl, receive.getImage());
         }
-        FaceDO query = ProtobufUtils.parseTo(receive, FaceDO.class);
+
+        Long appId = receive.getAppId();
+        String groupId = receive.getGroupId();
+        String userId = receive.getUserId();
+
         FaceDO insertFaceDO = new FaceDO();
         log.info("人脸添加-提交图片至存储服务");
         this.uploadImage(insertFaceDO, receive.getImage());
         log.info("人脸添加-请求图片特征值");
         this.handleFeatures(insertFaceDO, receive.getImage());
         insertFaceDO.setAppId(receive.getAppId());
-        insertFaceDO.setUserId(receive.getUserId());
+        //对于不存在的用户组、用户进行新建
+        GroupInfoDO groupInfoDO = this.getExistedGroup(appId, groupId);
+        insertFaceDO.setGid(groupInfoDO.getId());
+        insertFaceDO.setGroupId(groupInfoDO.getGroupId());
 
-        for (String groupId : groupIdSet) {
-            query.setGroupId(groupId);
-            GroupInfoDO groupInfoDO = new GroupInfoDO();
-            groupInfoDO.setAppId(query.getAppId());
-            groupInfoDO.setGroupId(query.getGroupId());
-            groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
-            groupInfoDO = groupInfoMapper.selectOne(groupInfoDO);
-            if (groupInfoDO == null) {
-                log.info("人脸添加-目标用户组不存在{}", JsonUtils.toJson(groupInfoDO));
-                GroupInfoDO insertGroup = new GroupInfoDO();
-                insertGroup.setAppId(query.getAppId());
-                insertGroup.setGroupId(query.getGroupId());
-                insertGroup.setIsDelete(EntityStatusConstants.NOT_DELETE);
-                insertGroup.setUserNumber(0);
-                insertGroup.setFaceNumber(0);
-                groupInfoMapper.insertGetId(insertGroup);
-                publisher.publishEvent(new AbstractGroupCreateEvent(query.getAppId(), query.getGroupId()));
-                log.info("人脸添加-新建用户组成功{}", JsonUtils.toJson(insertFaceDO));
-                groupInfoDO = insertGroup;
-            }
-            insertFaceDO.setGroupId(groupId);
+        UserInfoDO queryUser = ProtobufUtils.parseTo(receive, UserInfoDO.class);
+        queryUser.setGid(groupInfoDO.getId());
+        queryUser.setUserInfo(receive.getUserInfo());
+        UserInfoDO userInfoDO = this.getExistedUser(queryUser);
+        insertFaceDO.setUid(userInfoDO.getId());
+        insertFaceDO.setUserId(userInfoDO.getUserId());
+        //初次录入的情况，添加人脸
+        if (userInfoDO.getFaceNumber() == 0) {
+            log.info("人脸添加-新增人脸append");
+            insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 0));
+            faceCacheHelper.add(insertFaceDO);
+            faceMapper.insertSelective(insertFaceDO);
+            publisher.publishEvent(new UserCreateEvent(appId, groupId, userId, 1, 1));
+            publisher.publishEvent(new FaceCreateEvent(appId, groupId, userId));
+        } else {
 
-            if (groupInfoDO.getUserNumber() > MAX_USER_NUMBER) {
-                throw ExceptionSupport.toException(ExceptionEnum.OVER_USE_MAX_NUMBER);
-            }
-            UserInfoDO queryUser = new UserInfoDO();
-            queryUser.setAppId(query.getAppId());
-            queryUser.setGid(groupInfoDO.getId());
-            queryUser.setGroupId(groupId);
-            queryUser.setUserId(receive.getUserId());
-            UserInfoDO sourceUser = userInfoMapper.selectOne(queryUser);
-            if (sourceUser == null) {
-                log.info("人脸添加-目标用户不存在{}", JsonUtils.toJson(queryUser));
-                UserInfoDO userInfoDO = new UserInfoDO();
-                userInfoDO.setAppId(query.getAppId());
-                userInfoDO.setGid(groupInfoDO.getId());
-                userInfoDO.setGroupId(query.getGroupId());
-                userInfoDO.setUserId(receive.getUserId());
-                if (!receive.getUserName().isEmpty()) {
-                    userInfoDO.setUserName(receive.getUserName());
-                } else {
-                    userInfoDO.setUserName(receive.getUserId());
+            if (ACTION_TYPE_APPEND.equals(actionType)) {
+                log.info("人脸添加-追加人脸append");
+                //缓存中添加用户的人脸
+                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber() + 1));
+                faceCacheHelper.add(insertFaceDO);
+                //添加人脸
+                faceMapper.insertSelective(insertFaceDO);
+                publisher.publishEvent(new FaceCreateEvent(appId, groupId, userId));
+            } else if (ACTION_TYPE_REPLACE.equals(actionType)) {
+                log.info("人脸添加-清空并添加新的人脸replace");
+                //清空人脸
+                FaceDO faceDO = new FaceDO();
+                faceDO.setGroupId(groupId);
+                faceDO.setUserId(userId);
+                faceDO.setAppId(appId);
+                List<Long> faceIdList = faceMapper.selectIdByGroupId(groupId);
+                if ((!CollectionUtils.isEmpty(faceIdList))) {
+                    faceCacheHelper.deleteBatch(appId, faceIdList);
                 }
-                userInfoDO.setUserInfo(receive.getUserInfo());
-                userInfoDO.setFaceNumber(1);
-                userInfoMapper.insertGetId(userInfoDO);
-                log.info("人脸添加-新建用户成功{}", JsonUtils.toJson(userInfoDO));
+                int deleteCount = faceMapper.delete(faceDO);
 
-                insertFaceDO.setUid(userInfoDO.getId());
-                insertFaceDO.setGid(groupInfoDO.getId());
-                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber()));
-                log.info("人脸添加-请求向量搜索添加人脸向量");
+                //添加该用户新的人脸（只有一张）
+                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 0));
                 faceCacheHelper.add(insertFaceDO);
                 faceMapper.insertSelective(insertFaceDO);
-                publisher.publishEvent(new UserCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId(), 1, 1));
-                log.info("人脸添加-添加人脸成功");
-            } else {
-                insertFaceDO.setUid(sourceUser.getId());
-                insertFaceDO.setGid(sourceUser.getGid());
-                if ("append".equals(actionType)) {
-                    log.info("人脸添加-追加人脸append");
-                    //缓存中添加用户的人脸
-                    insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), sourceUser.getFaceNumber() + 1));
-                    faceCacheHelper.add(insertFaceDO);
-                    //添加人脸
-                    faceMapper.insertSelective(insertFaceDO);
-                    publisher.publishEvent(new FaceCreateEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
-                } else if ("replace".equals(actionType)) {
-                    log.info("人脸添加-清空并添加新的人脸replace");
 
-                    FaceDO faceDO = new FaceDO();
-                    faceDO.setGroupId(groupId);
-                    faceDO.setUserId(query.getUserId());
-                    faceDO.setAppId(query.getAppId());
-                    List<Long> faceIdList = faceMapper.selectIdByGroupId(groupId);
-                    if ((!CollectionUtils.isEmpty(faceIdList))) {
-                        faceCacheHelper.deleteBatch(query.getAppId(), faceIdList);
-                    }
-                    int deleteCount;
-                    deleteCount = faceMapper.delete(faceDO);
-
-                    insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
-                    faceCacheHelper.add(insertFaceDO);
-                    faceMapper.insertSelective(insertFaceDO);
-
-                    //添加该用户新的人脸（只有一张）
-                    userInfoMapper.faceNumberIncrease(receive.getAppId(), groupId, receive.getUserId(), 1 - deleteCount);
-                    groupInfoMapper.faceNumberIncrease(receive.getAppId(), groupId, 1 - deleteCount);
-                }
+                publisher.publishEvent(new FaceDeleteEvent(appId, groupId, userId, deleteCount));
             }
         }
+
         return insertFaceDO;
+    }
+
+    private GroupInfoDO getExistedGroup(Long appId, String groupId) {
+        GroupInfoDO groupInfoDO = new GroupInfoDO();
+        groupInfoDO.setAppId(appId);
+        groupInfoDO.setGroupId(groupId);
+        groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
+        groupInfoDO = groupInfoMapper.selectOne(groupInfoDO);
+        if (groupInfoDO == null) {
+            log.info("人脸添加-目标用户组不存在{}", appId + "/" + groupId);
+            GroupInfoDO insertGroup = new GroupInfoDO();
+            insertGroup.setAppId(appId);
+            insertGroup.setGroupId(groupId);
+            insertGroup.setIsDelete(EntityStatusConstants.NOT_DELETE);
+            insertGroup.setUserNumber(0);
+            insertGroup.setFaceNumber(0);
+            groupInfoMapper.insertGetId(insertGroup);
+            publisher.publishEvent(new AbstractGroupCreateEvent(appId, groupId));
+            log.info("人脸添加-新建用户组成功{}", JsonUtils.toJson(insertGroup));
+            groupInfoDO = insertGroup;
+        }
+        if (groupInfoDO.getUserNumber() > MAX_USER_NUMBER) {
+            throw ExceptionSupport.toException(ExceptionEnum.OVER_USE_MAX_NUMBER);
+        }
+        return groupInfoDO;
+    }
+
+    private UserInfoDO getExistedUser(UserInfoDO sourceUser) {
+        UserInfoDO queryCondition = sourceUser;
+        sourceUser = userInfoMapper.selectOne(queryCondition);
+        if (sourceUser == null) {
+            log.info("人脸添加-目标用户不存在{}", JsonUtils.toJson(queryCondition));
+            UserInfoDO userInfoDO = new UserInfoDO();
+            userInfoDO.setAppId(queryCondition.getAppId());
+            userInfoDO.setGid(queryCondition.getGid());
+            userInfoDO.setGroupId(queryCondition.getGroupId());
+            userInfoDO.setUserId(queryCondition.getUserId());
+            userInfoDO.setUserInfo(queryCondition.getUserInfo());
+            userInfoDO.setFaceNumber(0);
+            if (!StringUtils.isEmpty(queryCondition.getUserName())) {
+                userInfoDO.setUserName(queryCondition.getUserName());
+            } else {
+                userInfoDO.setUserName(queryCondition.getUserId());
+            }
+            userInfoMapper.insertGetId(userInfoDO);
+            log.info("人脸添加-新建用户成功{}", JsonUtils.toJson(userInfoDO));
+            sourceUser = userInfoDO;
+        }
+        return sourceUser;
     }
 
     private void handleImageQualityControl(int qualityControl, String image) {
@@ -204,7 +214,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
 
         NLFace.CloudFaceSendMessage def =
-                amqpHelper(image, 1, 4);
+                this.amqpHelper(image, 1, 4);
         builder.mergeFrom(def);
         NLFace.CloudFaceSendMessage qualityRe = builder.build();
         if (qualityControl == 1) {
@@ -295,7 +305,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             }
         }
     }
-
 
     public NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) throws BaseException {
         //封装请求

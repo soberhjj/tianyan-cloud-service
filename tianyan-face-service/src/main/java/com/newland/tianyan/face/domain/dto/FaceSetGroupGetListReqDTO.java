@@ -4,10 +4,7 @@ import com.newland.tianyan.face.constant.VerifyConstant;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import javax.validation.constraints.*;
 
 import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
 
@@ -34,5 +31,6 @@ public class FaceSetGroupGetListReqDTO {
      * 查询个数，默认为 100
      */
     @Min(0)
+    @Max(1000)
     private Integer length = DEFAULT_PAGE_SIZE;
 }

@@ -29,7 +29,7 @@ public class FaceSetFaceAddReqDTO {
     private String userName;
 
     @NotBlank
-    @Pattern(regexp = VerifyConstant.GROUP_ID_LIST)
+    @Pattern(regexp = VerifyConstant.GROUP_ID)
     private String groupId;
 
     private String userInfo;

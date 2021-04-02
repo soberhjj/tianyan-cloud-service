@@ -1,5 +1,11 @@
 package com.newland.tianyan.face.event.user;
 
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class UserCreateEvent extends UserEvent {
 
     private int faceNumber;
@@ -11,19 +17,4 @@ public class UserCreateEvent extends UserEvent {
         this.userNumber = userNumber;
     }
 
-    public int getFaceNumber() {
-        return faceNumber;
-    }
-
-    public void setFaceNumber(int faceNumber) {
-        this.faceNumber = faceNumber;
-    }
-
-    public int getUserNumber() {
-        return userNumber;
-    }
-
-    public void setUserNumber(int userNumber) {
-        this.userNumber = userNumber;
-    }
 }

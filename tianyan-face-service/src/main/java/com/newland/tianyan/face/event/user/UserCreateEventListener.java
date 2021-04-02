@@ -18,7 +18,6 @@ public class UserCreateEventListener {
     @EventListener
     public void increaseNumber(UserCreateEvent event) {
         // 组中用户数,人脸数添加
-        groupInfoMapper.faceNumberIncrease(event.getAppId(), event.getGroupId(), event.getFaceNumber());
         groupInfoMapper.userNumberIncrease(event.getAppId(), event.getGroupId(), event.getUserNumber());
     }
 

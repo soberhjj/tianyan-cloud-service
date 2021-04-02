@@ -33,5 +33,6 @@ public class FaceSetUserFaceGetListReqDTO {
     private int startIndex = DEFAULT_PAGE_INDEX;
 
     @Min(0)
+    @Min(1000)
     private int length = DEFAULT_PAGE_SIZE;
 }

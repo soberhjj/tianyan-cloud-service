@@ -27,7 +27,7 @@ public class FaceSetFaceDetectReqDTO {
     private String image;
 
     @Min(1)
-    @Max(20)
+    @Max(120)
     private Integer maxFaceNum = 1;
 
     private String faceFields;

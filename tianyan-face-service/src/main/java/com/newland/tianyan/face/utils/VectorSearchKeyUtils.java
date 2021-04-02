@@ -65,7 +65,7 @@ public class VectorSearchKeyUtils {
         System.out.println(nf.format(beforeGid));
         System.out.println(nf.format(beforeUid));
 
-        Long key = VectorSearchKeyUtils.generatedKey(beforeGid, beforeUid, 2);
+        Long key = VectorSearchKeyUtils.generatedKey(beforeGid, beforeUid, 0);
         System.out.println(nf.format(key));
 
         Long afterGid = VectorSearchKeyUtils.splitGid(key);
