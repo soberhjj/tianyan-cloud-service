@@ -24,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
@@ -85,6 +87,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void copy(NLBackend.BackendAllRequest receive) throws BaseException {
         UserInfoDO queryUser = ProtobufUtils.parseTo(receive, UserInfoDO.class);
         Long appId = receive.getAppId();
@@ -151,7 +154,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             userNumber = 0;
             log.info("人脸复制-目标用户组的存在同名用户,开始过滤相同人脸");
             //封装复制人脸信息
-            List<FaceDO> dstFace = this.queryFace(appId, dstGroupInfo.getId(),dstGroupId, userId);
+            List<FaceDO> dstFace = this.queryFace(appId, dstGroupInfo.getId(), dstGroupId, userId);
             //过滤相同照片
             Set<String> srcImages = srcFace.stream().map(FaceDO::getImagePath).collect(Collectors.toSet());
             Set<String> dstImages = dstFace.stream().map(FaceDO::getImagePath).collect(Collectors.toSet());
@@ -169,8 +172,10 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             }
         }
         //封装复制人脸信息
+        long faceCount = 0L;
         for (FaceDO faceDO : srcFace) {
             FaceDO insertFace = this.convertCopyFace(faceDO, targetUserInfoDO, dstGroupInfo);
+            insertFace.setId(insertFace.getId() + ++faceCount);
             insertList.add(insertFace);
         }
         log.info("人脸复制-请求向量搜索服务添加人脸");
@@ -182,7 +187,8 @@ public class FacesetUserServiceImpl implements FacesetUserService {
 
     private FaceDO convertCopyFace(FaceDO targetFace, UserInfoDO userInfoDO, GroupInfoDO targetGroup) {
         FaceDO newFace = new FaceDO();
-        newFace.setId(VectorSearchKeyUtils.generatedKey(targetGroup.getId(), userInfoDO.getId(), userInfoDO.getFaceNumber() + 1));
+        Long initId = VectorSearchKeyUtils.generatedKey(targetGroup.getId(), userInfoDO.getId(), userInfoDO.getFaceNumber());
+        newFace.setId(initId);
         newFace.setAppId(targetGroup.getAppId());
         newFace.setGid(targetGroup.getId());
         newFace.setGroupId(targetGroup.getGroupId());

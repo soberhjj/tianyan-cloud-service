@@ -7,16 +7,16 @@
         UPDATE `user_info`
         SET face_number = face_number + #{count}
         WHERE app_id = #{appId}
-        AND group_id = #{groupId}
-        AND user_id = #{userId}
+          AND group_id = #{groupId}
+          AND user_id = #{userId}
     </update>
 
     <update id="faceNumberDecrease">
         UPDATE `user_info`
         SET face_number = face_number - #{count}
         WHERE app_id = #{appId}
-        AND group_id = #{groupId}
-        AND user_id = #{userId}
+          AND group_id = #{groupId}
+          AND user_id = #{userId}
     </update>
 
     <select id="getGroupIdByUserId" resultType="String">
@@ -35,28 +35,39 @@
         </where>
     </select>
 
-    <insert id="insertGetId" parameterType="com.newland.tianyan.face.domain.entity.UserInfoDO" useGeneratedKeys="true" keyProperty="id"
+    <insert id="insertGetId" parameterType="com.newland.tianyan.face.domain.entity.UserInfoDO" useGeneratedKeys="true"
+            keyProperty="id"
             keyColumn="id">
-        INSERT INTO user_info  ( app_id,gid,group_id,user_id,user_name,face_number,user_info )
-        VALUES( #{appId},#{gid},#{groupId},#{userId},#{userName},#{faceNumber},#{userInfo})
+        INSERT INTO user_info (app_id, gid, group_id, user_id, user_name, face_number, user_info)
+        VALUES (#{appId}, #{gid}, #{groupId}, #{userId}, #{userName}, #{faceNumber}, #{userInfo})
     </insert>
 
     <select id="queryBatch" parameterType="com.newland.tianyan.face.domain.vo.FaceSearchVo"
             resultType="com.newland.tianyan.face.domain.entity.UserInfoDO">
         SELECT *
         FROM
-            user_info a
+        user_info a
         WHERE
-            a.app_id = #{appId}
-          AND
-            a.gid in
+        a.app_id = #{appId}
+        AND
+        a.gid in
         <foreach collection="gidList" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
-          AND
-            a.id in
+        AND
+        a.id in
         <foreach collection="uidList" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
+    </select>
+
+    <select id="queryList" resultType="com.newland.tianyan.face.domain.entity.UserInfoDO">
+        SELECT * FROM `user_info` a
+        WHERE a.app_id = #{appId}
+        AND a.group_id in
+        <foreach collection="groupIdList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        AND a.user_id = #{userId}
     </select>
 </mapper>

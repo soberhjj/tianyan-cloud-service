@@ -5,6 +5,7 @@ import com.newland.tianya.commons.base.support.JsonSkipSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.protobuf.ProtobufJsonFormatHttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -29,7 +30,8 @@ public class ApiRespAdvice implements ResponseBodyAdvice {
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter,
                                   MediaType mediaType, Class aClass,
                                   ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
-        log.info("responseParams：{}", "x-protobuf".equals(mediaType.getSubtype()) ? o.toString() : JsonSkipSupport.toJson(o));
+        boolean isProtobuf = ProtobufJsonFormatHttpMessageConverter.class.equals(aClass) || "x-protobuf".equals(mediaType.getSubtype());
+        log.info("responseParams：{}", isProtobuf ? o.toString() : JsonSkipSupport.toJson(o));
         return o;
     }
 }

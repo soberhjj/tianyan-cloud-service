@@ -17,7 +17,15 @@ public class FaceSearchVo {
 
     private Long gid;
 
+    private String groupId;
+
     private Long uid;
+
+    private String userId;
+
+    private String userName;
+
+    private String userInfo;
 
     private String distance;
 }

@@ -34,5 +34,7 @@ public interface UserInfoMapper extends CommonMapper<UserInfoDO> {
      */
     void insertGetId(UserInfoDO userInfoDO);
 
+    List<UserInfoDO> queryList(@Param("appId") Long appId, List<String> groupIdList, @Param("userId")String userId);
+
     List<UserInfoDO> queryBatch(@Param("appId") Long appId, List<Long> gidList, List<Long> uidList);
 }

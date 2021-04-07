@@ -31,8 +31,7 @@
     </update>
 
     <insert id="insertGetId" parameterType="com.newland.tianyan.face.domain.entity.UserInfoDO" useGeneratedKeys="true"
-            keyProperty="id"
-            keyColumn="id">
+            keyProperty="id" keyColumn="id">
         INSERT INTO group_info (app_id, group_id, user_number, face_number, is_delete)
         VALUES (#{appId}, #{groupId}, #{userNumber}, #{faceNumber}, #{isDelete})
     </insert>

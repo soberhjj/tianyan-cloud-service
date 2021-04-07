@@ -30,5 +30,5 @@ public interface FaceMapper extends CommonMapper<FaceDO> {
     /**
      * 批量插入
      */
-    void insertBatch(@Param("faceList") List<FaceDO> faceDOList);
+    void insertBatch(List<FaceDO> list);
 }

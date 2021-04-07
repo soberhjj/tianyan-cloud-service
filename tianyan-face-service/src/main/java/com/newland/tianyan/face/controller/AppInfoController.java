@@ -2,12 +2,15 @@ package com.newland.tianyan.face.controller;
 
 
 import com.github.pagehelper.PageInfo;
+import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.constants.TaskTypeEnums;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.dto.*;
 import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import com.newland.tianyan.face.service.AppInfoService;
+import lombok.Generated;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +40,13 @@ public class AppInfoController {
      */
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     public NLBackend.BackendAppSendMessage insert(@RequestBody @Validated AppCreateReqDTO receive) {
+        String[] appIdList = receive.getApiList().split(",");
+        for (String item : appIdList) {
+            int itemInt = Integer.parseInt(item);
+            if (itemInt > 5) {
+                throw ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR, "api_list");
+            }
+        }
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         appInfoService.insert(request);
         return ProtobufUtils.buildMessage(NLBackend.BackendAppSendMessage.class);
