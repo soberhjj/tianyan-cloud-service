@@ -73,7 +73,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
 
                             criteria.andEqualTo("appId", query.getAppId());
                             criteria.andEqualTo("groupId", query.getGroupId());
-
+                            criteria.andEqualTo("gid", query.getGid());
                             // dynamic sql
                             if (query.getUserId() != null) {
                                 criteria.andLike("userId", "%" + query.getUserId() + "%");
@@ -93,6 +93,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         String dstGroupId = receive.getDstGroupId();
 
         log.info("人脸复制-源用户组{}和目标用户组{}的有效性检查", srcGroupId, dstGroupId);
+        //源用户组有效性检查
         GroupInfoDO srcGroupInfo = new GroupInfoDO();
         srcGroupInfo.setAppId(queryUser.getAppId());
         srcGroupInfo.setGroupId(srcGroupId);
@@ -101,6 +102,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         if (!sourceInvalid) {
             throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, sourceInvalid);
         }
+        //目标用户组有效性检查
         GroupInfoDO dstGroupInfo = new GroupInfoDO();
         dstGroupInfo.setAppId(queryUser.getAppId());
         dstGroupInfo.setGroupId(dstGroupId);
@@ -110,20 +112,21 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         if (!targetInvalid) {
             throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, dstGroupId);
         }
+        queryUser.setGroupId(srcGroupId);
         queryUser.setGid(srcGroupInfo.getId());
-        //queryUser.setGroupId(srcGroupId);
         log.info("人脸复制-源用户组的用户{}有效性检查", JsonUtils.toJson(queryUser));
         UserInfoDO sourceUserInfoDO = userInfoMapper.selectOne(queryUser);
         if (sourceUserInfoDO == null) {
             throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, userId);
         }
         //待复制的源用户的人脸资料
-        List<FaceDO> srcFace = this.queryFace(appId, srcGroupId, userId);
+        List<FaceDO> srcFace = this.queryFace(appId, srcGroupInfo.getId(), srcGroupId, userId);
         if (CollectionUtils.isEmpty(srcFace)) {
             throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_FOUND);
         }
         List<FaceDO> insertList = new ArrayList<>(srcFace.size());
         queryUser.setGroupId(dstGroupId);
+        queryUser.setGid(dstGroupInfo.getId());
         log.info("人脸复制-目标用户组的用户{}有效性检查", JsonUtils.toJson(queryUser));
         UserInfoDO targetUserInfoDO = userInfoMapper.selectOne(queryUser);
         int faceNumber, userNumber;
@@ -148,7 +151,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             userNumber = 0;
             log.info("人脸复制-目标用户组的存在同名用户,开始过滤相同人脸");
             //封装复制人脸信息
-            List<FaceDO> dstFace = this.queryFace(appId, dstGroupId, userId);
+            List<FaceDO> dstFace = this.queryFace(appId, dstGroupInfo.getId(),dstGroupId, userId);
             //过滤相同照片
             Set<String> srcImages = srcFace.stream().map(FaceDO::getImagePath).collect(Collectors.toSet());
             Set<String> dstImages = dstFace.stream().map(FaceDO::getImagePath).collect(Collectors.toSet());
@@ -193,9 +196,10 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     /**
      * 获取人脸库中的人脸信息
      */
-    private List<FaceDO> queryFace(Long appId, String groupId, String userId) throws BaseException {
+    private List<FaceDO> queryFace(Long appId, Long gid, String groupId, String userId) throws BaseException {
         FaceDO faceQuery = new FaceDO();
         faceQuery.setAppId(appId);
+        faceQuery.setGid(gid);
         faceQuery.setGroupId(groupId);
         faceQuery.setUserId(userId);
         PageInfo<FaceDO> allFace = PageHelper.offsetPage(faceQuery.getStartIndex(), faceQuery.getLength())
@@ -213,8 +217,8 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         UserInfoDO query = ProtobufUtils.parseTo(receive, UserInfoDO.class);
 
         String[] groups = query.getGroupId().split(",");
-        for (String group : groups) {
-            query.setGroupId(group);
+        for (String groupId : groups) {
+            query.setGroupId(groupId);
 
             UserInfoDO userInfoDO = new UserInfoDO();
             userInfoDO.setUserId(query.getUserId());
@@ -232,7 +236,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             int userCount;
             userCount = userInfoMapper.delete(query);
             FaceDO faceDO = new FaceDO();
-            faceDO.setGroupId(group);
+            faceDO.setGroupId(groupId);
             faceDO.setUserId(userInfoDO.getUserId());
             faceDO.setAppId(receive.getAppId());
 
@@ -251,7 +255,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         //如果传入的参数中没有传入用户组的话，那么就根据传入的app_id去获取该app的所有用户组。
         List<String> groupIds = this.getGroupList(userQuery.getUserId(), userQuery.getAppId());
         if (CollectionUtils.isEmpty(groupIds)) {
-            //todo 当前应用下没有用户组
+            //当前应用下没有用户组
             return new ArrayList<>();
         }
         List<UserInfoDO> userList = new ArrayList<>();
@@ -266,7 +270,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
                 userList.add(userInfoDO);
             }
         }
-        //todo 当前应用下没有目标用户信息
+        //当前应用下没有目标用户信息
         return userList;
     }
 
