@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
     public JsonErrorObject handleArgumentException2(ArgumentException e) {
-        log.warn("抛出参数异常", e);
+        log.warn("抛出参数异常:[{}:{}],{}", e.getErrorCode(), e.getErrorMsg(), e);
         e.printStackTrace();
         return BaseExceptionConvert.toJsonObject(e);
     }
@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public JsonErrorObject handleSystemException(SysException e) {
-        log.warn("抛出系统异常", e);
+        log.warn("抛出系统异常:[{}:{}],{}", e.getErrorCode(), e.getErrorMsg(), e);
         e.printStackTrace();
         return BaseExceptionConvert.toJsonObjectWithDefaultMsg(e, "system busy");
     }
@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ResponseBody
     public JsonErrorObject handleMQBaseException(BaseException e) {
-        log.warn("抛出上游微服务异常", e);
+        log.warn("抛出上游微服务异常:[{}:{}],{}", e.getErrorCode(), e.getErrorMsg(), e);
         e.printStackTrace();
         return BaseExceptionConvert.toJsonObject(e);
     }

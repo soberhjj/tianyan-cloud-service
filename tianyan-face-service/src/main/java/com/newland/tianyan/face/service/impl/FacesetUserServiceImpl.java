@@ -110,8 +110,8 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         if (!targetInvalid) {
             throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, dstGroupId);
         }
-
-        queryUser.setGroupId(srcGroupId);
+        queryUser.setGid(srcGroupInfo.getId());
+        //queryUser.setGroupId(srcGroupId);
         log.info("人脸复制-源用户组的用户{}有效性检查", JsonUtils.toJson(queryUser));
         UserInfoDO sourceUserInfoDO = userInfoMapper.selectOne(queryUser);
         if (sourceUserInfoDO == null) {

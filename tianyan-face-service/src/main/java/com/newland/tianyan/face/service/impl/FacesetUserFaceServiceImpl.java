@@ -26,9 +26,11 @@ import com.newland.tianyan.face.event.face.FaceDeleteEvent;
 import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.user.UserCreateEvent;
 import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
+import com.newland.tianyan.face.mq.IMqMessageService;
 import com.newland.tianyan.face.mq.RabbitMQSender;
 import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
+import com.newland.tianyan.face.service.IQualityCheckService;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +71,9 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Autowired
     private ApplicationEventPublisher publisher;
     @Autowired
-    private RabbitMQSender rabbitMqSender;
+    private IMqMessageService iMqMessageService;
+    @Autowired
+    private IQualityCheckService qualityCheckService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
@@ -77,10 +81,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         //参数验证
         String actionType = receive.getActionType();
         this.checkOperationType(actionType);
-        int qualityControl = receive.getQualityControl();
-        if (qualityControl != 0) {
-            this.handleImageQualityControl(qualityControl, receive.getImage());
-        }
+        qualityCheckService.checkQuality(receive.getQualityControl(), receive.getImage());
 
         Long appId = receive.getAppId();
         String groupId = receive.getGroupId();
@@ -146,6 +147,20 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         return insertFaceDO;
     }
 
+    private void checkOperationType(String operationType) {
+        if (StringUtils.isEmpty(operationType)) {
+            return;
+        }
+        String[] arr = operationType.split(",");
+        for (String item : arr) {
+            boolean append = ACTION_TYPE_APPEND.equals(item);
+            boolean replace = ACTION_TYPE_REPLACE.equals(item);
+            if ((!append) && (!replace)) {
+                throw ExceptionSupport.toException(ExceptionEnum.WRONG_ACTION_TYPE);
+            }
+        }
+    }
+
     private GroupInfoDO getExistedGroup(Long appId, String groupId) {
         GroupInfoDO groupInfoDO = new GroupInfoDO();
         groupInfoDO.setAppId(appId);
@@ -195,149 +210,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         return sourceUser;
     }
 
-    private void handleImageQualityControl(int qualityControl, String image) {
-        NLFace.CloudFaceSendMessage.Builder detectBuilder = NLFace.CloudFaceSendMessage.newBuilder();
-        NLFace.CloudFaceSendMessage detectDef = amqpHelper(image, 1, 1);
-        detectBuilder.mergeFrom(detectDef);
-        NLFace.CloudFaceSendMessage detectRe = detectBuilder.build();
-        double eyeDistance = Math.sqrt(Math.pow(detectRe.getFaceInfos(0).getPtx(0) - detectRe.getFaceInfos(0).getPtx(1), 2)
-                + Math.pow(detectRe.getFaceInfos(0).getPty(0) - detectRe.getFaceInfos(0).getPty(1), 2));
-        if (qualityControl == 1 && eyeDistance <= 20) {
-            throw new BaseException(6200, "low quality control fail! eye distance < 20 pixels");
-        }
-        if (qualityControl == 2 && eyeDistance <= 40) {
-            throw new BaseException(6200, "median quality control fail! eye distance < 40 pixels");
-        }
-        if (qualityControl == 3 && eyeDistance <= 60) {
-            throw new BaseException(6200, "high quality control fail! eye distance < 60 pixels");
-        }
-        NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
-
-        NLFace.CloudFaceSendMessage def =
-                this.amqpHelper(image, 1, 4);
-        builder.mergeFrom(def);
-        NLFace.CloudFaceSendMessage qualityRe = builder.build();
-        if (qualityControl == 1) {
-            if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 40) {
-                throw new BaseException(6200, "low quality control fail! abs(pitch) >= 40");
-            }
-            if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 40) {
-                throw new BaseException(6200, "low quality control fail! abs(yaw) >= 40");
-            }
-            if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 40) {
-                throw new BaseException(6200, "low quality control fail! abs(roll) >= 40");
-            }
-            if (qualityRe.getFaceAttributes(0).getBlur() >= 0.8) {
-                throw new BaseException(6200, "low quality control fail! blur >= 0.8");
-            }
-            if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.8) {
-                throw new BaseException(6200, "low quality control fail! occlusion >= 0.8");
-            }
-            if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.15 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.95) {
-                throw new BaseException(6200, "low quality control fail! brightness is not in (0.15, 0.95)");
-            }
-            if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.8) {
-                throw new BaseException(6200, "low quality control fail! brightness side diff >= 0.8");
-            }
-            if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.8) {
-                throw new BaseException(6200, "low quality control fail! brightness updown diff >= 0.8");
-            }
-            if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.8) {
-                throw new BaseException(6200, "low quality control fail! tone off center >= 0.8");
-            }
-        }
-        if (qualityControl == 2) {
-            if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 30) {
-                throw new BaseException(6200, "median quality control fail! abs(pitch) >= 30");
-            }
-            if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 30) {
-                throw new BaseException(6200, "median quality control fail! abs(yaw) >= 30");
-            }
-            if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 30) {
-                throw new BaseException(6200, "median quality control fail! abs(roll) >= 30");
-            }
-            if (qualityRe.getFaceAttributes(0).getBlur() >= 0.6) {
-                throw new BaseException(6200, "median quality control fail! blur >= 0.6");
-            }
-            if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.6) {
-                throw new BaseException(6200, "median quality control fail! occlusion >= 0.6");
-            }
-            if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.2 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.9) {
-                throw new BaseException(6200, "median quality control fail! brightness is not in (0.2, 0.9)");
-            }
-            if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.6) {
-                throw new BaseException(6200, "median quality control fail! brightness side diff >= 0.6");
-            }
-            if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.6) {
-                throw new BaseException(6200, "median quality control fail! brightness updown diff >= 0.6");
-            }
-            if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.6) {
-                throw new BaseException(6200, "median quality control fail! tone off center >= 0.6");
-            }
-        }
-        if (qualityControl == 3) {
-            if (abs(qualityRe.getFaceAttributes(0).getPitch()) >= 20) {
-                throw new BaseException(6200, "high quality control fail! abs(pitch) >= 20");
-            }
-            if (abs(qualityRe.getFaceAttributes(0).getYaw()) >= 20) {
-                throw new BaseException(6200, "high quality control fail! abs(yaw) >= 20");
-            }
-            if (abs(qualityRe.getFaceAttributes(0).getRoll()) >= 20) {
-                throw new BaseException(6200, "high quality control fail! abs(roll) >= 20");
-            }
-            if (qualityRe.getFaceAttributes(0).getBlur() >= 0.4) {
-                throw new BaseException(6200, "high quality control fail! blur >= 0.4");
-            }
-            if (qualityRe.getFaceAttributes(0).getOcclusion() >= 0.4) {
-                throw new BaseException(6200, "high quality control fail! occlusion >= 0.4");
-            }
-            if (qualityRe.getFaceAttributes(0).getBrightness() <= 0.3 || qualityRe.getFaceAttributes(0).getBrightness() >= 0.8) {
-                throw new BaseException(6200, "high quality control fail! brightness is not in (0.3, 0.8)");
-            }
-            if (qualityRe.getFaceAttributes(0).getBrightnessSideDiff() >= 0.4) {
-                throw new BaseException(6200, "high quality control fail! brightness side diff >= 0.4");
-            }
-            if (qualityRe.getFaceAttributes(0).getBrightnessUpdownDiff() >= 0.4) {
-                throw new BaseException(6200, "high quality control fail! brightness updown diff >= 0.4");
-            }
-            if (qualityRe.getFaceAttributes(0).getToneOffCenter() >= 0.4) {
-                throw new BaseException(6200, "high quality control fail! tone off center >= 0.4");
-            }
-        }
-    }
-
-    public NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) throws BaseException {
-        //封装请求
-        NLFace.CloudFaceAllRequest.Builder amqpRequest = NLFace.CloudFaceAllRequest.newBuilder();
-        amqpRequest.setLogId(UUID.randomUUID().toString());
-        amqpRequest.setTaskType(taskType);
-        amqpRequest.setImage(fileName);
-        amqpRequest.setMaxFaceNum(maxFaceNum);
-        byte[] message = amqpRequest.build().toByteArray();
-        //请求MQ
-        String json = new String(rabbitMqSender.send(RabbitMqQueueName.FACE_DETECT_QUEUE, message));
-        //处理结果
-        NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-        try {
-            JsonFormat.merge(json, result);
-        } catch (JsonFormat.ParseException e) {
-            throw ExceptionSupport.toException(ExceptionEnum.PROTO_PARSE_ERROR);
-        }
-        NLFace.CloudFaceSendMessage build = result.build();
-        if (!StringUtils.isEmpty(build.getErrorMsg())) {
-            int errorCode = build.getErrorCode();
-            switch (errorCode) {
-                case 6201:
-                    throw ExceptionSupport.toException(BASE64_FORMAT_ILLEGAL);
-                case 6402:
-                    throw ExceptionSupport.toException(PICTURE_HAS_NO_FACE);
-                default:
-                    throw new BusinessException(build.getErrorCode(), build.getErrorMsg());
-            }
-        }
-        return build;
-    }
-
     private void uploadImage(FaceDO faceDO, String image) throws IOException {
         //提交至指定服务器路径
         UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
@@ -347,7 +219,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
     private void handleFeatures(FaceDO faceDO, String image) {
         NLFace.CloudFaceSendMessage feature =
-                this.amqpHelper(image, 1, 2);
+                iMqMessageService.amqpHelper(image, 1, 2);
         NLFace.CloudFaceSendMessage.Builder builder = feature.toBuilder();
         List<Float> featureList = builder.getFeatureResult(0).getFeaturesList();
         faceDO.setFeatures(FeaturesTool.normalizeConvertToByte(featureList));
@@ -424,19 +296,5 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         //物理删除人脸
         faceMapper.delete(query);
         publisher.publishEvent(new FaceDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
-    }
-
-    private void checkOperationType(String operationType) {
-        if (StringUtils.isEmpty(operationType)) {
-            return;
-        }
-        String[] arr = operationType.split(",");
-        for (String item : arr) {
-            boolean append = ACTION_TYPE_APPEND.equals(item);
-            boolean replace = ACTION_TYPE_REPLACE.equals(item);
-            if ((!append) && (!replace)) {
-                throw ExceptionSupport.toException(ExceptionEnum.WRONG_ACTION_TYPE);
-            }
-        }
     }
 }

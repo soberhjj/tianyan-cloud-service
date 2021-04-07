@@ -10,6 +10,14 @@ import com.newland.tianya.commons.base.support.IExceptionEnums;
  */
 public enum ExceptionEnum implements IExceptionEnums {
     /**
+     * 人脸算法服务异常
+     */
+    RABBIT_MQ_RETURN_NONE(6001, "backend error", ExceptionTypeEnums.SYSTEM_EXCEPTION),
+    /**
+     * proto异常
+     */
+    PROTO_PARSE_ERROR(6011, "proto转换失败", ExceptionTypeEnums.SYSTEM_EXCEPTION),
+    /**
      * 存在性异常
      */
     WRONG_FACE_FIELD(6311, "param [face_field] format error", ExceptionTypeEnums.BUSINESS_EXCEPTION),
@@ -41,13 +49,18 @@ public enum ExceptionEnum implements IExceptionEnums {
     FACE_NOT_FOUND(6411, "face is not exists", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     FACE_NOT_MATCH(6412, "match user is not found", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     /**
-     * 人脸算法服务异常
-     */
-    RABBIT_MQ_RETURN_NONE(6001, "backend error", ExceptionTypeEnums.SYSTEM_EXCEPTION),
-    /**
-     * proto异常
-     */
-    PROTO_PARSE_ERROR(6011, "proto转换失败", ExceptionTypeEnums.SYSTEM_EXCEPTION),
+     * 质量检测
+     * */
+    EYE_DISTANCE_ERROR(6500,"[{0}] quality control fail! eye distance < [{1}] pixels",ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    ABS_PITCH_ERROR(6501,"[{0}] quality control fail! abs(pitch) >= [{1}] pixels",ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    ABS_YAW_ERROR(6502,"[{0}] quality control fail! abs(yaw) >= [{1}] pixels",ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    ABS_ROLL_ERROR(6503,"[{0}] quality control fail! abs(roll) >= [{1}] pixels",ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    BLUR_ERROR(6504,"[{0}] quality control fail! blur >= [{1}] pixels",ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    OCCLUSION_ERROR(6505,"[{0}] quality control fail! occlusion >=[{1}] pixels",ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    BRIGHTNESS_ERROR(6506,"[{0}] quality control fail! brightness is not in [{1},{2}]",ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    BRIGHTNESS_SIDE_DIFF_ERROR(6507,"[{0}] quality control fail! brightness side diff >= [{1}]",ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    BRIGHTNESS_UPDOWN_ERROR(6508,"[{0}] quality control fail! brightness updown diff >= [{1}]",ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    TONE_OFF_CENTER_ERROR(6509,"[{0}] quality control fail! tone off center >= [{1}]",ExceptionTypeEnums.ARGUMENT_EXCEPTION),
     ;
     private final int errorCode;
 

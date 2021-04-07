@@ -40,4 +40,23 @@
         INSERT INTO user_info  ( app_id,gid,group_id,user_id,user_name,face_number,user_info )
         VALUES( #{appId},#{gid},#{groupId},#{userId},#{userName},#{faceNumber},#{userInfo})
     </insert>
+
+    <select id="queryBatch" parameterType="com.newland.tianyan.face.domain.vo.FaceSearchVo"
+            resultType="com.newland.tianyan.face.domain.entity.UserInfoDO">
+        SELECT *
+        FROM
+            user_info a
+        WHERE
+            a.app_id = #{appId}
+          AND
+            a.gid in
+        <foreach collection="gidList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+          AND
+            a.id in
+        <foreach collection="uidList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

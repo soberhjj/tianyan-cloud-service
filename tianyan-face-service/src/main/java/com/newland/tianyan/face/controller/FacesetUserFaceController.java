@@ -31,7 +31,7 @@ import java.util.List;
  * @Author: huangJunJie  2020-11-04 09:13
  */
 @RestController
-@RequestMapping({"/face/faceset/user/face", "/backend/faceset/user/face","/face/faceset/user/face/{version}", "/backend/faceset/user/face/{version}"})
+@RequestMapping({"/face/faceset/user/face", "/backend/faceset/user/face","/face/{version}/faceset/user/face", "/backend/{version}/faceset/user/face"})
 public class FacesetUserFaceController {
 
     @Autowired

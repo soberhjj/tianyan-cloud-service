@@ -2,6 +2,7 @@ package com.newland.tianyan.face.service;
 
 
 import com.newland.tianya.commons.base.exception.BaseException;
+import com.newland.tianyan.face.domain.vo.FaceSearchVo;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
  */
 public interface IVectorSearchService<T> {
 
+    List<FaceSearchVo> query(Long appId, List<Float> feature);
     /**
      * 删除目标
      *
@@ -45,4 +47,6 @@ public interface IVectorSearchService<T> {
     void createCollection(Long collectionId) throws BaseException;
 
     void deleteCollection(Long collectionId) throws BaseException;
+
+    List<FaceSearchVo> filterSameGroupSameUser(List<FaceSearchVo> source);
 }

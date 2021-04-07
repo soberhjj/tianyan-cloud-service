@@ -52,6 +52,7 @@ message CloudFaceAttributeResult{
   optional float emotion_confidence = 18;
   optional float glasses_confidence = 19;
   optional float mask_confidence = 20;
+  optional float occlusion_confidence = 21;
   optional float eye_status_confidence = 22;
   optional float mouth_status_confidence = 23;
   optional float makeup_confidence = 24;

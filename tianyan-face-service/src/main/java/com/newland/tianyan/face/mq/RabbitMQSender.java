@@ -18,7 +18,7 @@ public class RabbitMQSender {
     private AmqpTemplate rabbitTemplate;
 
     public byte[] send(String routingKey, Object message) throws SysException {
-        log.info("Debug-routingKey:{}",routingKey);
+        log.debug("Debug-routingKey:{}", routingKey);
         Object receive = null;
         try {
             receive = this.rabbitTemplate.convertSendAndReceive(routingKey, message);

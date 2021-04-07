@@ -41,4 +41,12 @@ public class BusinessArgumentConstants {
     public static final String FACE_FIELD_COORDINATE = "coordinate";
 
     public static final String FACE_FIELD_LIVENESS = "liveness";
+
+    public static final String FACE_TASK_TYPE_COORDINATE = "coordinate";
+
+    public static final String FACE_TASK_TYPE_FEATURE = "feature";
+
+    public static final String FACE_TASK_TYPE_LIVENESS = "liveness";
+
+    public static final String FACE_TASK_TYPE_MULTIATTRIBUTE = "multiAttribute";
 }

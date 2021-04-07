@@ -4,6 +4,7 @@ import com.newland.tianya.commons.base.exception.BusinessException;
 import com.newland.tianyan.face.constant.ExceptionEnum;
 
 import java.text.NumberFormat;
+import java.util.*;
 
 import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MAX_FACE_NUMBER;
 
@@ -22,6 +23,19 @@ public class VectorSearchKeyUtils {
 
     private static final int F_LONG = 2;
 
+    public static List<Long> filterSameGroupSameUser(List<Long> keys){
+        Map<String,Long> map = new HashMap<>(keys.size());
+        keys.forEach(item->{
+            String itemStr = item.toString();
+            String mapKey = itemStr.substring(0,itemStr.length()-2);
+            map.putIfAbsent(mapKey,item);
+        });
+       List<Long> result = new ArrayList<>(map.size());
+       map.keySet().forEach(item->{
+           result.add(map.get(item));
+       });
+       return result;
+    }
 
     public static Long generatedKey(Long gid, Long uid, int faceNoLong) {
         if (faceNoLong > MAX_FACE_NUMBER) {
@@ -60,17 +74,18 @@ public class VectorSearchKeyUtils {
     public static void main(String[] args) {
         NumberFormat nf = NumberFormat.getInstance();
 
-        Long beforeUid = 10000008L;
-        Long beforeGid = 10000023L;
-        System.out.println(nf.format(beforeGid));
-        System.out.println(nf.format(beforeUid));
+//        Long beforeUid = 10000008L;
+//        Long beforeGid = 10000023L;
+//
+//        Long key = VectorSearchKeyUtils.generatedKey(beforeGid, beforeUid, 0);
+//        System.out.println(nf.format(key));
 
-        Long key = VectorSearchKeyUtils.generatedKey(beforeGid, beforeUid, 0);
-        System.out.println(nf.format(key));
-
-        Long afterGid = VectorSearchKeyUtils.splitGid(key);
-        Long afterUid = VectorSearchKeyUtils.splitUid(key);
-        System.out.println(nf.format(afterGid));
-        System.out.println(nf.format(afterUid));
+//        Long afterGid = VectorSearchKeyUtils.splitGid(key);
+//        Long afterUid = VectorSearchKeyUtils.splitUid(key);
+//        System.out.println(nf.format(afterGid));
+//        System.out.println(nf.format(afterUid));
+        List<Long> keys = Arrays.asList(1100000081000002300L,1100000081000002300L,1100000081000002400L);
+        keys = VectorSearchKeyUtils.filterSameGroupSameUser(keys);
+        keys.forEach(System.out::println);
     }
 }

@@ -5,8 +5,10 @@ import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.vectorsearch.*;
 import com.newland.tianya.commons.base.utils.FeaturesTool;
 import com.newland.tianyan.face.domain.entity.FaceDO;
+import com.newland.tianyan.face.domain.vo.FaceSearchVo;
 import com.newland.tianyan.face.feign.client.VectorSearchFeignService;
 import com.newland.tianyan.face.service.IVectorSearchService;
+import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author: RojiaHuang
@@ -30,14 +33,46 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
         return "FACE_" + appId;
     }
 
-    public List<QueryResDTO> query(Long appId, List<Float> feature) throws BaseException {
+    @Override
+    public List<FaceSearchVo> query(Long appId, List<Float> feature) throws BaseException {
         Integer defaultTopK = 100;
         QueryReqDTO queryReq = QueryReqDTO.builder()
                 .appId(getCollectionName(appId))
                 .feature(feature)
                 .topK(defaultTopK)
                 .build();
-        return vectorSearchService.query(queryReq);
+        List<QueryResDTO> queryResult = vectorSearchService.query(queryReq);
+
+        List<FaceSearchVo> convertResultList = new ArrayList<>(queryResult.size());
+        if (CollectionUtils.isEmpty(queryResult)){
+            return convertResultList;
+        }
+        for (QueryResDTO vectorsQueryRes:queryResult){
+            Long vectorId = vectorsQueryRes.getEntityId();
+            Long gid = VectorSearchKeyUtils.splitGid(vectorId);
+            Long uid = VectorSearchKeyUtils.splitUid(vectorId);
+            FaceSearchVo faceSearchVo = FaceSearchVo.builder()
+                    .vectorId(vectorsQueryRes.getEntityId())
+                    .distance(String.valueOf(vectorsQueryRes.getDistance()))
+                    .gid(gid)
+                    .uid(uid)
+                    .build();
+            convertResultList.add(faceSearchVo);
+        }
+        return convertResultList;
+    }
+
+    @Override
+    public List<FaceSearchVo> filterSameGroupSameUser(List<FaceSearchVo> source) {
+        List<Long> allVectorSearchKeys = source.stream().map(FaceSearchVo::getVectorId).collect(Collectors.toList());
+        List<Long> filterVectorSearchKeys = VectorSearchKeyUtils.filterSameGroupSameUser(allVectorSearchKeys);
+        List<FaceSearchVo> target = new ArrayList<>();
+        for (FaceSearchVo item : source) {
+            if (filterVectorSearchKeys.contains(item.getVectorId())) {
+                target.add(item);
+            }
+        }
+        return target;
     }
 
     /**

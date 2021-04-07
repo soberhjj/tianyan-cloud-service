@@ -2,6 +2,7 @@ package com.newland.tianyan.face.dao;
 
 
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
+import com.newland.tianyan.face.domain.vo.FaceSearchVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -32,4 +33,6 @@ public interface UserInfoMapper extends CommonMapper<UserInfoDO> {
      * 插入userInfo并且userInfo.id被赋予自增Id
      */
     void insertGetId(UserInfoDO userInfoDO);
+
+    List<UserInfoDO> queryBatch(@Param("appId") Long appId, List<Long> gidList, List<Long> uidList);
 }

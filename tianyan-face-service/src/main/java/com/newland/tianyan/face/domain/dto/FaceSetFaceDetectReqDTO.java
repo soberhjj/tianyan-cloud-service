@@ -32,6 +32,5 @@ public class FaceSetFaceDetectReqDTO {
 
     private String faceFields;
 
-    private int qualityControl;
-
+    private Integer qualityControl;
 }

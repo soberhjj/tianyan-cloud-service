@@ -17,14 +17,14 @@ public interface FacesetFaceService {
 
     NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReqDTO request);
 
-    NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request) throws IOException;
+    NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request);
 
-    NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReqDTO vo) throws IOException;
+    NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReqDTO vo);
 
-    NLFace.CloudFaceSendMessage liveness(FaceDetectReqDTO vo) throws IOException;
+    NLFace.CloudFaceSendMessage liveness(FaceDetectReqDTO vo);
 
-    NLFace.CloudFaceSendMessage detect(FaceSetFaceDetectReqDTO request) throws IOException;
+    NLFace.CloudFaceSendMessage detect(FaceDetectReqDTO vo);
 
-    NLFace.CloudFaceSendMessage features(NLBackend.BackendAllRequest receive, int model) throws IOException;
+    NLFace.CloudFaceSendMessage features(NLBackend.BackendAllRequest receive, int model);
 
 }
