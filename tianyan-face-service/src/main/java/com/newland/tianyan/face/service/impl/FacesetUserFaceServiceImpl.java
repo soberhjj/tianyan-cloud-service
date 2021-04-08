@@ -117,7 +117,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             if (ACTION_TYPE_APPEND.equals(actionType)) {
                 log.info("人脸添加-追加人脸append");
                 //缓存中添加用户的人脸
-                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber() + 1));
+                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber()));
                 faceCacheHelper.add(insertFaceDO);
                 //添加人脸
                 faceMapper.insertSelective(insertFaceDO);

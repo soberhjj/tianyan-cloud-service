@@ -19,15 +19,7 @@ public class FaceDeleteEventListener {
     public void decreaseNumber(FaceDeleteEvent event) {
 
         // 组和用户人脸数量减少
-        groupInfoMapper.faceNumberDecrease(event.getAppId(), event.getGroupId(), 1);
-        userInfoMapper.faceNumberDecrease(event.getAppId(), event.getGroupId(),event.getUserId(), 1);
-    }
-
-    @EventListener
-    public void decreaseNumberBatch(FaceDeleteEvent event) {
-
-        // 组和用户人脸数量减少
-        userInfoMapper.faceNumberIncrease(event.getAppId(), event.getGroupId(), event.getUserId(), 1 - event.getDeleteCount());
-        groupInfoMapper.faceNumberIncrease(event.getAppId(), event.getGroupId(), 1 - event.getDeleteCount());
+        groupInfoMapper.faceNumberDecrease(event.getAppId(), event.getGroupId(), event.getDeleteCount() - 1);
+        userInfoMapper.faceNumberDecrease(event.getAppId(), event.getGroupId(), event.getUserId(), event.getDeleteCount() - 1);
     }
 }
