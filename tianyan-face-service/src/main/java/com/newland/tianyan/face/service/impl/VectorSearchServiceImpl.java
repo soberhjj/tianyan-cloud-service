@@ -11,6 +11,7 @@ import com.newland.tianyan.face.service.IVectorSearchService;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -26,6 +27,9 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
+    @Value("${face-search-defaultTopK}")
+    private Integer defaultTopK;
+
     @Autowired
     private VectorSearchFeignService vectorSearchService;
 
@@ -35,7 +39,6 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
 
     @Override
     public List<FaceSearchVo> query(Long appId, List<Float> feature) throws BaseException {
-        Integer defaultTopK = 100;
         QueryReqDTO queryReq = QueryReqDTO.builder()
                 .appId(getCollectionName(appId))
                 .feature(feature)
@@ -44,10 +47,10 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
         List<QueryResDTO> queryResult = vectorSearchService.query(queryReq);
 
         List<FaceSearchVo> convertResultList = new ArrayList<>(queryResult.size());
-        if (CollectionUtils.isEmpty(queryResult)){
+        if (CollectionUtils.isEmpty(queryResult)) {
             return convertResultList;
         }
-        for (QueryResDTO vectorsQueryRes:queryResult){
+        for (QueryResDTO vectorsQueryRes : queryResult) {
             Long vectorId = vectorsQueryRes.getEntityId();
             Long gid = VectorSearchKeyUtils.splitGid(vectorId);
             Long uid = VectorSearchKeyUtils.splitUid(vectorId);
