@@ -68,8 +68,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         log.info("人脸搜索，输入用户组{},进入用户组有效性筛查：用户组存在且不为空", request.getGroupId());
         Map<Long, String> gidWithGroupIdMaps = this.convertToEffectiveGidMaps(request.getAppId(), request.getGroupId());
         log.info("人脸搜索，开始检查图片有效性");
-        String image = request.getImage();
-        ImageCheckUtils.imageCheck(image);
+        String image = ImageCheckUtils.imageCheckAndFormatting(request.getImage());
         List<UserInfoDO> targetUserList = null;
         String userId = request.getUserId();
         boolean isFaceAuth = !StringUtils.isEmpty(request.getUserId());
@@ -394,7 +393,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     private void storeImage(String image) {
         //检查图片
-        ImageCheckUtils.imageCheck(image);
+        image = ImageCheckUtils.imageCheckAndFormatting(image);
         //是否异步存储图片
         try {
             if (enableImageStorage) {

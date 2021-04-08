@@ -27,14 +27,14 @@ public interface UserInfoMapper extends CommonMapper<UserInfoDO> {
      * @param appId  应用databaseId
      * @return 用户组业务标识符
      */
-    List<String> getGroupIdByUserId(@Param("userId") String userId, @Param("appId") Long appId);
+    List<String> getGroupId(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("userId") String userId);
 
     /**
      * 插入userInfo并且userInfo.id被赋予自增Id
      */
     void insertGetId(UserInfoDO userInfoDO);
 
-    List<UserInfoDO> queryList(@Param("appId") Long appId, List<String> groupIdList, @Param("userId")String userId);
+    List<UserInfoDO> queryList(@Param("appId") Long appId, List<String> groupIdList, @Param("userId") String userId);
 
     List<UserInfoDO> queryBatch(@Param("appId") Long appId, List<Long> gidList, List<Long> uidList);
 }

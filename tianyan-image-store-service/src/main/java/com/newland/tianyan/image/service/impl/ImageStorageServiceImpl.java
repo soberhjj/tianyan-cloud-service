@@ -31,13 +31,14 @@ public class ImageStorageServiceImpl implements IImageStoreService {
 
     /**
      * 保存为jpg格式
+     *
      * @param image
      * @return
      * @throws IOException
      */
     @Override
     public String uploadImage(String image) throws IOException {
-        ImageCheckUtils.imageCheck(image);
+        image = ImageCheckUtils.imageCheckAndFormatting(image);
         BASE64Decoder decoder = new BASE64Decoder();
         byte[] bytes = decoder.decodeBuffer(image);
         StorePath storePath = fastFileStorageClient.uploadFile(new ByteArrayInputStream(bytes), bytes.length, "jpg", null);
@@ -48,13 +49,14 @@ public class ImageStorageServiceImpl implements IImageStoreService {
 
     /**
      * 按图片原格式（jpg、png、bmp）保存
+     *
      * @param image
      * @return
      * @throws IOException
      */
     @Override
     public String uploadImageV2(String image) throws IOException {
-        ImageCheckUtils.imageCheck(image);
+        image = ImageCheckUtils.imageCheckAndFormatting(image);
         BASE64Decoder decoder = new BASE64Decoder();
         byte[] bytes = decoder.decodeBuffer(image);
         String imageFormat;

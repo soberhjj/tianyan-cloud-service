@@ -1,15 +1,19 @@
 package com.newland.tianyan.gateway.filter;
 
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
+import com.newland.tianya.commons.base.exception.BaseException;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.LogIdUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.DefaultErrorWebExceptionHandler;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
+import org.springframework.cloud.gateway.support.NotFoundException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.server.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,13 +48,25 @@ public class CustomErrorWebExceptionHandler extends DefaultErrorWebExceptionHand
      */
     @Override
     protected Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
+        //默认抛出系统异常
         int code = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        BaseException baseException = ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR);
         Throwable error = super.getError(request);
+        //微服务未注册或未被发现
         if (error instanceof org.springframework.cloud.gateway.support.NotFoundException) {
             code = HttpStatus.NOT_FOUND.value();
+            baseException = ExceptionSupport.toException(GlobalExceptionEnum.SERVICE_NOT_SUPPORT,((NotFoundException) error).getReason());
+        }
+        //请求了未配置的URI
+        if (error instanceof ResponseStatusException) {
+            boolean wrongUri = "404 NOT_FOUND \"No matching handler\"".equals(error.getMessage());
+            if (wrongUri) {
+                code = HttpStatus.NOT_FOUND.value();
+                baseException = ExceptionSupport.toException(GlobalExceptionEnum.INVALID_METHOD,request.uri().getPath());
+            }
         }
         log.error(String.format("Failed to handle request [ %s ]", request.uri()), error);
-        return response(code);
+        return response(code, baseException);
     }
 
     /**
@@ -59,12 +75,12 @@ public class CustomErrorWebExceptionHandler extends DefaultErrorWebExceptionHand
      * @param status 状态码
      * @return
      */
-    private Map<String, Object> response(int status) {
-        Map<String, Object> response = new HashMap<>();
+    private Map<String, Object> response(int status, BaseException exception) {
+        Map<String, Object> response = new HashMap<>(4);
         response.put("status", status);
         response.put("log_id", LogIdUtils.traceId());
-        response.put("error_code", GlobalExceptionEnum.SYSTEM_ERROR.getErrorCode());
-        response.put("error_msg", GlobalExceptionEnum.SYSTEM_ERROR.getErrorMsg());
+        response.put("error_code", exception.getErrorCode());
+        response.put("error_msg", exception.getErrorMsg());
         return response;
     }
 

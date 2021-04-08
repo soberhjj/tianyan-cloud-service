@@ -1,6 +1,5 @@
 package com.newland.tianyan.face.domain.dto;
 
-import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.Min;

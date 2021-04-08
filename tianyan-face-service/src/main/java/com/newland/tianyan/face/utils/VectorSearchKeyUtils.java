@@ -1,7 +1,10 @@
 package com.newland.tianyan.face.utils;
 
 import com.newland.tianya.commons.base.exception.BusinessException;
+import com.newland.tianya.commons.base.model.proto.NLBackend;
+import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.face.constant.ExceptionEnum;
+import com.newland.tianyan.face.domain.entity.AppInfoDO;
 
 import java.text.NumberFormat;
 import java.util.*;
@@ -84,8 +87,8 @@ public class VectorSearchKeyUtils {
 //        Long afterUid = VectorSearchKeyUtils.splitUid(key);
 //        System.out.println(nf.format(afterGid));
 //        System.out.println(nf.format(afterUid));
-        List<Long> keys = Arrays.asList(1100000081000002300L,1100000081000002300L,1100000081000002400L);
-        keys = VectorSearchKeyUtils.filterSameGroupSameUser(keys);
-        keys.forEach(System.out::println);
+//        List<Long> keys = Arrays.asList(1100000081000002300L,1100000081000002300L,1100000081000002400L);
+//        keys = VectorSearchKeyUtils.filterSameGroupSameUser(keys);
+//        keys.forEach(System.out::println);
     }
 }

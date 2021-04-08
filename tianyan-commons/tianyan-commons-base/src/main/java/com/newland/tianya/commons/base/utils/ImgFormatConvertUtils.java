@@ -23,9 +23,8 @@ public class ImgFormatConvertUtils {
      * 若转换异常或原图格式非JPG、PNG、BMP这三种格式，则返回null
      */
     public static String convertToJpg(String imageBase64) throws IOException {
-        ImageCheckUtils.imageCheck(imageBase64);
         //返回值
-        String result = imageBase64;
+        String result = ImageCheckUtils.imageCheckAndFormatting(imageBase64);
         //base64加解码对象
         final Base64.Decoder decoder = Base64.getDecoder();
         final Base64.Encoder encoder = Base64.getEncoder();

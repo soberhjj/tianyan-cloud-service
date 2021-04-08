@@ -11,11 +11,11 @@ public enum GlobalExceptionEnum implements IExceptionEnums {
     /**
      * 请求方法错误
      */
-    INVALID_METHOD(6301, "invalid method [{0}]", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    INVALID_METHOD(6301, "invalid method: [{0}]", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
     /**
-     * 请求方法不支持(版本错误)
+     * 请求了不⽀持的服务
      */
-    SERVICE_NOT_SUPPORT(6302, "service not support", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    SERVICE_NOT_SUPPORT(6302, "service not support: [{0}]", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
     /**
      * 请求参数不是json
      */

@@ -91,6 +91,10 @@ public class GlobalExceptionHandler {
     public JsonErrorObject handleOtherException(Exception e) {
         log.warn("抛出系统异常", e);
         e.printStackTrace();
+        String loadBalance = "Load balancer";
+        if (e.getMessage().contains(loadBalance)) {
+            return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SERVICE_NOT_SUPPORT, e.getMessage()));
+        }
         return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR));
     }
 
@@ -151,7 +155,6 @@ public class GlobalExceptionHandler {
         log.warn("抛出SQL异常", e);
         return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SQL_NOT_VALID));
     }
-
 
     protected static ArgumentException getError(String code, String field) {
         GlobalExceptionEnum errorEnums;

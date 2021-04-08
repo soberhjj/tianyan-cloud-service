@@ -8,6 +8,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
+import com.sun.deploy.ui.AppInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;
@@ -227,9 +228,9 @@ public class ProtobufUtils {
         builder.setCount((int) count);
 
         NLBackend.BackendAppSendMessage.BackendAppTableMessage.Builder tableBuilder = NLBackend.BackendAppSendMessage.BackendAppTableMessage.newBuilder();
-        if (CollectionUtils.isEmpty(results)){
+        if (CollectionUtils.isEmpty(results)) {
             builder.setCount(0);
-        }else {
+        } else {
             for (Object result : results) {
                 String jsonFormat = JSON.toJSONString(result, getConfig());
                 try {

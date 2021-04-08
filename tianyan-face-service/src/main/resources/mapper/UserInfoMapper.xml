@@ -19,18 +19,21 @@
           AND user_id = #{userId}
     </update>
 
-    <select id="getGroupIdByUserId" resultType="String">
+    <select id="getGroupId" resultType="String">
         SELECT
         DISTINCT
         a.group_id
         FROM
         user_info a
         <where>
-            <if test="userId != null">
-                a.user_id = #{userId}
-            </if>
             <if test="appId != null">
-                AND a.app_id = #{appId}
+                a.app_id = #{appId}
+            </if>
+            <if test="userId != null">
+                AND  a.user_id = #{userId}
+            </if>
+            <if test="groupId != null">
+                AND  a.group_id = #{groupId}
             </if>
         </where>
     </select>

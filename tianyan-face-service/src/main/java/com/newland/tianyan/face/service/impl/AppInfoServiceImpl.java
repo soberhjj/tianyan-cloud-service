@@ -80,7 +80,11 @@ public class AppInfoServiceImpl implements AppInfoService {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
 
         appInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
-        return appInfoMapper.selectOne(appInfoDO);
+        AppInfoDO result = appInfoMapper.selectOne(appInfoDO);
+        if (result == null){
+            throw ExceptionSupport.toException(ExceptionEnum.APP_NOT_FOUND,receive.getAppId());
+        }
+        return result;
     }
 
     @Override

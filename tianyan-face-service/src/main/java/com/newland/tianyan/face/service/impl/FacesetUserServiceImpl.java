@@ -72,7 +72,6 @@ public class FacesetUserServiceImpl implements FacesetUserService {
                         () -> {
                             Example example = new Example(UserInfoDO.class);
                             Example.Criteria criteria = example.createCriteria();
-
                             criteria.andEqualTo("appId", query.getAppId());
                             criteria.andEqualTo("groupId", query.getGroupId());
                             criteria.andEqualTo("gid", query.getGid());
@@ -259,10 +258,10 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     public List<UserInfoDO> getInfo(NLBackend.BackendAllRequest receive) throws BaseException {
         UserInfoDO userQuery = ProtobufUtils.parseTo(receive, UserInfoDO.class);
         //如果传入的参数中没有传入用户组的话，那么就根据传入的app_id去获取该app的所有用户组。
-        List<String> groupIds = this.getGroupList(userQuery.getUserId(), userQuery.getAppId());
+        List<String> groupIds = this.getValidGroupList(receive.getAppId(), receive.getGroupId(), userQuery.getUserId());
         if (CollectionUtils.isEmpty(groupIds)) {
             //当前应用下没有用户组
-            return new ArrayList<>();
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
         }
         List<UserInfoDO> userList = new ArrayList<>();
         for (String groupId : groupIds) {
@@ -273,26 +272,31 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             //接下来就是去user_info表中根据app_id和group_id和user_id查询用户信息
             UserInfoDO userInfoDO = userInfoMapper.selectOne(userQuery);
             if (userInfoDO != null) {
+                userInfoDO.setCreateTime(null);
+                userInfoDO.setModifyTime(null);
                 userList.add(userInfoDO);
             }
         }
         //当前应用下没有目标用户信息
+        if (CollectionUtils.isEmpty(userList)) {
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
+        }
         return userList;
     }
 
     /**
      * 根据appId获取group的databaseId列表
      */
-    private List<String> getGroupList(String userId, Long appId) throws BaseException {
+    private List<String> getValidGroupList(Long appId, String groupId, String userId) throws BaseException {
         //获取用户所属的组列表
-        List<String> groupIdList = userInfoMapper.getGroupIdByUserId(userId, appId);
+        List<String> groupIdList = userInfoMapper.getGroupId(appId, groupId, userId);
         //仅返回有效状态的组id信息
         List<String> result = new ArrayList<>();
         if (!CollectionUtils.isEmpty(groupIdList)) {
             GroupInfoDO groupInfoDO = new GroupInfoDO();
-            for (String groupId : groupIdList) {
+            for (String groupIdItem : groupIdList) {
                 groupInfoDO.setAppId(appId);
-                groupInfoDO.setGroupId(groupId);
+                groupInfoDO.setGroupId(groupIdItem);
                 groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
                 if (groupInfoMapper.selectCount(groupInfoDO) > 0) {
                     result.add(groupId);
