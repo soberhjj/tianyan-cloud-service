@@ -22,7 +22,7 @@ mybatis:
 
 
 feign:
-  sentinel:
+  hystrix:
     enabled: true
 
 

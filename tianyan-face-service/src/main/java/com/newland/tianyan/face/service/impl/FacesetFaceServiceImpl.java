@@ -218,8 +218,8 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Override
     public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request) {
         Set<String> faceFields = this.checkFaceFieldAndSplitToArray(request.getFaceFields());
-        String firstImage = request.getFirstImage();
-        String secondImage = request.getSecondImage();
+        String firstImage = ImageCheckUtils.imageCheckAndFormatting(request.getFirstImage());
+        String secondImage = ImageCheckUtils.imageCheckAndFormatting(request.getSecondImage());
 
         Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_FEATURE);
         NLFace.CloudFaceSendMessage feature1 = mqMessageService.amqpHelper(firstImage, 1, taskType);
@@ -275,9 +275,9 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     @Override
     public NLFace.CloudFaceSendMessage features(NLBackend.BackendAllRequest receive, int model) {
-        qualityCheckService.checkQuality(receive.getQualityControl(), receive.getImage());
-        FaceDO query = ProtobufUtils.parseTo(receive, FaceDO.class);
-        FaceDO temp = this.storeImageAndGetMainFeature(query.getImage(), model);
+        String image = ImageCheckUtils.imageCheckAndFormatting(receive.getImage());
+        qualityCheckService.checkQuality(receive.getQualityControl(), image);
+        FaceDO temp = this.storeImageAndGetMainFeature(image, model);
         temp.setUserId(receive.getUserId());
         temp.setAppId(receive.getAppId());
         if (model == -20) {
@@ -363,7 +363,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      */
     private NLFace.CloudFaceSendMessage storeImageAndGetFeature(String image, Integer maxFaceNum, String faceFieldTaskTypeKey, Integer defaultTaskTypeKey) {
         Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(faceFieldTaskTypeKey);
-        this.storeImage(image);
+        this.storeImage(ImageCheckUtils.imageCheckAndFormatting(image));
 
         NLFace.CloudFaceSendMessage.Builder builder = this.getDefaultFeature(image, maxFaceNum, defaultTaskTypeKey);
 
@@ -392,8 +392,6 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     private void storeImage(String image) {
-        //检查图片
-        image = ImageCheckUtils.imageCheckAndFormatting(image);
         //是否异步存储图片
         try {
             if (enableImageStorage) {

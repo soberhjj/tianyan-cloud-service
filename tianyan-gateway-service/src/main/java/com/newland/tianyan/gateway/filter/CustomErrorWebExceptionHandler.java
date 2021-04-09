@@ -57,6 +57,12 @@ public class CustomErrorWebExceptionHandler extends DefaultErrorWebExceptionHand
             code = HttpStatus.NOT_FOUND.value();
             baseException = ExceptionSupport.toException(GlobalExceptionEnum.SERVICE_NOT_SUPPORT,((NotFoundException) error).getReason());
         }
+        if (error instanceof java.lang.IllegalStateException){
+            boolean isAuthServiceFailed = "Could not obtain the keys".equals(error.getMessage());
+            if (isAuthServiceFailed){
+                baseException = ExceptionSupport.toException(GlobalExceptionEnum.SERVICE_NOT_SUPPORT,"auth-service");
+            }
+        }
         //请求了未配置的URI
         if (error instanceof ResponseStatusException) {
             boolean wrongUri = "404 NOT_FOUND \"No matching handler\"".equals(error.getMessage());
