@@ -25,13 +25,14 @@ public class FaceSetFaceAddReqDTO {
     @Pattern(regexp = VerifyConstant.USER_ID)
     private String userId;
 
-    @Length(max=256)
+    @Length(max=255)
     private String userName;
 
     @NotBlank
     @Pattern(regexp = VerifyConstant.GROUP_ID)
     private String groupId;
 
+    @Length(max=1000)
     private String userInfo;
     /**
      * action_type取值有两种("append"和"replace")。

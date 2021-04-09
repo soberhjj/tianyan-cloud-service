@@ -9,7 +9,6 @@ import com.google.protobuf.Message;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.model.proto.NLPage;
-import com.sun.deploy.ui.AppInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ConcurrentReferenceHashMap;

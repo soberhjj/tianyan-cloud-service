@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * 授权服务器配置类
+ *
  * @Author: huangJunJie  2021-03-04 13:54
  */
 
@@ -44,7 +45,7 @@ public class ResourceServerConfig {
         http.exceptionHandling().authenticationEntryPoint(noTokenRestAuthenticationEntryPoint);
         http.csrf().disable();
         // 白名单
-        String whileList = "/cloudService/auth-cloud/oauth/token";
+        String whileList = "/cloudService/auth-cloud/oauth/token,/cloudService/auth-cloud/login/**,/cloudService/auth-cloud/auth/**";
         List<String> whileLists = Arrays.stream(whileList.split(",")).collect(Collectors.toList());
         http.authorizeExchange()
                 .pathMatchers(ArrayUtil.toArray(whileLists, String.class)).permitAll();
