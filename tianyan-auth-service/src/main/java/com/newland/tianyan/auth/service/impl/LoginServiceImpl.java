@@ -48,11 +48,11 @@ public class LoginServiceImpl implements ILoginService {
         Account account = ProtobufUtils.parseTo(receive, Account.class);
         // check account exist
         if (accountService.checkExits("account", account.getAccount())) {
-            throw ExceptionSupport.toException(ExceptionEnum.ACCOUNT_NOT_FOUND,account.getAccount());
+            throw ExceptionSupport.toException(ExceptionEnum.ACCOUNT_HAS_EXISTED,account.getAccount());
         }
         // check mailbox exist
         if (accountService.checkExits("mailbox", account.getMailbox())) {
-            throw ExceptionSupport.toException(ExceptionEnum.MAIL_BOX_NOT_FOUND,account.getMailbox());
+            throw ExceptionSupport.toException(ExceptionEnum.MAIL_BOX_HAS_EXISTED,account.getMailbox());
         }
         account.setPassword(encoder.encode(account.getPassword()));
         // register account

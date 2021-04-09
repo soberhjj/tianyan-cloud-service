@@ -45,7 +45,7 @@ public class ResourceServerConfig {
         http.exceptionHandling().authenticationEntryPoint(noTokenRestAuthenticationEntryPoint);
         http.csrf().disable();
         // 白名单
-        String whileList = "/cloudService/auth-cloud/oauth/token,/cloudService/auth-cloud/login/**,/cloudService/auth-cloud/auth/**";
+        String whileList = "/cloudService/auth-cloud/oauth/token,/cloudService/auth-cloud/login/register,/cloudService/auth-cloud/auth/**";
         List<String> whileLists = Arrays.stream(whileList.split(",")).collect(Collectors.toList());
         http.authorizeExchange()
                 .pathMatchers(ArrayUtil.toArray(whileLists, String.class)).permitAll();

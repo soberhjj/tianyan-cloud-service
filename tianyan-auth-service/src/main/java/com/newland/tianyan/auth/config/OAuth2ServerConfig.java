@@ -97,7 +97,7 @@ public class OAuth2ServerConfig {
                 .addFilterBefore(urlEncodedAuthenticationFilter, ChannelProcessingFilter.class)
                 .authorizeRequests()
                     .antMatchers( "/actuator/**","/test",
-                            "/auth/**","/login/**",
+                            "/auth/**","/login/register",
                             "/rsa/publicKey").permitAll()
                     .anyRequest().authenticated();
             // @formatter:on
