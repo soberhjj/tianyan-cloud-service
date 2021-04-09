@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.constants.TaskTypeEnums;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
+import com.newland.tianya.commons.base.model.proto.NLPage;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.dto.*;
@@ -91,9 +92,9 @@ public class AppInfoController {
      * 获取多条app数据(对内接口)
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
-    public NLBackend.BackendAppSendMessage findAll(@RequestBody @Validated AppGetListReqDTO receive) {
+    public NLPage.BackendAppPageMessage getPage(@RequestBody @Validated AppGetListReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         PageInfo<AppInfoDO> pageInfo = appInfoService.getList(request);
-        return ProtobufUtils.buildAppSendMessage(pageInfo.getList(), pageInfo.getSize());
+        return ProtobufUtils.buildAppPageMessage(pageInfo.getList(), pageInfo.getSize());
     }
 }

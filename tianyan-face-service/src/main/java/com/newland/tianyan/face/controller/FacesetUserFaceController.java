@@ -5,6 +5,7 @@ import com.newland.tianya.commons.base.constants.TaskTypeEnums;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.model.proto.NLFace;
+import com.newland.tianya.commons.base.model.proto.NLPage;
 import com.newland.tianya.commons.base.utils.LogIdUtils;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.entity.FaceDO;
@@ -73,10 +74,10 @@ public class FacesetUserFaceController {
      * 获取人脸列表
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage getList(@RequestBody @Validated FaceSetUserFaceGetListReqDTO receive) {
+    public NLPage.BackendFacesetPageMessage getList(@RequestBody @Validated FaceSetUserFaceGetListReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         List<FaceDO> list = facesetUserFaceService.getList(request);
-        return ProtobufUtils.buildFacesetSendMessage(list, list.size());
+        return ProtobufUtils.buildFacesetPageMessage(list, list.size());
     }
 
     /**

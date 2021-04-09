@@ -8,6 +8,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
+import com.newland.tianya.commons.base.model.proto.NLPage;
 import com.sun.deploy.ui.AppInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.util.CollectionUtils;
@@ -228,9 +229,7 @@ public class ProtobufUtils {
         builder.setCount((int) count);
 
         NLBackend.BackendAppSendMessage.BackendAppTableMessage.Builder tableBuilder = NLBackend.BackendAppSendMessage.BackendAppTableMessage.newBuilder();
-        if (CollectionUtils.isEmpty(results)) {
-            builder.setCount(0);
-        } else {
+        if (!CollectionUtils.isEmpty(results)) {
             for (Object result : results) {
                 String jsonFormat = JSON.toJSONString(result, getConfig());
                 try {
@@ -335,4 +334,45 @@ public class ProtobufUtils {
             return printToString(message);
         }
     }
+
+    public static NLPage.BackendAppPageMessage buildAppPageMessage(List results, long count) {
+        NLPage.BackendAppPageMessage.Builder builder =NLPage.BackendAppPageMessage.newBuilder();
+        builder.setLogId(LogIdUtils.traceId());
+        builder.setCount((int) count);
+
+        NLPage.BackendAppPageMessage.BackendAppTableMessage.Builder tableBuilder = NLPage.BackendAppPageMessage.BackendAppTableMessage.newBuilder();
+        if (!CollectionUtils.isEmpty(results)) {
+            for (Object result : results) {
+                String jsonFormat = JSON.toJSONString(result, getConfig());
+                try {
+                    JsonFormat.merge(jsonFormat, tableBuilder);
+                    builder.addResult(tableBuilder);
+                } catch (JsonFormat.ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return builder.build();
+    }
+
+    public static NLPage.BackendFacesetPageMessage buildFacesetPageMessage(List results, long count) {
+        NLPage.BackendFacesetPageMessage.Builder builder = NLPage.BackendFacesetPageMessage.newBuilder();
+        builder.setLogId(LogIdUtils.traceId());
+        builder.setCount((int) count);
+
+        NLPage.BackendFacesetPageMessage.BackendFacesetTableMessage.Builder tableBuilder =
+                NLPage.BackendFacesetPageMessage.BackendFacesetTableMessage.newBuilder();
+
+        for (Object result : results) {
+            String jsonFormat = JSON.toJSONString(result, getConfig());
+            try {
+                JsonFormat.merge(jsonFormat, tableBuilder);
+                builder.addResult(tableBuilder);
+            } catch (JsonFormat.ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return builder.build();
+    }
+
 }

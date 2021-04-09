@@ -4,6 +4,7 @@ package com.newland.tianyan.face.controller;
 import com.github.pagehelper.PageInfo;
 import com.newland.tianya.commons.base.constants.TaskTypeEnums;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
+import com.newland.tianya.commons.base.model.proto.NLPage;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.domain.dto.FaceSetUserCopyReqDTO;
@@ -33,10 +34,10 @@ public class FacesetUserController {
     private FacesetUserService facesetUserService;
 
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage getList(@RequestBody @Validated FaceSetUserGetListReqDTO receive) {
+    public NLPage.BackendFacesetPageMessage getList(@RequestBody @Validated FaceSetUserGetListReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         PageInfo<UserInfoDO> list = facesetUserService.getList(request);
-        return ProtobufUtils.buildFacesetSendMessage(list.getList(), list.getSize());
+        return ProtobufUtils.buildFacesetPageMessage(list.getList(), list.getSize());
     }
 
     @RequestMapping(value = "/copy", method = RequestMethod.POST)

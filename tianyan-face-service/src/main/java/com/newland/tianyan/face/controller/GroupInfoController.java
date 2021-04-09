@@ -4,6 +4,7 @@ package com.newland.tianyan.face.controller;
 import com.github.pagehelper.PageInfo;
 import com.newland.tianya.commons.base.constants.TaskTypeEnums;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
+import com.newland.tianya.commons.base.model.proto.NLPage;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.dto.FaceSetGroupAddReqDTO;
@@ -46,10 +47,10 @@ public class GroupInfoController {
      * 对内&对外 获取用户组列表接口
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage checkUnique(@RequestBody @Validated FaceSetGroupGetListReqDTO receive) {
+    public NLPage.BackendFacesetPageMessage getList(@RequestBody @Validated FaceSetGroupGetListReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         PageInfo<GroupInfoDO> pageInfo = groupInfoService.getList(request);
-        return ProtobufUtils.buildFacesetSendMessage(pageInfo.getList(), pageInfo.getSize());
+        return ProtobufUtils.buildFacesetPageMessage(pageInfo.getList(), pageInfo.getSize());
     }
 
     /**

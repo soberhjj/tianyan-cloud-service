@@ -1,4 +1,7 @@
+import com.newland.tianya.commons.base.utils.JsonUtils;
 import com.newland.tianyan.face.FaceServiceApplication;
+import lombok.Builder;
+import lombok.Data;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,5 +25,23 @@ public class DemoTest {
             System.out.println("table_no:" + table);
             System.out.println("-----------------");
         }
+    }
+
+    @Test
+    public void testJsonFormatting() {
+        @Data
+        class TargetObject{
+            private int count;
+            private String[] array;
+
+            public TargetObject(int count, String[] array) {
+                this.count = count;
+                this.array = array;
+            }
+        }
+
+        TargetObject object = new TargetObject(0,"Anna,Beta".split(","));
+        String json = JsonUtils.toJson(object);
+        System.out.println(json);
     }
 }
