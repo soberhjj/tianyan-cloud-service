@@ -18,7 +18,7 @@ public class FaceSetUserDeleteReqDTO {
     private String account;
 
     @NotNull
-    @Min(1599613749000L)
+    @Min(1L)
     private Long appId;
 
     @NotBlank

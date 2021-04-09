@@ -64,11 +64,13 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     @Override
     public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReqDTO request) throws BaseException {
-        Set<String> faceFields = this.checkFaceFieldAndSplitToArray(request.getFaceFields());
-        log.info("人脸搜索，输入用户组{},进入用户组有效性筛查：用户组存在且不为空", request.getGroupId());
-        Map<Long, String> gidWithGroupIdMaps = this.convertToEffectiveGidMaps(request.getAppId(), request.getGroupId());
         log.info("人脸搜索，开始检查图片有效性");
         String image = ImageCheckUtils.imageCheckAndFormatting(request.getImage());
+        Set<String> faceFields = this.checkFaceFieldAndSplitToArray(request.getFaceFields());
+
+        log.info("人脸搜索，输入用户组{},进入用户组有效性筛查：用户组存在且不为空", request.getGroupId());
+        Map<Long, String> gidWithGroupIdMaps = this.convertToEffectiveGidMaps(request.getAppId(), request.getGroupId());
+
         List<UserInfoDO> targetUserList = null;
         String userId = request.getUserId();
         boolean isFaceAuth = !StringUtils.isEmpty(request.getUserId());
@@ -93,10 +95,13 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         resultBuilder.setFaceNum(feature.getFaceNum());
         if (!CollectionUtils.isEmpty(queryFaceList)) {
             log.info("人脸搜索，向量搜索得到结果，开始筛选结果集并封装");
+            log.info("人脸搜索，向量搜索得到结果，开始筛选用户组");
             List<FaceSearchVo> effectiveGroupSearchVo = this.filterForValidGroup(gidWithGroupIdMaps, queryFaceList);
+            log.info("人脸搜索，向量搜索得到结果，开始筛选用户");
             List<FaceSearchVo> searchResult = this.filterForValidUser(isFaceAuth, request.getAppId(), request.getMaxUserNum(), effectiveGroupSearchVo, targetUserList);
             if (CollectionUtils.isEmpty(searchResult)) {
                 log.info("人脸搜索，筛选结果集结束，没有匹配的用户");
+                //todo 场景不同
                 throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_MATCH);
             }
             for (FaceSearchVo item : searchResult) {
@@ -110,10 +115,12 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             }
 
             log.info("人脸搜索-搜索已结束，开始请求活体或5~106点坐标");
-            this.storeImageAndGetFeature(resultBuilder, image, false, faceFields);
+            this.getFeature(resultBuilder, image, faceFields);
+            this.storeImage(image);
             return resultBuilder.build();
         } else {
             log.info("人脸搜索，筛选结果集结束，没有匹配的用户");
+            //todo
             throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_MATCH);
         }
     }
@@ -149,6 +156,9 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     private List<FaceSearchVo> doFaceSearch(Integer maxUserNum, List<FaceSearchVo> source, List<UserInfoDO> userInfoDOList) {
+        if (CollectionUtils.isEmpty(source)) {
+            return new ArrayList<>();
+        }
         if (CollectionUtils.isEmpty(userInfoDOList)) {
             log.info("人脸搜索，查询用户组用户信息为空...");
             throw ExceptionSupport.toException(ExceptionEnum.EMPTY_GROUP);
@@ -217,24 +227,27 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
     @Override
     public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request) {
+        log.info("人脸比对，开始检查参数");
         Set<String> faceFields = this.checkFaceFieldAndSplitToArray(request.getFaceFields());
         String firstImage = ImageCheckUtils.imageCheckAndFormatting(request.getFirstImage());
         String secondImage = ImageCheckUtils.imageCheckAndFormatting(request.getSecondImage());
-
+        log.info("人脸比对，开始请求特征值");
         Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_FEATURE);
         NLFace.CloudFaceSendMessage feature1 = mqMessageService.amqpHelper(firstImage, 1, taskType);
         NLFace.CloudFaceSendMessage feature2 = mqMessageService.amqpHelper(secondImage, 1, taskType);
         List<Float> featuresList1 = feature1.getFeatureResultList().get(0).getFeaturesList();
         List<Float> featuresList2 = feature2.getFeatureResultList().get(0).getFeaturesList();
-
+        log.info("人脸比对，开始计算置信度并封装参数");
         float distance = CosineDistanceTool.getNormalDistance(ArrayUtils.toPrimitive(featuresList1.toArray(new Float[0]), 0.0F), ArrayUtils.toPrimitive(featuresList2.toArray(new Float[0]), 0.0F));
 
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
         result.setConfidence(distance);
         result.setLogId(UUID.randomUUID().toString());
-
-        this.storeImageAndGetFeature(result, firstImage, true, faceFields);
-        this.storeImageAndGetFeature(result, secondImage, true, faceFields);
+        log.info("人脸比对，开始异步提交图片");
+        this.storeImage(firstImage);
+        this.storeImage(secondImage);
+        this.getFeature(result, firstImage, faceFields);
+        this.getFeature(result, secondImage, faceFields);
         return result.build();
     }
 
@@ -245,8 +258,11 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      */
     @Override
     public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReqDTO vo) {
+        Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(vo.getFaceFields());
+        String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
+        this.storeImage(image);
         Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_MULTIATTRIBUTE);
-        return this.storeImageAndGetFeature(vo.getImage(), vo.getMaxFaceNum(), vo.getFaceFields(), taskType);
+        return this.getFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
     }
 
     /**
@@ -256,8 +272,11 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      */
     @Override
     public NLFace.CloudFaceSendMessage liveness(FaceDetectReqDTO vo) {
+        Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(vo.getFaceFields());
+        String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
+        this.storeImage(image);
         Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_LIVENESS);
-        return this.storeImageAndGetFeature(vo.getImage(), vo.getMaxFaceNum(), vo.getFaceFields(), taskType);
+        return this.getFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
     }
 
     /**
@@ -268,8 +287,11 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      */
     @Override
     public NLFace.CloudFaceSendMessage detect(FaceDetectReqDTO vo) {
+        Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(vo.getFaceFields());
+        String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
+        this.storeImage(image);
         Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_COORDINATE);
-        return this.storeImageAndGetFeature(vo.getImage(), vo.getMaxFaceNum(), vo.getFaceFields(), taskType);
+        return this.getFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
     }
 
 
@@ -277,7 +299,8 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     public NLFace.CloudFaceSendMessage features(NLBackend.BackendAllRequest receive, int model) {
         String image = ImageCheckUtils.imageCheckAndFormatting(receive.getImage());
         qualityCheckService.checkQuality(receive.getQualityControl(), image);
-        FaceDO temp = this.storeImageAndGetMainFeature(image, model);
+        this.storeImage(image);
+        FaceDO temp = this.getMainFeature(image, model);
         temp.setUserId(receive.getUserId());
         temp.setAppId(receive.getAppId());
         if (model == -20) {
@@ -313,8 +336,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         return build;
     }
 
-    private FaceDO storeImageAndGetMainFeature(String image, int model) {
-        this.storeImage(image);
+    private FaceDO getMainFeature(String image, int model) {
 
         NLFace.CloudFaceSendMessage feature = mqMessageService.amqpHelper(image, 1, model);
 
@@ -355,40 +377,32 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
 
     /**
-     * •存储图片
      * •执行默认任务
      * •执行faceField域可选任务
      * <p>
      * 可选参数 liveness,coordinate
      */
-    private NLFace.CloudFaceSendMessage storeImageAndGetFeature(String image, Integer maxFaceNum, String faceFieldTaskTypeKey, Integer defaultTaskTypeKey) {
-        Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(faceFieldTaskTypeKey);
-        this.storeImage(ImageCheckUtils.imageCheckAndFormatting(image));
+    private NLFace.CloudFaceSendMessage getFeature(String image, Integer maxFaceNum, Set<String> optionTaskTypeKeys, Integer defaultTaskTypeKey) {
 
         NLFace.CloudFaceSendMessage.Builder builder = this.getDefaultFeature(image, maxFaceNum, defaultTaskTypeKey);
 
         this.getFaceFieldFeature(builder, image, maxFaceNum, optionTaskTypeKeys, defaultTaskTypeKey);
 
-        builder.setLogId(UUID.randomUUID().toString());
+        builder.setLogId(LogIdUtils.traceId());
         return builder.build();
     }
 
     /**
-     * •存储图片
      * •执行faceField域可选任务
      * <p>
      * 可选参数 liveness,coordinate
      */
-    private NLFace.CloudFaceSendMessage storeImageAndGetFeature(NLFace.CloudFaceSendMessage.Builder builder,
-                                                                String image, boolean isStoreImage, Set<String> faceFields) throws BaseException {
-        if (isStoreImage) {
-            this.storeImage(image);
-        }
+    private void getFeature(NLFace.CloudFaceSendMessage.Builder builder, String image, Set<String> faceFields) throws BaseException {
 
         this.getFaceFieldFeature(builder, image, 1, faceFields, null);
 
-        builder.setLogId(UUID.randomUUID().toString());
-        return builder.build();
+        builder.setLogId(LogIdUtils.traceId());
+        builder.build();
     }
 
     private void storeImage(String image) {
@@ -396,8 +410,6 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         try {
             if (enableImageStorage) {
                 imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
-            } else {
-                imageStorageService.uploadV2(UploadReqDTO.builder().image(image).build());
             }
         } catch (IOException exception) {
             throw ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR, exception);

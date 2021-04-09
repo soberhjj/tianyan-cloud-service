@@ -47,7 +47,7 @@ public enum ExceptionEnum implements IExceptionEnums {
     PICTURE_HAS_NO_FACE(6409, "pic has no face", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
     OVER_FACE_MAX_NUMBER(6410, "the number of user's faces is beyond the limit", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     FACE_NOT_FOUND(6411, "face is not exists", ExceptionTypeEnums.BUSINESS_EXCEPTION),
-    FACE_NOT_MATCH(6412, "match user is not found", ExceptionTypeEnums.BUSINESS_EXCEPTION),
+    FACE_NOT_MATCH(6412, "no matching users found", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     /**
      * 质量检测
      * */

@@ -25,6 +25,7 @@
 	 %C.%M %clr(|)
 	 %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
 
+
 	<!--输出到控制台-->
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -161,7 +162,7 @@
 
 	<!--开发环境:打印控制台-->
 	<springProfile name="dev">
-		<root level="info">
+		<root level="DEBUG">
 			<appender-ref ref="CONSOLE"/>
 			<appender-ref ref="ASYNC-INFO"/>
 		</root>
@@ -169,9 +170,9 @@
 
 	<!--测试环境:输出到文件-->
 	<springProfile name="test">
-		<root level="warn">
+		<root level="DEBUG">
 			<appender-ref ref="DEBUG_FILE"/>
-			<appender-ref ref="INFO_FILE"/>
+			<appender-ref ref="ASYNC-INFO"/>
 			<appender-ref ref="WARN_FILE"/>
 			<appender-ref ref="ERROR_FILE"/>
 		</root>
@@ -179,9 +180,9 @@
 
 	<!--生产环境:输出到文件-->
 	<springProfile name="prod">
-		<root level="info">
+		<root level="INFO">
 			<appender-ref ref="DEBUG_FILE"/>
-			<appender-ref ref="INFO_FILE"/>
+			<appender-ref ref="ASYNC-INFO"/>
 			<appender-ref ref="WARN_FILE"/>
 			<appender-ref ref="ERROR_FILE"/>
 		</root>

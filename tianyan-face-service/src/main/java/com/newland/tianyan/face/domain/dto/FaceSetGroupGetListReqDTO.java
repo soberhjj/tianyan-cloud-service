@@ -15,7 +15,7 @@ public class FaceSetGroupGetListReqDTO {
     private String account;
 
     @NotNull
-    @Min(1599613749000L)
+    @Min(1L)
     private Long appId;
 
     @Pattern(regexp = VerifyConstant.GROUP_ID_OLD)

@@ -15,7 +15,7 @@ public class FaceSetGroupAddReqDTO {
     private String groupId;
 
     @NotNull
-    @Min(1599613749000L)
+    @Min(1L)
     private Long appId;
 
     @NotBlank

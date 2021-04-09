@@ -15,7 +15,7 @@ public class FaceSetFaceAddReqDTO {
     private String account;
 
     @NotNull
-    @Min(1599613749000L)
+    @Min(1L)
     private Long appId;
 
     @NotBlank
@@ -25,14 +25,14 @@ public class FaceSetFaceAddReqDTO {
     @Pattern(regexp = VerifyConstant.USER_ID)
     private String userId;
 
-    @Length(max=255)
+    @Pattern(regexp = VerifyConstant.USER_NAME)
     private String userName;
 
     @NotBlank
     @Pattern(regexp = VerifyConstant.GROUP_ID)
     private String groupId;
 
-    @Length(max=1000)
+    @Length(max=256)
     private String userInfo;
     /**
      * action_type取值有两种("append"和"replace")。

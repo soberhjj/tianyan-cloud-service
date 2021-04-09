@@ -2,10 +2,13 @@ package com.newland.tianyan.face.feign.fallback;
 
 
 
+import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.model.imagestrore.DownloadReqDTO;
 import com.newland.tianya.commons.base.model.imagestrore.DownloadResDTO;
 import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
 import com.newland.tianya.commons.base.model.imagestrore.UploadResDTO;
+import com.newland.tianya.commons.base.support.ExceptionSupport;
+import com.newland.tianyan.face.constant.ExceptionEnum;
 import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import feign.hystrix.FallbackFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +37,7 @@ public class ImageServiceFeignClientFallbackImpl implements FallbackFactory<Imag
 
             @Override
             public UploadResDTO uploadV2(@Valid UploadReqDTO uploadReq) throws IOException {
-                return UploadResDTO.builder().imagePath("fallback").build();
+                throw  ExceptionSupport.toException(GlobalExceptionEnum.SERVICE_NOT_SUPPORT);
             }
 
             @Override

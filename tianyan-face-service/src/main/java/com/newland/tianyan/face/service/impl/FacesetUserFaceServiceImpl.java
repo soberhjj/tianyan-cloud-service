@@ -2,9 +2,6 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.googlecode.protobuf.format.JsonFormat;
-import com.newland.tianya.commons.base.exception.BaseException;
-import com.newland.tianya.commons.base.exception.BusinessException;
 import com.newland.tianya.commons.base.model.imagestrore.DownloadReqDTO;
 import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
@@ -27,8 +24,6 @@ import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.user.UserCreateEvent;
 import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.IMqMessageService;
-import com.newland.tianyan.face.mq.RabbitMQSender;
-import com.newland.tianyan.face.mq.RabbitMqQueueName;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
 import com.newland.tianyan.face.service.IQualityCheckService;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
@@ -44,12 +39,8 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-import static com.newland.tianya.commons.base.constants.GlobalExceptionEnum.BASE64_FORMAT_ILLEGAL;
 import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
-import static com.newland.tianyan.face.constant.ExceptionEnum.PICTURE_HAS_NO_FACE;
-import static java.lang.Math.abs;
 
 /**
  * @Author: huangJunJie  2020-11-04 09:15
@@ -83,21 +74,21 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         this.checkOperationType(actionType);
         qualityCheckService.checkQuality(receive.getQualityControl(), receive.getImage());
 
-        Long appId = receive.getAppId();
-        String groupId = receive.getGroupId();
-        String userId = receive.getUserId();
-
         FaceDO insertFaceDO = new FaceDO();
         log.info("人脸添加-提交图片至存储服务");
         this.uploadImage(insertFaceDO, receive.getImage());
         log.info("人脸添加-请求图片特征值");
         this.handleFeatures(insertFaceDO, receive.getImage());
         insertFaceDO.setAppId(receive.getAppId());
-        //对于不存在的用户组、用户进行新建
+
+        Long appId = receive.getAppId();
+        String groupId = receive.getGroupId();
+        String userId = receive.getUserId();
+        //对于不存在的用户组进行新建
         GroupInfoDO groupInfoDO = this.getExistedGroup(appId, groupId);
         insertFaceDO.setGid(groupInfoDO.getId());
         insertFaceDO.setGroupId(groupInfoDO.getGroupId());
-
+        //对于不存在的用户进行新建
         UserInfoDO queryUser = ProtobufUtils.parseTo(receive, UserInfoDO.class);
         queryUser.setGid(groupInfoDO.getId());
         queryUser.setUserInfo(receive.getUserInfo());
@@ -139,7 +130,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 0));
                 faceCacheHelper.add(insertFaceDO);
                 faceMapper.insertSelective(insertFaceDO);
-
                 publisher.publishEvent(new FaceDeleteEvent(appId, groupId, userId, deleteCount));
             }
         }

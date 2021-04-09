@@ -12,10 +12,10 @@ public enum ExceptionEnum implements IExceptionEnums {
     /**
      * 存在性验证
      */
-    ACCOUNT_NOT_FOUND(7400, "account[{0}] not found", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
-    MAIL_BOX_NOT_FOUND(7401, "mailbox[{0}] not found", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
-    ACCOUNT_HAS_EXISTED(7402, "account[{0}] already existed", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
-    MAIL_BOX_HAS_EXISTED(7403, "mailbox[{0}] already existed", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    ACCOUNT_NOT_FOUND(6105, "account[{0}] not found", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    MAIL_BOX_NOT_FOUND(6106, "mailbox[{0}] not found", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    ACCOUNT_HAS_EXISTED(6107, "account[{0}] already existed", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    MAIL_BOX_HAS_EXISTED(6108, "mailbox[{0}] already existed", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
     ;
     private final int errorCode;
 

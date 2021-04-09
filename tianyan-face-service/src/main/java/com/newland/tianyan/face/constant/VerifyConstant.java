@@ -16,21 +16,21 @@ public class VerifyConstant {
 
     public static final String APP_LIST = "^[0-5,]*$";
 
-    public static final String APP_NAME = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,255}$";
+    public static final String APP_NAME = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$";
 
-    public static final String GROUP_ID_OLD = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,64}$";
+    public static final String GROUP_ID_OLD = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$";
     /**
-     * GROUP_ID 仅有数字、英文、下划线，长度64
+     * GROUP_ID 仅有数字、英文、下划线，长度32
      * */
-    public static final String GROUP_ID = "^[\\dA-Za-z_]{0,64}$";
+    public static final String GROUP_ID = "^[\\dA-Za-z_]{0,32}$";
 
-    public static final String GROUP_ID_LIST = "^[\\dA-Za-z_,]{0,649}$";
+    public static final String GROUP_ID_LIST = "^[\\dA-Za-z_,]{0,329}$";
 
-    public static final String USER_ID_OLD = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,64}$";
+    public static final String USER_ID_OLD = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$";
     /**
-     * USER_ID 仅有数字、英文、下划线，长度64
+     * USER_ID 仅有数字、英文、下划线，长度32
      * */
-    public static final String USER_ID = "^[\\dA-Za-z_]{0,64}$";
+    public static final String USER_ID = "^[\\dA-Za-z_]{0,32}$";
 
     public static final String USER_NAME = "[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$";
 }

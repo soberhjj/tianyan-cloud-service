@@ -162,7 +162,7 @@
 
     <!--开发环境:打印控制台-->
     <springProfile name="dev">
-        <root level="info">
+        <root level="DEBUG">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC-INFO"/>
         </root>
@@ -170,9 +170,9 @@
 
     <!--测试环境:输出到文件-->
     <springProfile name="test">
-        <root level="warn">
+        <root level="DEBUG">
             <appender-ref ref="DEBUG_FILE"/>
-            <appender-ref ref="INFO_FILE"/>
+            <appender-ref ref="ASYNC-INFO"/>
             <appender-ref ref="WARN_FILE"/>
             <appender-ref ref="ERROR_FILE"/>
         </root>
@@ -180,9 +180,9 @@
 
     <!--生产环境:输出到文件-->
     <springProfile name="prod">
-        <root level="info">
+        <root level="INFO">
             <appender-ref ref="DEBUG_FILE"/>
-            <appender-ref ref="INFO_FILE"/>
+            <appender-ref ref="ASYNC-INFO"/>
             <appender-ref ref="WARN_FILE"/>
             <appender-ref ref="ERROR_FILE"/>
         </root>
