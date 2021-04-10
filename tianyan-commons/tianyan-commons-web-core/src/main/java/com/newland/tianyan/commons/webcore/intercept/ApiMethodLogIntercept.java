@@ -10,9 +10,12 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 import static com.newland.tianya.commons.base.constants.GlobalLogConstant.GATEWAY_TRACE_HEAD;
+import static com.newland.tianya.commons.base.constants.TokenConstants.HEAD_ACCOUNT;
+import static com.newland.tianya.commons.base.constants.TokenConstants.HEAD_APP_ID;
 
 /**
  * @author: RojiaHuang
@@ -21,26 +24,26 @@ import static com.newland.tianya.commons.base.constants.GlobalLogConstant.GATEWA
  */
 @Slf4j
 public class ApiMethodLogIntercept implements HandlerInterceptor {
-    private final LogFixColumnUtils logFixColumnUtils;
     private final ServerAddressUtils serverAddressUtils;
 
-    public ApiMethodLogIntercept(LogFixColumnUtils logFixColumnUtils, ServerAddressUtils serverAddressUtils) {
-        this.logFixColumnUtils = logFixColumnUtils;
+    public ApiMethodLogIntercept(ServerAddressUtils serverAddressUtils) {
         this.serverAddressUtils = serverAddressUtils;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //定义固定列
-        String url = request.getRequestURI();
-        String requestIp = NetworkUtils.getClientIpAddress(request);
-        String responseIp = serverAddressUtils.getServerAddress();
-        String traceId = request.getHeader(GATEWAY_TRACE_HEAD);
-        logFixColumnUtils.init(traceId, url, requestIp, responseIp);
+        LogFixColumnUtils.init(LogFixColumnUtils.LogFixColumn.builder()
+                .url(request.getRequestURI())
+                .clientIp(NetworkUtils.getClientIpAddress(request))
+                .serverAddress(serverAddressUtils.getServerAddress())
+                .traceId(request.getHeader(GATEWAY_TRACE_HEAD))
+                .account(request.getHeader(HEAD_ACCOUNT))
+                .appId(request.getHeader(HEAD_APP_ID))
+                .build());
         //输出请求时间
         String requestTime = LocalDateTime.now().toString();
         request.setAttribute("requestTime", requestTime);
-        log.info("requestTime:{}", requestTime);
         return true;
     }
 
@@ -48,8 +51,10 @@ public class ApiMethodLogIntercept implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable ModelAndView modelAndView) throws Exception {
         //输出响应时间
         String requestTime = (String) request.getAttribute("requestTime");
-        String responseTime = LocalDateTime.now().toString();
-        log.info("requestTime:{},responseTime:{}", requestTime, responseTime);
+        LocalDateTime now = LocalDateTime.now();
+        String responseTime = now.toString();
+        double consuming = Duration.between(LocalDateTime.parse(requestTime), now).getNano() / 1000000.0;
+        log.info("requestTime:{},responseTime:{},consuming:{}ms", requestTime, responseTime, consuming);
     }
 
     @Override

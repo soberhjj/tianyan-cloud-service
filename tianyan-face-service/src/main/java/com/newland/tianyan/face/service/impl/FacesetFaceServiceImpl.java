@@ -117,6 +117,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                 gidUidKeySet.add(gidUid);
                 countTopK++;
             }
+
             if (!CollectionUtils.isEmpty(faceList)) {
                 if (uidWithUserInfoMaps == null) {
                     Set<Long> uidSetFormQueryFaceList = faceList.stream().map(FaceSearchVo::getUid).collect(Collectors.toSet());

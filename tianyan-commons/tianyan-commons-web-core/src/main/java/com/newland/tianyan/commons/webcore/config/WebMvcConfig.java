@@ -1,7 +1,6 @@
 package com.newland.tianyan.commons.webcore.config;
 
 
-import com.newland.tianya.commons.base.utils.LogFixColumnUtils;
 import com.newland.tianya.commons.base.utils.ServerAddressUtils;
 import com.newland.tianyan.commons.webcore.intercept.ApiMethodLogIntercept;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +18,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ApiMethodLogIntercept(logFixColumnUtils, serverAddressUtils));
+        registry.addInterceptor(new ApiMethodLogIntercept(serverAddressUtils));
     }
 
-    @Autowired
-    private LogFixColumnUtils logFixColumnUtils;
     @Autowired
     private ServerAddressUtils serverAddressUtils;
 

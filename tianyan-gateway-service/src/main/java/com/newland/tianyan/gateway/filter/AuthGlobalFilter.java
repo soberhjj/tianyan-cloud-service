@@ -11,7 +11,9 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.text.ParseException;
+import java.time.LocalDateTime;
 
+import static com.newland.tianya.commons.base.constants.GlobalLogConstant.HEAD_REQUEST_TIME;
 import static com.newland.tianya.commons.base.constants.TokenConstants.*;
 
 
@@ -41,6 +43,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                     appId = jsonObject.getString(TOKEN_APP_ID_2);
                 }
                 ServerHttpRequest request = exchange.getRequest().mutate()
+                        .header(HEAD_REQUEST_TIME, LocalDateTime.now().toString())
                         .header(HEAD_APP_ID, appId)
                         .header(HEAD_ACCOUNT, jsonObject.getString(TOKEN_ACCOUNT_1))
                         .build();

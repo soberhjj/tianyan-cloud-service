@@ -1,6 +1,5 @@
 package com.newland.tianyan.gateway.filter;
 
-import com.newland.tianya.commons.base.support.JsonSkipSupport;
 import com.newland.tianyan.gateway.support.GatewayLoggerSupport;
 import com.newland.tianyan.gateway.support.ResponseBodyTraceIdDecorator;
 import lombok.SneakyThrows;
@@ -13,14 +12,17 @@ import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 /**
@@ -38,6 +40,7 @@ public class ApiLogRespFilter extends GatewayLoggerSupport implements GlobalFilt
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpResponse serverHttpResponse = exchange.getResponse();
         DataBufferFactory dataBufferFactory = serverHttpResponse.bufferFactory();
+        ServerHttpRequest serverHttpRequest = exchange.getRequest();
         //后置过滤器，发生在ApiLogReqFilter后置过滤器顺序之后
         ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(serverHttpResponse) {
             @Override
@@ -51,9 +54,11 @@ public class ApiLogRespFilter extends GatewayLoggerSupport implements GlobalFilt
 
                         String responseBody = new String(content, StandardCharsets.UTF_8);
                         String traceId = getTradeIdFromHeads(serverHttpResponse);
-                        String makeUpTraceIdRequestBody = ResponseBodyTraceIdDecorator.putTraceId(responseBody,traceId);
-                        String requestTime = getRequestTimeFromHeads(serverHttpResponse);
-                        log.info("requestTime:{},responseTime:{},responseBody:{}", requestTime, LocalDateTime.now().toString(), makeUpTraceIdRequestBody);
+                        String makeUpTraceIdRequestBody = ResponseBodyTraceIdDecorator.putTraceId(responseBody, traceId);
+                        String requestTime = getRequestTimeFromHeads(serverHttpRequest);
+                        LocalDateTime now = LocalDateTime.now();
+                        Double consuming = StringUtils.isEmpty(requestTime) ? null : Duration.between(LocalDateTime.parse(requestTime), now).getNano() / 1000000.0;
+                        log.info("requestTime:{},responseTime:{},consuming:{}ms,responseBody:{}", requestTime, now.toString(), consuming, makeUpTraceIdRequestBody);
                         byte[] uppedContent = makeUpTraceIdRequestBody.getBytes(StandardCharsets.UTF_8);
                         return dataBufferFactory.wrap(uppedContent);
                     }));
@@ -67,6 +72,6 @@ public class ApiLogRespFilter extends GatewayLoggerSupport implements GlobalFilt
 
     @Override
     public int getOrder() {
-        return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1;
+        return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER;
     }
 }

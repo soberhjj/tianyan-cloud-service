@@ -3,7 +3,6 @@ package com.newland.tianyan.face.aop;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -14,7 +13,6 @@ import org.springframework.http.converter.protobuf.ProtobufJsonFormatHttpMessage
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;

@@ -21,7 +21,8 @@
 	<property name="LOG_PATTERN" value="
 	 ${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){red} %clr(|) %highlight(%-5level) %clr(|) %thread %clr(|) %clr(${PID:- }) %clr(|)
 	 %X{traceId} %clr(|)
-	 %X{uri} %clr(|) %X{requestIp} %clr(|) %X{responseId:-} %clr(|)
+	 %X{url} %clr(|) %X{account:-} %clr(|) %X{appId:-} %clr(|)
+	 %X{clientIp} %clr(|) %X{serverAddress:-} %clr(|)
 	 %C.%M %clr(|)
 	 %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
 
@@ -154,7 +155,7 @@
 		<appender-ref ref="INFO_FILE"/>
 	</appender>
 
-	<logger name="com.newland.tianyan" value="INFO"  additivity="false" >
+	<logger name="com.newland.tianyan" value="INFO" additivity="false">
 		<appender-ref ref="CONSOLE"/>
 		<appender-ref ref="ASYNC-INFO"/>
 		<appender-ref ref="DEBUG_FILE"/>

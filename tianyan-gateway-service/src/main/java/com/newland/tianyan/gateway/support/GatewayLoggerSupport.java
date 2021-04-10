@@ -14,6 +14,8 @@ import java.util.Collections;
 
 import static com.newland.tianya.commons.base.constants.GlobalLogConstant.GATEWAY_TRACE_HEAD;
 import static com.newland.tianya.commons.base.constants.GlobalLogConstant.HEAD_REQUEST_TIME;
+import static com.newland.tianya.commons.base.constants.TokenConstants.HEAD_ACCOUNT;
+import static com.newland.tianya.commons.base.constants.TokenConstants.HEAD_APP_ID;
 
 /**
  * @author: RojiaHuang
@@ -26,17 +28,16 @@ public class GatewayLoggerSupport {
     public void initAndLoggingReqMsg(ServerWebExchange exchange, HttpHeaders httpHeaders, String requestParam) {
         //固定列
         ServerHttpRequest serverHttpRequest = exchange.getRequest();
-        String url = serverHttpRequest.getURI().getPath();
-        String clientIp = ReactiveAddrUtils.getRemoteAddr(serverHttpRequest);
-        String serverIp = ReactiveAddrUtils.getLocalAddr();
-
-        LogFixColumnUtils.init(url, clientIp, serverIp);
         //traceId
-        String traceId = this.addTradeIdToHeads(httpHeaders);
-        LogFixColumnUtils.init(traceId);
-
-        String requestTime = this.addRequestTimeToHeads(httpHeaders);
-        log.info("requestTime:{},requestParam:{}", requestTime, JsonSkipSupport.toJson(requestParam));
+        LogFixColumnUtils.init(LogFixColumnUtils.LogFixColumn.builder()
+                .url(serverHttpRequest.getURI().getPath())
+                .clientIp(ReactiveAddrUtils.getRemoteAddr(serverHttpRequest))
+                .serverAddress(ReactiveAddrUtils.getLocalAddr())
+                .traceId(this.addTradeIdToHeads(httpHeaders))
+                .account(httpHeaders.getFirst(HEAD_ACCOUNT))
+                .appId(httpHeaders.getFirst(HEAD_APP_ID))
+                .build());
+        log.info("requestTime:{},requestParam:{}", this.getRequestTimeFromHeads(serverHttpRequest), JsonSkipSupport.toJson(requestParam));
     }
 
     public String addTradeIdToHeads(HttpHeaders httpHeaders) {
@@ -55,14 +56,7 @@ public class GatewayLoggerSupport {
         return headers.containsKey(GATEWAY_TRACE_HEAD) ? headers.getFirst(GATEWAY_TRACE_HEAD) : null;
     }
 
-    public String addRequestTimeToHeads(HttpHeaders httpHeaders) {
-        String requestTime = LocalDateTime.now().toString();
-        //透传到下游微服务
-        httpHeaders.put(HEAD_REQUEST_TIME, Collections.singletonList(requestTime));
-        return requestTime;
-    }
-
-    public String getRequestTimeFromHeads(ServerHttpResponse serverHttpRequest) {
+    public String getRequestTimeFromHeads(ServerHttpRequest serverHttpRequest) {
         HttpHeaders headers = serverHttpRequest.getHeaders();
         return headers.containsKey(HEAD_REQUEST_TIME) ? headers.getFirst(HEAD_REQUEST_TIME) : null;
     }
