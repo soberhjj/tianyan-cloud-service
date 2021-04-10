@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author: huangJunJie  2020-11-05 14:34
@@ -34,7 +35,5 @@ public interface UserInfoMapper extends CommonMapper<UserInfoDO> {
      */
     void insertGetId(UserInfoDO userInfoDO);
 
-    List<UserInfoDO> queryList(@Param("appId") Long appId, List<String> groupIdList, @Param("userId") String userId);
-
-    List<UserInfoDO> queryBatch(@Param("appId") Long appId, List<Long> gidList, List<Long> uidList);
+    List<UserInfoDO> queryBatch(@Param("appId") Long appId, Set<Long> gidSet, Set<Long> uidSet, String userId);
 }

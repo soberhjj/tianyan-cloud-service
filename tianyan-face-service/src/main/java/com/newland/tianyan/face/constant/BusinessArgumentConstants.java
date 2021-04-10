@@ -18,7 +18,7 @@ public class BusinessArgumentConstants {
     /**
      * 单次请求用户组的数量上限
      * */
-    public static final int MAX_GROUP_NUMBER = 10;
+    public static final int SEARCH_MAX_GROUP_NUMBER = 10;
 
     public static final int MAX_GROUP_LENGTH = 64;
     /**

@@ -108,30 +108,13 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     }
 
     @Override
-    public List<GroupInfoDO> queryBatch(Long appId, String requestGroupIdsStr) {
-        Set<String> groupIdList = this.splitGroupIdList(requestGroupIdsStr);
+    public List<GroupInfoDO> queryBatch(Long appId, Set<String> groupIdList) {
 
         List<GroupInfoDO> groupList = groupInfoMapper.queryBatch(appId, groupIdList);
         if (CollectionUtils.isEmpty(groupList)) {
-            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, requestGroupIdsStr);
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, groupIdList.toString());
         }
         return groupList;
     }
 
-
-    @Override
-    public Set<String> splitGroupIdList(String requestGroupIdsStr) {
-        Set<String> groupIdSet = new HashSet<>();
-        Collections.addAll(groupIdSet, requestGroupIdsStr.split(ID_SPLIT_REGEX));
-        if (groupIdSet.size() > MAX_GROUP_NUMBER) {
-            throw ExceptionSupport.toException(ExceptionEnum.OVER_GROUP_MAX_NUMBER);
-        }
-
-        for (String item : groupIdSet) {
-            if (item.length() > MAX_GROUP_LENGTH) {
-                throw ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_SIZE_MAX, "group_id:" + item);
-            }
-        }
-        return groupIdSet;
-    }
 }

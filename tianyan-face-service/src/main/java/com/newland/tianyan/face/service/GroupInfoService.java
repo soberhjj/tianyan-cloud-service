@@ -20,7 +20,6 @@ public interface GroupInfoService {
 
     void delete(NLBackend.BackendAllRequest receive) throws BaseException;
 
-    List<GroupInfoDO> queryBatch(Long appId, String requestGroupIdsStr);
+    List<GroupInfoDO> queryBatch(Long appId, Set<String> groupIdList);
 
-    Set<String> splitGroupIdList(String requestGroupIdsStr);
 }

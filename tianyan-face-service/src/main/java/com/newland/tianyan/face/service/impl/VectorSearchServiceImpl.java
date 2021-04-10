@@ -65,19 +65,6 @@ public class VectorSearchServiceImpl<T> implements IVectorSearchService<T> {
         return convertResultList;
     }
 
-    @Override
-    public List<FaceSearchVo> filterSameGroupSameUser(List<FaceSearchVo> source) {
-        List<Long> allVectorSearchKeys = source.stream().map(FaceSearchVo::getVectorId).collect(Collectors.toList());
-        List<Long> filterVectorSearchKeys = VectorSearchKeyUtils.filterSameGroupSameUser(allVectorSearchKeys);
-        List<FaceSearchVo> target = new ArrayList<>();
-        for (FaceSearchVo item : source) {
-            if (filterVectorSearchKeys.contains(item.getVectorId())) {
-                target.add(item);
-            }
-        }
-        return target;
-    }
-
     /**
      * 分装faceId值DeleteFaceRequest
      */

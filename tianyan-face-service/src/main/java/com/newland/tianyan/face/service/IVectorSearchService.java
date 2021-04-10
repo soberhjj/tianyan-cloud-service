@@ -47,6 +47,4 @@ public interface IVectorSearchService<T> {
     void createCollection(Long collectionId) throws BaseException;
 
     void deleteCollection(Long collectionId) throws BaseException;
-
-    List<FaceSearchVo> filterSameGroupSameUser(List<FaceSearchVo> source);
 }

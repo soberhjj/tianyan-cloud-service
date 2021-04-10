@@ -1,13 +1,9 @@
 package com.newland.tianyan.face.utils;
 
 import com.newland.tianya.commons.base.exception.BusinessException;
-import com.newland.tianya.commons.base.model.proto.NLBackend;
-import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.face.constant.ExceptionEnum;
-import com.newland.tianyan.face.domain.entity.AppInfoDO;
 
 import java.text.NumberFormat;
-import java.util.*;
 
 import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MAX_FACE_NUMBER;
 
@@ -25,20 +21,6 @@ public class VectorSearchKeyUtils {
     private static final int U_LONG = 8;
 
     private static final int F_LONG = 2;
-
-    public static List<Long> filterSameGroupSameUser(List<Long> keys){
-        Map<String,Long> map = new HashMap<>(keys.size());
-        keys.forEach(item->{
-            String itemStr = item.toString();
-            String mapKey = itemStr.substring(0,itemStr.length()-2);
-            map.putIfAbsent(mapKey,item);
-        });
-       List<Long> result = new ArrayList<>(map.size());
-       map.keySet().forEach(item->{
-           result.add(map.get(item));
-       });
-       return result;
-    }
 
     public static Long generatedKey(Long gid, Long uid, int faceNoLong) {
         if (faceNoLong > MAX_FACE_NUMBER) {

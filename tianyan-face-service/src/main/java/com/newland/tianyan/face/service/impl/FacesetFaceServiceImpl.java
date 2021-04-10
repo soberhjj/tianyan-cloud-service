@@ -6,7 +6,10 @@ import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.model.proto.NLFace;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
-import com.newland.tianya.commons.base.utils.*;
+import com.newland.tianya.commons.base.utils.CosineDistanceTool;
+import com.newland.tianya.commons.base.utils.FeaturesTool;
+import com.newland.tianya.commons.base.utils.ImageCheckUtils;
+import com.newland.tianya.commons.base.utils.LogIdUtils;
 import com.newland.tianyan.face.constant.ExceptionEnum;
 import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.domain.dto.FaceDetectReqDTO;
@@ -68,149 +71,105 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String image = ImageCheckUtils.imageCheckAndFormatting(request.getImage());
         Set<String> faceFields = this.checkFaceFieldAndSplitToArray(request.getFaceFields());
 
-        log.info("人脸搜索，输入用户组{},进入用户组有效性筛查：用户组存在且不为空", request.getGroupId());
-        Map<Long, String> gidWithGroupIdMaps = this.convertToEffectiveGidMaps(request.getAppId(), request.getGroupId());
-
-        List<UserInfoDO> targetUserList = null;
+        Long appId = request.getAppId();
+        String groupId = request.getGroupId();
         String userId = request.getUserId();
-        boolean isFaceAuth = !StringUtils.isEmpty(request.getUserId());
-        if (isFaceAuth) {
+        int maxUserNum = request.getMaxUserNum();
+
+        log.info("人脸搜索，输入用户组{},进入用户组及用户有效性筛查", groupId);
+        Set<String> splitGroupIdList = this.checkAndSplitGroupIdList(groupId);
+        Map<Long, String> gidWithGroupIdMaps = this.loadEffectGroupMaps(appId, splitGroupIdList);
+        Map<Long, UserInfoDO> uidWithUserInfoMaps = null;
+        if (!StringUtils.isEmpty(userId)) {
             log.info("人脸搜索，当前为人脸认证请求userId:{}", userId);
-            List<String> groupIdList = new ArrayList<>(gidWithGroupIdMaps.size());
-            gidWithGroupIdMaps.keySet().forEach(item -> {
-                groupIdList.add(gidWithGroupIdMaps.get(item));
-            });
-            targetUserList = this.getVerificationUserInfo(request.getAppId(), groupIdList, userId);
+            uidWithUserInfoMaps = this.loadEffectUserMaps(appId, gidWithGroupIdMaps.keySet(), userId);
         }
+
         log.info("人脸搜索，用户组筛查通过，请求计算图片特征值");
         Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_FEATURE);
-        NLFace.CloudFaceSendMessage feature =
-                mqMessageService.amqpHelper(image, request.getMaxFaceNum(), taskType);
+        NLFace.CloudFaceSendMessage feature = mqMessageService.amqpHelper(image, maxUserNum, taskType);
         List<Float> featureRaw = FeaturesTool.normalizeConvertToList(feature.getFeatureResultList().get(0).getFeaturesList());
         log.info("人脸搜索，图片特征值已获得，开始向量搜索中...");
-        List<FaceSearchVo> queryFaceList = faceFaceCacheHelper.query(request.getAppId(), featureRaw);
+        List<FaceSearchVo> vectorResultList = faceFaceCacheHelper.query(appId, featureRaw);
 
-        NLFace.CloudFaceSendMessage.Builder resultBuilder = NLFace.CloudFaceSendMessage.newBuilder();
-        resultBuilder.setLogId(UUID.randomUUID().toString());
-        resultBuilder.setFaceNum(feature.getFaceNum());
-        if (!CollectionUtils.isEmpty(queryFaceList)) {
+        if (!CollectionUtils.isEmpty(vectorResultList)) {
             log.info("人脸搜索，向量搜索得到结果，开始筛选结果集并封装");
-            log.info("人脸搜索，向量搜索得到结果，开始筛选用户组");
-            List<FaceSearchVo> effectiveGroupSearchVo = this.filterForValidGroup(gidWithGroupIdMaps, queryFaceList);
-            log.info("人脸搜索，向量搜索得到结果，开始筛选用户");
-            List<FaceSearchVo> searchResult = this.filterForValidUser(isFaceAuth, request.getAppId(), request.getMaxUserNum(), effectiveGroupSearchVo, targetUserList);
-            if (CollectionUtils.isEmpty(searchResult)) {
-                log.info("人脸搜索，筛选结果集结束，没有匹配的用户");
-                //todo 场景不同
-                throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_MATCH);
-            }
-            for (FaceSearchVo item : searchResult) {
-                NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
-                builder.setGroupId(gidWithGroupIdMaps.get(item.getGid()));
-                builder.setUserId(item.getUserId());
-                builder.setUserName(item.getUserName());
-                builder.setUserInfo(item.getUserInfo());
-                //置信度
-                builder.setConfidence(item.getDistance());
-            }
-
-            log.info("人脸搜索-搜索已结束，开始请求活体或5~106点坐标");
-            this.getFeature(resultBuilder, image, faceFields);
-            this.storeImage(image);
-            return resultBuilder.build();
-        } else {
-            log.info("人脸搜索，筛选结果集结束，没有匹配的用户");
-            //todo
-            throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_MATCH);
-        }
-    }
-
-    /**
-     * 用户组筛选
-     * -过滤数据库中无效的用户组
-     * -过滤相同组相同用户的向量信息
-     */
-    private List<FaceSearchVo> filterForValidGroup(Map<Long, String> gidWithGroupIdMaps, List<FaceSearchVo> source) {
-        List<FaceSearchVo> dbEffectiveGroupResults = new ArrayList<>();
-        //过滤数据库中无效的用户组
-        for (FaceSearchVo vectorsQueryRes : source) {
-            Long gid = vectorsQueryRes.getGid();
-            if (gidWithGroupIdMaps.containsKey(gid)) {
-                dbEffectiveGroupResults.add(vectorsQueryRes);
-            }
-        }
-        //过滤相同用户，留存同组同用户最高执行度的记录
-        return faceFaceCacheHelper.filterSameGroupSameUser(dbEffectiveGroupResults);
-    }
-
-    /**
-     * 人脸认证，若查询结果中没有目标用户的id标识符，则抛出异常给客户端
-     */
-    private List<FaceSearchVo> filterForValidUser(boolean isFaceAuthentication, Long appId, Integer maxUserNum, List<FaceSearchVo> source, List<UserInfoDO> targetUserList) {
-        if (isFaceAuthentication) {
-            return doFaceSearch(maxUserNum, source, targetUserList);
-        } else {
-            List<UserInfoDO> userInfoDOList = this.getValidUserInfo(appId, source);
-            return doFaceSearch(maxUserNum, source, userInfoDOList);
-        }
-    }
-
-    private List<FaceSearchVo> doFaceSearch(Integer maxUserNum, List<FaceSearchVo> source, List<UserInfoDO> userInfoDOList) {
-        if (CollectionUtils.isEmpty(source)) {
-            return new ArrayList<>();
-        }
-        if (CollectionUtils.isEmpty(userInfoDOList)) {
-            log.info("人脸搜索，查询用户组用户信息为空...");
-            throw ExceptionSupport.toException(ExceptionEnum.EMPTY_GROUP);
-        }
-        List<FaceSearchVo> validUserResults = new ArrayList<>();
-        int countTopK = 0;
-        for (FaceSearchVo searchVo : source) {
-            for (UserInfoDO userInfoDO : userInfoDOList) {
+            //过滤数据库中无效的用户组
+            int countTopK = 0;
+            List<FaceSearchVo> faceList = new ArrayList<>(maxUserNum);
+            Set<String> gidUidKeySet = new HashSet<>(vectorResultList.size());
+            for (FaceSearchVo item : vectorResultList) {
                 if (countTopK >= maxUserNum) {
                     break;
                 }
-                if (searchVo.getUid().equals(userInfoDO.getId())) {
-                    searchVo.setUserId(userInfoDO.getUserId());
-                    searchVo.setGroupId(userInfoDO.getGroupId());
-                    searchVo.setUserName(userInfoDO.getUserName());
-                    searchVo.setUserInfo(userInfoDO.getUserInfo());
-                    validUserResults.add(searchVo);
-                    countTopK++;
-                    break;
+                //剔除非选定用户组的记录
+                Long gid = item.getGid();
+                if (!gidWithGroupIdMaps.containsKey(gid)) {
+                    continue;
                 }
+                //剔除同组同用户的记录
+                String vectorId = item.getVectorId().toString();
+                String gidUid = vectorId.substring(0, vectorId.length() - 2);
+                if (gidUidKeySet.contains(gidUid)) {
+                    continue;
+                }
+                faceList.add(item);
+                gidUidKeySet.add(gidUid);
+                countTopK++;
+            }
+            if (!CollectionUtils.isEmpty(faceList)) {
+                if (uidWithUserInfoMaps == null) {
+                    Set<Long> uidSetFormQueryFaceList = faceList.stream().map(FaceSearchVo::getUid).collect(Collectors.toSet());
+                    uidWithUserInfoMaps = this.loadEffectUserMaps(appId, uidSetFormQueryFaceList);
+                }
+                NLFace.CloudFaceSendMessage.Builder resultBuilder = NLFace.CloudFaceSendMessage.newBuilder();
+                resultBuilder.setLogId(LogIdUtils.traceId());
+                resultBuilder.setFaceNum(feature.getFaceNum());
+                for (FaceSearchVo item : faceList) {
+                    Long uid = item.getUid();
+                    Long gid = item.getGid();
+                    if (gidWithGroupIdMaps.containsKey(gid) && uidWithUserInfoMaps.containsKey(uid)) {
+                        UserInfoDO userInfoDO = uidWithUserInfoMaps.get(uid);
+                        //封装结果至protobuf的result集合中
+                        NLFace.CloudFaceSearchResult.Builder builder = resultBuilder.addUserResultBuilder();
+                        builder.setGroupId(gidWithGroupIdMaps.get(gid));
+                        builder.setUserId(userInfoDO.getUserId());
+                        builder.setUserName(userInfoDO.getUserName());
+                        builder.setUserInfo(userInfoDO.getUserInfo());
+                        //置信度
+                        builder.setConfidence(item.getDistance());
+                    }
+                }
+
+                log.info("人脸搜索-搜索已结束，开始请求活体或5~106点坐标");
+                this.getOpertionFeature(resultBuilder, image, faceFields);
+                this.storeImage(image);
+                return resultBuilder.build();
             }
         }
-        return validUserResults;
+        throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_MATCH);
     }
 
-    private List<UserInfoDO> getValidUserInfo(Long appId, List<FaceSearchVo> source) {
-        List<Long> gidList = new ArrayList<>();
-        List<Long> uidList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(source)) {
-            return null;
+    private Set<String> checkAndSplitGroupIdList(String requestGroupIdsStr) {
+        Set<String> groupIdSet = new HashSet<>();
+        Collections.addAll(groupIdSet, requestGroupIdsStr.split(ID_SPLIT_REGEX));
+        if (groupIdSet.size() > SEARCH_MAX_GROUP_NUMBER) {
+            throw ExceptionSupport.toException(ExceptionEnum.OVER_GROUP_MAX_NUMBER);
         }
-        for (FaceSearchVo item : source) {
-            gidList.add(item.getGid());
-            uidList.add(item.getUid());
+
+        for (String item : groupIdSet) {
+            if (item.length() > MAX_GROUP_LENGTH) {
+                throw ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_SIZE_MAX, "group_id:" + item);
+            }
         }
-        return userInfoMapper.queryBatch(appId, gidList, uidList);
+        return groupIdSet;
     }
 
-    private List<UserInfoDO> getVerificationUserInfo(Long appId, List<String> groupList, String userId) {
-        List<UserInfoDO> result = userInfoMapper.queryList(appId, groupList, userId);
-        if (CollectionUtils.isEmpty(result)) {
-            log.info("人脸搜索，人脸认证功能指定用户不存在...");
-            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, userId);
-        }
-        return result;
-    }
-
-    private Map<Long, String> convertToEffectiveGidMaps(Long appId, String groupIdReqParam) {
-        List<GroupInfoDO> groupList = groupInfoService.queryBatch(appId, groupIdReqParam);
+    private Map<Long, String> loadEffectGroupMaps(Long appId, Set<String> groupIdList) {
+        List<GroupInfoDO> groupList = groupInfoService.queryBatch(appId, groupIdList);
 
         int groupEmptyCounters = 0;
-        Map<Long, String> effectiveGidMaps = new ConcurrentHashMap<>(groupList.size());
+        Map<Long, String> effectiveGidMaps = new HashMap<>(groupList.size());
         for (GroupInfoDO item : groupList) {
             if (item.getFaceNumber() == 0) {
                 groupEmptyCounters++;
@@ -220,9 +179,31 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
         //if all group is invalid, the error_msg will be given to client
         if (groupEmptyCounters == groupList.size()) {
-            throw ExceptionSupport.toException(ExceptionEnum.EMPTY_GROUP, groupIdReqParam);
+            throw ExceptionSupport.toException(ExceptionEnum.EMPTY_GROUP, groupIdList.toString());
         }
         return effectiveGidMaps;
+    }
+
+    private Map<Long, UserInfoDO> loadEffectUserMaps(Long appId, Set<Long> gidIdSet, String userId) {
+        List<UserInfoDO> userInfoList = userInfoMapper.queryBatch(appId, gidIdSet, null, userId);
+        if (CollectionUtils.isEmpty(userInfoList)) {
+            log.info("人脸搜索，人脸认证功能指定用户不存在...");
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, userId);
+        }
+        Map<Long, UserInfoDO> uidWithUserInfoMaps = new HashMap<>(userInfoList.size());
+        userInfoList.forEach(userInfoDO -> uidWithUserInfoMaps.putIfAbsent(userInfoDO.getId(), userInfoDO));
+        return uidWithUserInfoMaps;
+    }
+
+    private Map<Long, UserInfoDO> loadEffectUserMaps(Long appId, Set<Long> uidIdSet) {
+        List<UserInfoDO> userInfoList = userInfoMapper.queryBatch(appId, null, uidIdSet, null);
+        if (CollectionUtils.isEmpty(userInfoList)) {
+            log.info("人脸搜索，查询用户组用户信息为空...");
+            throw ExceptionSupport.toException(ExceptionEnum.EMPTY_GROUP);
+        }
+        Map<Long, UserInfoDO> uidWithUserInfoMaps = new HashMap<>(userInfoList.size());
+        userInfoList.forEach(userInfoDO -> uidWithUserInfoMaps.putIfAbsent(userInfoDO.getId(), userInfoDO));
+        return uidWithUserInfoMaps;
     }
 
     @Override
@@ -246,8 +227,8 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         log.info("人脸比对，开始异步提交图片");
         this.storeImage(firstImage);
         this.storeImage(secondImage);
-        this.getFeature(result, firstImage, faceFields);
-        this.getFeature(result, secondImage, faceFields);
+        this.getOpertionFeature(result, firstImage, faceFields);
+        this.getOpertionFeature(result, secondImage, faceFields);
         return result.build();
     }
 
@@ -262,7 +243,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
         Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_MULTIATTRIBUTE);
-        return this.getFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
+        return this.getOpertionFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
     }
 
     /**
@@ -276,7 +257,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
         Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_LIVENESS);
-        return this.getFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
+        return this.getOpertionFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
     }
 
     /**
@@ -291,7 +272,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
         Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_COORDINATE);
-        return this.getFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
+        return this.getOpertionFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
     }
 
 
@@ -382,7 +363,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      * <p>
      * 可选参数 liveness,coordinate
      */
-    private NLFace.CloudFaceSendMessage getFeature(String image, Integer maxFaceNum, Set<String> optionTaskTypeKeys, Integer defaultTaskTypeKey) {
+    private NLFace.CloudFaceSendMessage getOpertionFeature(String image, Integer maxFaceNum, Set<String> optionTaskTypeKeys, Integer defaultTaskTypeKey) {
 
         NLFace.CloudFaceSendMessage.Builder builder = this.getDefaultFeature(image, maxFaceNum, defaultTaskTypeKey);
 
@@ -397,7 +378,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      * <p>
      * 可选参数 liveness,coordinate
      */
-    private void getFeature(NLFace.CloudFaceSendMessage.Builder builder, String image, Set<String> faceFields) throws BaseException {
+    private void getOpertionFeature(NLFace.CloudFaceSendMessage.Builder builder, String image, Set<String> faceFields) throws BaseException {
 
         this.getFaceFieldFeature(builder, image, 1, faceFields, null);
 

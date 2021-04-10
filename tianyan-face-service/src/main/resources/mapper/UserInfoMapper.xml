@@ -30,10 +30,10 @@
                 a.app_id = #{appId}
             </if>
             <if test="userId != null">
-                AND  a.user_id = #{userId}
+                AND a.user_id = #{userId}
             </if>
             <if test="groupId != null">
-                AND  a.group_id = #{groupId}
+                AND a.group_id = #{groupId}
             </if>
         </where>
     </select>
@@ -45,32 +45,24 @@
         VALUES (#{appId}, #{gid}, #{groupId}, #{userId}, #{userName}, #{faceNumber}, #{userInfo})
     </insert>
 
-    <select id="queryBatch" parameterType="com.newland.tianyan.face.domain.vo.FaceSearchVo"
-            resultType="com.newland.tianyan.face.domain.entity.UserInfoDO">
-        SELECT *
-        FROM
-        user_info a
-        WHERE
-        a.app_id = #{appId}
-        AND
-        a.gid in
-        <foreach collection="gidList" index="index" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
-        AND
-        a.id in
-        <foreach collection="uidList" index="index" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+    <select id="queryBatch" resultType="com.newland.tianyan.face.domain.entity.UserInfoDO">
+        SELECT * FROM user_info a
+        WHERE a.app_id = #{appId}
+        <if test="gidSet != null and gidSet.size > 0">
+            AND a.gid in
+            <foreach collection="gidSet" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="uidSet != null and uidSet.size > 0">
+            AND a.id in
+            <foreach collection="uidSet" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="userId != null ">
+            AND a.user_id = #{userId}
+        </if>
     </select>
 
-    <select id="queryList" resultType="com.newland.tianyan.face.domain.entity.UserInfoDO">
-        SELECT * FROM `user_info` a
-        WHERE a.app_id = #{appId}
-        AND a.group_id in
-        <foreach collection="groupIdList" index="index" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
-        AND a.user_id = #{userId}
-    </select>
 </mapper>
