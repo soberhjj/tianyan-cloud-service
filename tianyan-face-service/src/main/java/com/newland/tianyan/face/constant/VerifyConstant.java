@@ -32,5 +32,7 @@ public class VerifyConstant {
      * */
     public static final String USER_ID = "^[\\dA-Za-z_]{0,32}$";
 
-    public static final String USER_NAME = "[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$";
+    public static final String USER_NAME = "[\\dA-Za-z_\\u4e00-\\u9fa5]{0,64}$";
+
+    public static final String USER_INFO = "[\\dA-Za-z_\\u4e00-\\u9fa5]{0,64}$";
 }

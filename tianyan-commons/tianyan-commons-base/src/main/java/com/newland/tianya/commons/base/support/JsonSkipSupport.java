@@ -2,7 +2,6 @@ package com.newland.tianya.commons.base.support;
 
 import com.alibaba.fastjson.JSON;
 import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
-import com.newland.tianya.commons.base.model.proto.NLFace;
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,7 +29,7 @@ public class JsonSkipSupport {
             return null;
         }
 
-        if (basicClass(object.getClass())) {
+        if (basicClass(object.getClass())&&!JsonUtils.isValidJson(object)) {
             return object.toString();
         }
 
@@ -85,6 +84,8 @@ public class JsonSkipSupport {
         IMAGE2("Image", "(base转码图片，省略不打印)"),
         IMAGE3("first_image", "(base转码图片，省略不打印)"),
         IMAGE4("second_image", "(base转码图片，省略不打印)"),
+        IMAGE5("firstImage","(base转码图片，省略不打印)"),
+        IMAGE6("secondImage","(base转码图片，省略不打印)")
         ;
         private final String field;
         private final String printMsg;
