@@ -12,7 +12,7 @@ import java.util.List;
  * @date: 2021/1/20
  */
 public class FeaturesTool {
-    private static final int SIZE = 512;
+    public static final int SIZE = 512;
 
     /**
      * 归一化并转字节数组

@@ -35,7 +35,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -103,7 +105,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         resultBuilder.setFaceNum(feature.getFaceNum());
         //one thread to fetch operation features
         log.info("人脸搜索-异步请求活体或5~106点坐标");
-        this.asynGetOperationFeature(resultBuilder, image, faceFields);
+        this.asynGetOperationFeature(resultBuilder, image, request.getMaxFaceNum(), faceFields);
         //one thread to store image
         this.storeImage(image);
 
@@ -242,8 +244,8 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         log.info("人脸比对，开始异步提交图片");
         this.storeImage(firstImage);
         this.storeImage(secondImage);
-        this.getOperationFeature(result, firstImage, faceFields);
-        this.getOperationFeature(result, secondImage, faceFields);
+        this.addOperationFeature(result, firstImage, 1, faceFields);
+        this.addOperationFeature(result, secondImage, 1, faceFields);
         return result.build();
     }
 
@@ -258,7 +260,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
         Integer taskType = this.getTaskType(FACE_TASK_TYPE_MULTIATTRIBUTE);
-        return this.getOperationFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
+        return this.getOperationFeature(image, vo.getMaxFaceNum(), taskType, optionTaskTypeKeys);
     }
 
     /**
@@ -272,7 +274,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
         Integer taskType = this.getTaskType(FACE_TASK_TYPE_LIVENESS);
-        return this.getOperationFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
+        return this.getOperationFeature(image, vo.getMaxFaceNum(), taskType, optionTaskTypeKeys);
     }
 
     /**
@@ -287,7 +289,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
         Integer taskType = this.getTaskType(FACE_TASK_TYPE_COORDINATE);
-        return this.getOperationFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
+        return this.getOperationFeature(image, vo.getMaxFaceNum(), taskType, optionTaskTypeKeys);
     }
 
 
@@ -296,81 +298,38 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String image = ImageCheckUtils.imageCheckAndFormatting(receive.getImage());
         qualityCheckService.checkQuality(receive.getQualityControl(), image);
         this.storeImage(image);
-        FaceDO temp = this.getMainFeature(image, model);
-        temp.setUserId(receive.getUserId());
-        temp.setAppId(receive.getAppId());
-        if (model == -20) {
-            NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-            result.setLogId(LogIdUtils.traceId());
+        //getFeatures by mq
+        NLFace.CloudFaceSendMessage feature = mqMessageService.amqpHelper(image, 1, model);
+        //convert response
+        NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
+        result.setLogId(LogIdUtils.traceId());
+        result.setFaceId(result.getLogId());
+        result.setVersion(feature.getVersion());
+        int old20 = -20;
+        if (model == old20) {
+            NLFace.CloudFaceSendMessage.Builder builder = feature.toBuilder();
+            List<Float> preFeature = builder.getFeatureResult(0).getFeaturesList();
+            byte[] afterFeature = FeaturesTool.normalizeConvertToByte(preFeature);
+
             ObjectInputStream in;
-            float[] features = new float[512];
+            float[] features = new float[FeaturesTool.SIZE];
             try {
-                in = new ObjectInputStream(new ByteArrayInputStream(temp.getFeatures()));
+                in = new ObjectInputStream(new ByteArrayInputStream(afterFeature));
                 features = (float[]) in.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            NLFace.CloudFaceFeatureResult.Builder builder = result.addFeatureResultBuilder();
-            for (int i = 0; i < 512; i++) {
-                builder.addFeatures(features[i]);
+            NLFace.CloudFaceFeatureResult.Builder featureBuilder = result.addFeatureResultBuilder();
+            for (int i = 0; i < FeaturesTool.SIZE; i++) {
+                featureBuilder.addFeatures(features[i]);
             }
-            NLFace.CloudFaceSendMessage build = result.build();
-            if (!StringUtils.isEmpty(build.getErrorMsg())) {
-                throw new BaseException(build.getErrorCode(), build.getErrorMsg());
-            }
-            return build;
+
+        } else {
+            result.setFeature(feature.getFeature());
         }
 
-        NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
-        result.setLogId(LogIdUtils.traceId());
-        result.setFeature(temp.getFeaturesNew());
-        result.setVersion(temp.getVersion());
-        NLFace.CloudFaceSendMessage build = result.build();
-        if (!StringUtils.isEmpty(build.getErrorMsg())) {
-            throw new BaseException(build.getErrorCode(), build.getErrorMsg());
-        }
-        return build;
+        return result.build();
     }
-
-    private FaceDO getMainFeature(String image, int model) {
-
-        NLFace.CloudFaceSendMessage feature = mqMessageService.amqpHelper(image, 1, model);
-
-        if (model == -20) {
-            NLFace.CloudFaceSendMessage.Builder builder = feature.toBuilder();
-            FaceDO faceDO = new FaceDO();
-            faceDO.setFeaturesNew(feature.getFeature());
-            faceDO.setVersion(feature.getVersion());
-            List<Float> preFeature = builder.getFeatureResult(0).getFeaturesList();
-            float[] afterFeature = new float[preFeature.size()];
-            float tempSum = 0;
-            float tempAdd = 0;
-            for (Float aFloat : preFeature) {
-                tempSum += aFloat * aFloat;
-            }
-            for (int i = 0; i < preFeature.size(); i++) {
-                tempAdd = preFeature.get(i) / (float) Math.sqrt(tempSum);
-                afterFeature[i] = tempAdd;
-            }
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            ObjectOutputStream outputStream;
-            try {
-                outputStream = new ObjectOutputStream(out);
-                outputStream.writeObject(afterFeature);
-                byte[] bytes = out.toByteArray();
-                faceDO.setFeatures(bytes);
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return faceDO;
-        }
-        FaceDO faceDO = new FaceDO();
-        faceDO.setFeaturesNew(feature.getFeature());
-        faceDO.setVersion(feature.getVersion());
-        return faceDO;
-    }
-
 
     /**
      * •执行默认任务
@@ -378,13 +337,24 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      * <p>
      * 可选参数 liveness,coordinate
      */
-    private NLFace.CloudFaceSendMessage getOperationFeature(String image, Integer maxFaceNum, Set<String> optionTaskTypeKeys, Integer defaultTaskTypeKey) {
-
-        NLFace.CloudFaceSendMessage.Builder builder = this.getDefaultFeature(image, maxFaceNum, defaultTaskTypeKey);
-
-        this.getFaceFieldFeature(builder, image, maxFaceNum, optionTaskTypeKeys, defaultTaskTypeKey);
-
+    private NLFace.CloudFaceSendMessage getOperationFeature(String image, Integer maxFaceNum, Integer defaultTaskTypeKey, Set<String> optionTaskTypeKeys) {
+        NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
         builder.setLogId(LogIdUtils.traceId());
+        if (defaultTaskTypeKey != null) {
+            NLFace.CloudFaceSendMessage def =
+                    mqMessageService.amqpHelper(image, maxFaceNum, defaultTaskTypeKey);
+            builder.mergeFrom(def);
+        }
+
+        if (!CollectionUtils.isEmpty(optionTaskTypeKeys)) {
+            optionTaskTypeKeys.forEach(item -> {
+                Integer taskType = this.getTaskType(item);
+                if (taskType != null && !taskType.equals(defaultTaskTypeKey)) {
+                    NLFace.CloudFaceSendMessage msg = mqMessageService.amqpHelper(image, maxFaceNum, taskType);
+                    builder.mergeFrom(msg);
+                }
+            });
+        }
         return builder.build();
     }
 
@@ -393,18 +363,23 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      * <p>
      * 可选参数 liveness,coordinate
      */
-    private void getOperationFeature(NLFace.CloudFaceSendMessage.Builder builder, String image, Set<String> faceFields) throws BaseException {
-
-        this.getFaceFieldFeature(builder, image, 1, faceFields, null);
-
+    private void addOperationFeature(NLFace.CloudFaceSendMessage.Builder builder, String image, Integer maxFaceNum, Set<String> optionTaskTypeKeys) throws BaseException {
         builder.setLogId(LogIdUtils.traceId());
+        if (!CollectionUtils.isEmpty(optionTaskTypeKeys)) {
+            optionTaskTypeKeys.forEach(item -> {
+                Integer taskType = this.getTaskType(item);
+                if (taskType != null) {
+                    NLFace.CloudFaceSendMessage msg = mqMessageService.amqpHelper(image, maxFaceNum, taskType);
+                    builder.mergeFrom(msg);
+                }
+            });
+        }
         builder.build();
     }
 
     @Async
-    public void asynGetOperationFeature(NLFace.CloudFaceSendMessage.Builder builder, String image, Set<String> faceFields) throws BaseException {
-        this.getFaceFieldFeature(builder, image, 1, faceFields, null);
-        builder.build();
+    public void asynGetOperationFeature(NLFace.CloudFaceSendMessage.Builder builder, String image, Integer maxFaceNum, Set<String> faceFields) throws BaseException {
+        this.addOperationFeature(builder, image, maxFaceNum, faceFields);
     }
 
     @Async
@@ -416,29 +391,6 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             }
         } catch (IOException exception) {
             throw ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR, exception);
-        }
-    }
-
-    private NLFace.CloudFaceSendMessage.Builder getDefaultFeature(String image, Integer maxFaceNum, Integer defaultTaskTypeKey) {
-        NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
-        if (defaultTaskTypeKey != null) {
-            NLFace.CloudFaceSendMessage def =
-                    mqMessageService.amqpHelper(image, maxFaceNum, defaultTaskTypeKey);
-            builder.mergeFrom(def);
-        }
-        return builder;
-    }
-
-    private void getFaceFieldFeature(NLFace.CloudFaceSendMessage.Builder builder,
-                                     String image, Integer maxFaceNum, Set<String> faceFields, Integer defaultTaskTypeKey) {
-        if (!CollectionUtils.isEmpty(faceFields)) {
-            faceFields.forEach(item -> {
-                Integer taskType = this.getTaskType(item);
-                if (taskType != null && !taskType.equals(defaultTaskTypeKey)) {
-                    NLFace.CloudFaceSendMessage msg = mqMessageService.amqpHelper(image, maxFaceNum, taskType);
-                    builder.mergeFrom(msg);
-                }
-            });
         }
     }
 

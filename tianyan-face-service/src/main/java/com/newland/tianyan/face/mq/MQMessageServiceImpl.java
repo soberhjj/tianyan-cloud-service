@@ -14,6 +14,7 @@ import java.util.UUID;
 import static com.newland.tianya.commons.base.constants.GlobalExceptionEnum.BASE64_FORMAT_ILLEGAL;
 import static com.newland.tianya.commons.base.constants.GlobalExceptionEnum.SYSTEM_ERROR;
 import static com.newland.tianyan.face.constant.ExceptionEnum.PICTURE_HAS_NO_FACE;
+import static com.newland.tianyan.face.constant.ExceptionEnum.RABBIT_MQ_RETURN_NONE;
 
 /**
  * @author: RojiaHuang
@@ -57,7 +58,7 @@ public class MQMessageServiceImpl implements IMqMessageService {
                 case 6402:
                     throw ExceptionSupport.toException(PICTURE_HAS_NO_FACE);
                 default:
-                    throw ExceptionSupport.toException(SYSTEM_ERROR);
+                    throw ExceptionSupport.toException(RABBIT_MQ_RETURN_NONE);
             }
         }
         return build;
