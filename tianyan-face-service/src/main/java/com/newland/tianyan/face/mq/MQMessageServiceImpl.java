@@ -2,7 +2,6 @@ package com.newland.tianyan.face.mq;
 
 import com.googlecode.protobuf.format.JsonFormat;
 import com.newland.tianya.commons.base.exception.BaseException;
-import com.newland.tianya.commons.base.exception.BusinessException;
 import com.newland.tianya.commons.base.model.proto.NLFace;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianyan.face.constant.ExceptionEnum;
@@ -10,13 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import static com.newland.tianya.commons.base.constants.GlobalExceptionEnum.BASE64_FORMAT_ILLEGAL;
 import static com.newland.tianya.commons.base.constants.GlobalExceptionEnum.SYSTEM_ERROR;
-import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
 import static com.newland.tianyan.face.constant.ExceptionEnum.PICTURE_HAS_NO_FACE;
 
 /**
@@ -29,13 +25,6 @@ public class MQMessageServiceImpl implements IMqMessageService {
 
     @Autowired
     private RabbitMQSender rabbitMqSender;
-
-    private final static Map<String, Integer> TASK_TYPE_MAPS = new HashMap<String, Integer>() {{
-        put(FACE_TASK_TYPE_COORDINATE, 1);
-        put(FACE_TASK_TYPE_FEATURE, 2);
-        put(FACE_TASK_TYPE_LIVENESS, 3);
-        put(FACE_TASK_TYPE_MULTIATTRIBUTE, 4);
-    }};
 
     @Override
     public NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) throws BaseException {
@@ -98,8 +87,4 @@ public class MQMessageServiceImpl implements IMqMessageService {
         return routingKey;
     }
 
-    @Override
-    public Integer getTaskType(String taskTypeKey) {
-        return TASK_TYPE_MAPS.getOrDefault(taskTypeKey, null);
-    }
 }

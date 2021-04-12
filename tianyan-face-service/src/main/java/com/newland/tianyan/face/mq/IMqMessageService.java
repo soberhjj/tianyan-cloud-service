@@ -10,7 +10,5 @@ import com.newland.tianya.commons.base.model.proto.NLFace;
  */
 public interface IMqMessageService {
 
-    Integer getTaskType(String taskTypeKey);
-
     NLFace.CloudFaceSendMessage amqpHelper(String fileName, int maxFaceNum, Integer taskType) throws BaseException;
 }

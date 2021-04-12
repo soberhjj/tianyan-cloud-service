@@ -25,7 +25,6 @@ import com.newland.tianyan.face.service.FacesetFaceService;
 import com.newland.tianyan.face.service.GroupInfoService;
 import com.newland.tianyan.face.service.IQualityCheckService;
 import com.newland.tianyan.face.service.IVectorSearchService;
-import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +64,17 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Value("${enable-image-storage}")
     private boolean enableImageStorage;
 
+    private final static Map<String, Integer> TASK_TYPE_MAPS = new HashMap<String, Integer>() {{
+        put(FACE_TASK_TYPE_COORDINATE, 1);
+        put(FACE_TASK_TYPE_FEATURE, 2);
+        put(FACE_TASK_TYPE_LIVENESS, 3);
+        put(FACE_TASK_TYPE_MULTIATTRIBUTE, 4);
+    }};
+
+    private Integer getTaskType(String taskTypeKey) {
+        return TASK_TYPE_MAPS.getOrDefault(taskTypeKey, null);
+    }
+
     @Override
     public NLFace.CloudFaceSendMessage searchNew(FaceSetFaceSearchReqDTO request) throws BaseException {
         log.info("人脸搜索，开始检查图片有效性");
@@ -87,7 +97,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         log.info("人脸搜索，用户组筛查通过，请求计算图片特征值");
         NLFace.CloudFaceSendMessage.Builder resultBuilder = NLFace.CloudFaceSendMessage.newBuilder();
         resultBuilder.setLogId(LogIdUtils.traceId());
-        Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_FEATURE);
+        Integer taskType = this.getTaskType(FACE_TASK_TYPE_FEATURE);
         //one thread to fetch main features
         NLFace.CloudFaceSendMessage feature = mqMessageService.amqpHelper(image, maxUserNum, taskType);
         resultBuilder.setFaceNum(feature.getFaceNum());
@@ -218,7 +228,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String firstImage = ImageCheckUtils.imageCheckAndFormatting(request.getFirstImage());
         String secondImage = ImageCheckUtils.imageCheckAndFormatting(request.getSecondImage());
         log.info("人脸比对，开始请求特征值");
-        Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_FEATURE);
+        Integer taskType = this.getTaskType(FACE_TASK_TYPE_FEATURE);
         NLFace.CloudFaceSendMessage feature1 = mqMessageService.amqpHelper(firstImage, 1, taskType);
         NLFace.CloudFaceSendMessage feature2 = mqMessageService.amqpHelper(secondImage, 1, taskType);
         List<Float> featuresList1 = feature1.getFeatureResultList().get(0).getFeaturesList();
@@ -247,7 +257,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(vo.getFaceFields());
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
-        Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_MULTIATTRIBUTE);
+        Integer taskType = this.getTaskType(FACE_TASK_TYPE_MULTIATTRIBUTE);
         return this.getOperationFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
     }
 
@@ -261,7 +271,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(vo.getFaceFields());
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
-        Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_LIVENESS);
+        Integer taskType = this.getTaskType(FACE_TASK_TYPE_LIVENESS);
         return this.getOperationFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
     }
 
@@ -276,7 +286,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(vo.getFaceFields());
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
-        Integer taskType = mqMessageService.getTaskType(FACE_TASK_TYPE_COORDINATE);
+        Integer taskType = this.getTaskType(FACE_TASK_TYPE_COORDINATE);
         return this.getOperationFeature(image, vo.getMaxFaceNum(), optionTaskTypeKeys, taskType);
     }
 
@@ -423,7 +433,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                                      String image, Integer maxFaceNum, Set<String> faceFields, Integer defaultTaskTypeKey) {
         if (!CollectionUtils.isEmpty(faceFields)) {
             faceFields.forEach(item -> {
-                Integer taskType = mqMessageService.getTaskType(item);
+                Integer taskType = this.getTaskType(item);
                 if (taskType != null && !taskType.equals(defaultTaskTypeKey)) {
                     NLFace.CloudFaceSendMessage msg = mqMessageService.amqpHelper(image, maxFaceNum, taskType);
                     builder.mergeFrom(msg);
