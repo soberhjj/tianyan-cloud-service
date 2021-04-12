@@ -2,6 +2,7 @@ package com.newland.tianyan.face.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -18,11 +19,12 @@ import java.util.concurrent.Executor;
 @EnableAsync
 @Slf4j
 public class AsyncConfig implements AsyncConfigurer {
-    private int corePoolSize = 6;
-
-    private int maxPoolSize = 10;
-
-    private int queueCapacity = 512;
+    @Value("${face-search-corePoolSize}")
+    private int corePoolSize;
+    @Value("${face-search-maxPoolSize}")
+    private int maxPoolSize;
+    @Value("${face-search-queueCapacity}")
+    private int queueCapacity;
 
     @Override
     public Executor getAsyncExecutor() {
@@ -36,8 +38,8 @@ public class AsyncConfig implements AsyncConfigurer {
 
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return (ex,method,params)->{
-            log.error("Error Occurs in async method:{}",ex.getMessage());
+        return (ex, method, params) -> {
+            log.error("Error Occurs in async method:{}", ex.getMessage());
         };
     }
 }

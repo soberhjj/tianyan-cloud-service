@@ -93,7 +93,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         resultBuilder.setFaceNum(feature.getFaceNum());
         //one thread to fetch operation features
         log.info("人脸搜索-异步请求活体或5~106点坐标");
-        this.synGetOperationFeature(resultBuilder, image, faceFields);
+        this.asynGetOperationFeature(resultBuilder, image, faceFields);
         //one thread to store image
         this.storeImage(image);
 
@@ -392,7 +392,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     }
 
     @Async
-    public void synGetOperationFeature(NLFace.CloudFaceSendMessage.Builder builder, String image, Set<String> faceFields) throws BaseException {
+    public void asynGetOperationFeature(NLFace.CloudFaceSendMessage.Builder builder, String image, Set<String> faceFields) throws BaseException {
         this.getFaceFieldFeature(builder, image, 1, faceFields, null);
         builder.build();
     }
