@@ -178,10 +178,10 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             insertList.add(insertFace);
         }
         log.info("人脸复制-请求向量搜索服务添加人脸");
-        faceCacheHelper.addBatch(insertList);
         faceMapper.insertBatch(insertList);
         //存在同名用户：组下用户数+0，人脸数+新增数
         publisher.publishEvent(new UserCopyEvent(appId, dstGroupId, userId, faceNumber, userNumber));
+        faceCacheHelper.addBatch(insertList);
     }
 
     private FaceDO convertCopyFace(FaceDO targetFace, UserInfoDO userInfoDO, GroupInfoDO targetGroup) {
@@ -236,7 +236,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
 
             //缓存中删除用户的所有人脸
             List<Long> faceIdList = faceMapper.selectIdByUserId(userInfoDO.getUserId());
-            faceCacheHelper.deleteBatch(query.getAppId(), faceIdList);
+
             //物理删除用户及人脸
             int userCount;
             userCount = userInfoMapper.delete(query);
@@ -246,7 +246,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             faceDO.setAppId(receive.getAppId());
 
             publisher.publishEvent(new UserDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId(), userInfoDO.getFaceNumber(), userCount));
-
+            faceCacheHelper.deleteBatch(query.getAppId(), faceIdList);
         }
     }
 

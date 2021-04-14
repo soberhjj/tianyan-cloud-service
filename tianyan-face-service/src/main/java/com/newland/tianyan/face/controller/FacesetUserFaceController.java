@@ -47,27 +47,30 @@ public class FacesetUserFaceController {
         FaceDO faceDO = facesetUserFaceService.create(request);
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
         result.setLogId(LogIdUtils.traceId());
-        result.setFaceId(faceDO.getId().toString());
+        if (faceDO!=null){
+            result.setFaceId(faceDO.getId().toString());
 
-        if (receive.getType() == 101) {
-            ObjectInputStream in;
-            float[] features = new float[512];
-            try {
-                in = new ObjectInputStream(new ByteArrayInputStream(faceDO.getFeatures()));
-                features = (float[]) in.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+            if (receive.getType() == 101) {
+                ObjectInputStream in;
+                float[] features = new float[512];
+                try {
+                    in = new ObjectInputStream(new ByteArrayInputStream(faceDO.getFeatures()));
+                    features = (float[]) in.readObject();
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                NLFace.CloudFaceFeatureResult.Builder builder = result.addFeatureResultBuilder();
+                for (int i = 0; i < 512; i++) {
+                    builder.addFeatures(features[i]);
+                }
             }
-            NLFace.CloudFaceFeatureResult.Builder builder = result.addFeatureResultBuilder();
-            for (int i = 0; i < 512; i++) {
-                builder.addFeatures(features[i]);
+            NLFace.CloudFaceSendMessage build = result.build();
+            if (!StringUtils.isEmpty(build.getErrorMsg())) {
+                throw new BaseException(build.getErrorCode(), build.getErrorMsg());
             }
+            return build;
         }
-        NLFace.CloudFaceSendMessage build = result.build();
-        if (!StringUtils.isEmpty(build.getErrorMsg())) {
-            throw new BaseException(build.getErrorCode(), build.getErrorMsg());
-        }
-        return build;
+        return result.build();
     }
 
     /**
