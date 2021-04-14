@@ -2,12 +2,12 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianya.commons.base.model.imagestrore.DownloadReqDTO;
-import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
+import com.newland.tianya.commons.base.exception.BusinessException;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.model.proto.NLFace;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.FeaturesTool;
+import com.newland.tianya.commons.base.utils.ImageCheckUtils;
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
 import com.newland.tianyan.face.constant.EntityStatusConstants;
@@ -22,10 +22,10 @@ import com.newland.tianyan.face.event.face.FaceCreateEvent;
 import com.newland.tianyan.face.event.face.FaceDeleteEvent;
 import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
 import com.newland.tianyan.face.event.user.UserCreateEvent;
-import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.IMqMessageService;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
 import com.newland.tianyan.face.service.IQualityCheckService;
+import com.newland.tianyan.face.service.ImageStoreService;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
 public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
     @Autowired
-    private ImageStoreFeignService imageStorageService;
+    private ImageStoreService imageStorageService;
     @Autowired
     private UserInfoMapper userInfoMapper;
     @Autowired
@@ -70,15 +70,16 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public FaceDO create(NLBackend.BackendAllRequest receive) throws IOException {
         //参数验证
+        String image = ImageCheckUtils.imageCheckAndFormatting(receive.getImage());
         String actionType = receive.getActionType();
         this.checkOperationType(actionType);
-        qualityCheckService.checkQuality(receive.getQualityControl(), receive.getImage());
+        qualityCheckService.checkQuality(receive.getQualityControl(), image);
 
         FaceDO insertFaceDO = new FaceDO();
         log.info("人脸添加-提交图片至存储服务");
-        this.uploadImage(insertFaceDO, receive.getImage());
+        insertFaceDO.setImagePath(imageStorageService.upload(image));
         log.info("人脸添加-请求图片特征值");
-        this.handleFeatures(insertFaceDO, receive.getImage());
+        this.handleFeatures(insertFaceDO, image);
         insertFaceDO.setAppId(receive.getAppId());
 
         Long appId = receive.getAppId();
@@ -93,12 +94,16 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         queryUser.setGid(groupInfoDO.getId());
         queryUser.setUserInfo(receive.getUserInfo());
         UserInfoDO userInfoDO = this.getExistedUser(queryUser);
+        if (userInfoDO.getFaceNumber() > MAX_FACE_NUMBER) {
+            throw new BusinessException(ExceptionEnum.OVER_FACE_MAX_NUMBER.getErrorCode(),
+                    ExceptionEnum.OVER_FACE_MAX_NUMBER.getErrorMsg());
+        }
         insertFaceDO.setUid(userInfoDO.getId());
         insertFaceDO.setUserId(userInfoDO.getUserId());
         //初次录入的情况，添加人脸
         if (userInfoDO.getFaceNumber() == 0) {
             log.info("人脸添加-新增人脸append");
-            insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 0));
+            insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
             faceCacheHelper.add(insertFaceDO);
             faceMapper.insertSelective(insertFaceDO);
             publisher.publishEvent(new UserCreateEvent(appId, groupId, userId, 1, 1));
@@ -108,7 +113,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             if (ACTION_TYPE_APPEND.equals(actionType)) {
                 log.info("人脸添加-追加人脸append");
                 //缓存中添加用户的人脸
-                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber()));
+                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber() + 1));
                 faceCacheHelper.add(insertFaceDO);
                 //添加人脸
                 faceMapper.insertSelective(insertFaceDO);
@@ -127,10 +132,10 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                 int deleteCount = faceMapper.delete(faceDO);
 
                 //添加该用户新的人脸（只有一张）
-                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 0));
+                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
                 faceCacheHelper.add(insertFaceDO);
                 faceMapper.insertSelective(insertFaceDO);
-                publisher.publishEvent(new FaceDeleteEvent(appId, groupId, userId, deleteCount));
+                publisher.publishEvent(new FaceDeleteEvent(appId, groupId, userId, deleteCount - 1));
             }
         }
 
@@ -200,13 +205,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         return sourceUser;
     }
 
-    private void uploadImage(FaceDO faceDO, String image) throws IOException {
-        //提交至指定服务器路径
-        UploadReqDTO uploadReq = UploadReqDTO.builder().image(image).build();
-        String imagePath = imageStorageService.uploadV2(uploadReq).getImagePath();
-        faceDO.setImagePath(imagePath);
-    }
-
     private void handleFeatures(FaceDO faceDO, String image) {
         NLFace.CloudFaceSendMessage feature =
                 iMqMessageService.amqpHelper(image, 1, 2);
@@ -239,8 +237,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         }
         for (FaceDO faceDO : face) {
             if (faceDO.getImagePath() != null) {
-                DownloadReqDTO downloadReq = DownloadReqDTO.builder().imagePath(faceDO.getImagePath()).build();
-                faceDO.setImage(imageStorageService.download(downloadReq).getImage());
+                faceDO.setImage(imageStorageService.download(faceDO.getImagePath()));
             }
             faceDO.setFaceId(faceDO.getId().toString());
         }

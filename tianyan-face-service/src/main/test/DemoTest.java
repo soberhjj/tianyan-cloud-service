@@ -1,6 +1,5 @@
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import com.newland.tianyan.face.FaceServiceApplication;
-import lombok.Builder;
 import lombok.Data;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +29,7 @@ public class DemoTest {
     @Test
     public void testJsonFormatting() {
         @Data
-        class TargetObject{
+        class TargetObject {
             private int count;
             private String[] array;
 
@@ -40,8 +39,14 @@ public class DemoTest {
             }
         }
 
-        TargetObject object = new TargetObject(0,"Anna,Beta".split(","));
+        TargetObject object = new TargetObject(0, "Anna,Beta".split(","));
         String json = JsonUtils.toJson(object);
         System.out.println(json);
     }
+
+    @Test
+    public void testReact() throws Exception {
+
+    }
+
 }

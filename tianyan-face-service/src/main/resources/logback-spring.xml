@@ -163,7 +163,7 @@
 
     <!--开发环境:打印控制台-->
     <springProfile name="dev">
-        <root level="DEBUG">
+        <root level="TRACE">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="ASYNC-INFO"/>
         </root>

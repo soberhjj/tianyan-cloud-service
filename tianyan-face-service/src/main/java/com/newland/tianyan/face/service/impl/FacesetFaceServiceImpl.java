@@ -2,7 +2,6 @@ package com.newland.tianyan.face.service.impl;
 
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.exception.BaseException;
-import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.model.proto.NLFace;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
@@ -19,18 +18,13 @@ import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.domain.vo.FaceSearchVo;
-import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.mq.IMqMessageService;
-import com.newland.tianyan.face.service.FacesetFaceService;
-import com.newland.tianyan.face.service.GroupInfoService;
-import com.newland.tianyan.face.service.IQualityCheckService;
-import com.newland.tianyan.face.service.IVectorSearchService;
+import com.newland.tianyan.face.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -58,7 +52,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Autowired
     private IVectorSearchService<FaceDO> faceFaceCacheHelper;
     @Autowired
-    private ImageStoreFeignService imageStorageService;
+    private ImageStoreService imageStoreService;
     @Autowired
     private IQualityCheckService qualityCheckService;
     @Autowired
@@ -103,9 +97,6 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         //one thread to fetch main features
         NLFace.CloudFaceSendMessage feature = mqMessageService.amqpHelper(image, maxUserNum, taskType);
         resultBuilder.setFaceNum(feature.getFaceNum());
-        //one thread to fetch operation features
-        log.info("人脸搜索-异步请求活体或5~106点坐标");
-        this.asynGetOperationFeature(resultBuilder, image, request.getMaxFaceNum(), faceFields);
         //one thread to store image
         this.storeImage(image);
 
@@ -159,7 +150,8 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                         builder.setConfidence(item.getDistance());
                     }
                 }
-
+                log.info("人脸搜索-异步请求活体或5~106点坐标");
+                this.addOperationFeature(resultBuilder, image, request.getMaxFaceNum(), faceFields);
                 return resultBuilder.build();
             }
         }
@@ -377,20 +369,14 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         builder.build();
     }
 
-    @Async
-    public void asynGetOperationFeature(NLFace.CloudFaceSendMessage.Builder builder, String image, Integer maxFaceNum, Set<String> faceFields) throws BaseException {
-        this.addOperationFeature(builder, image, maxFaceNum, faceFields);
-    }
-
-    @Async
     public void storeImage(String image) {
         //是否异步存储图片
-        try {
-            if (enableImageStorage) {
-                imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
+        if (enableImageStorage) {
+            try {
+                imageStoreService.uploadAsync(image);
+            }catch (IOException exception){
+
             }
-        } catch (IOException exception) {
-            throw ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR, exception);
         }
     }
 
