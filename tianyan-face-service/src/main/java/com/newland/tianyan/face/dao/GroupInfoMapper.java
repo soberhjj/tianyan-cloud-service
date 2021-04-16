@@ -21,9 +21,9 @@ public interface GroupInfoMapper extends CommonMapper<GroupInfoDO> {
 
     int faceNumberIncrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("count") int count);
 
-    int userNumberDecrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("count") int count);
+    int userNumberDecrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("userCount") int userCount,@Param("faceCount") int faceCount);
 
-    int faceNumberDecrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("count") int count);
+    int faceNumberDecrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("faceCount") int faceCount);
 
     /**
      * @param isDelete 逻辑删除状态位

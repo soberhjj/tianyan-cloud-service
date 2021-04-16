@@ -15,10 +15,12 @@ import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
-import com.newland.tianyan.face.event.user.UserCopyEvent;
+import com.newland.tianyan.face.event.face.FaceCreateEvent;
+import com.newland.tianyan.face.event.user.UserCreateEvent;
 import com.newland.tianyan.face.event.user.UserDeleteEvent;
 import com.newland.tianyan.face.service.FacesetUserService;
 import com.newland.tianyan.face.service.IVectorSearchService;
+import com.newland.tianyan.face.utils.FaceIdSlotHelper;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,14 +133,11 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         queryUser.setGid(dstGroupInfo.getId());
         log.info("人脸复制-目标用户组的用户{}有效性检查", JsonUtils.toJson(queryUser));
         UserInfoDO targetUserInfoDO = userInfoMapper.selectOne(queryUser);
-        int faceNumber, userNumber;
         log.info("人脸复制-目标用户组的不存在同名用户，开始新建用户");
         if (targetUserInfoDO == null) {
             if (dstGroupInfo.getUserNumber() > MAX_USER_NUMBER) {
                 throw ExceptionSupport.toException(ExceptionEnum.OVER_USE_MAX_NUMBER);
             }
-            userNumber = 1;
-            faceNumber = srcFace.size();
             UserInfoDO dstUser = new UserInfoDO();
             dstUser.setAppId(sourceUserInfoDO.getAppId());
             dstUser.setGid(dstGroupInfo.getId());
@@ -146,11 +145,11 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             dstUser.setUserId(sourceUserInfoDO.getUserId());
             dstUser.setUserName(sourceUserInfoDO.getUserName());
             dstUser.setUserInfo(sourceUserInfoDO.getUserInfo());
-            dstUser.setFaceNumber(sourceUserInfoDO.getFaceNumber());
+            dstUser.setFaceNumber(0);
             userInfoMapper.insertGetId(dstUser);
+            publisher.publishEvent(new UserCreateEvent(dstUser.getAppId(), dstUser.getGroupId(), dstUser.getUserId()));
             targetUserInfoDO = dstUser;
         } else {
-            userNumber = 0;
             log.info("人脸复制-目标用户组的存在同名用户,开始过滤相同人脸");
             //封装复制人脸信息
             List<FaceDO> dstFace = this.queryFace(appId, dstGroupInfo.getId(), dstGroupId, userId);
@@ -162,7 +161,6 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             if (CollectionUtils.isEmpty(srcFace)) {
                 return;
             }
-            faceNumber = srcFace.size();
             List<FaceDO> srcFaceCopy = new ArrayList<>(srcFace);
             for (FaceDO faceDO : srcFaceCopy) {
                 if (!srcImages.contains(faceDO.getImagePath())) {
@@ -172,21 +170,23 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         }
         //封装复制人脸信息
         long faceCount = 0L;
+        FaceIdSlotHelper faceIdSlotHelper = new FaceIdSlotHelper(targetUserInfoDO.getFaceIdSlot());
         for (FaceDO faceDO : srcFace) {
-            FaceDO insertFace = this.convertCopyFace(faceDO, targetUserInfoDO, dstGroupInfo);
+            FaceDO insertFace = this.convertCopyFace(faceDO, faceIdSlotHelper.pollNextValidId(), targetUserInfoDO, dstGroupInfo);
             insertFace.setId(insertFace.getId() + ++faceCount);
             insertList.add(insertFace);
         }
         log.info("人脸复制-请求向量搜索服务添加人脸");
         faceMapper.insertBatch(insertList);
         //存在同名用户：组下用户数+0，人脸数+新增数
-        publisher.publishEvent(new UserCopyEvent(appId, dstGroupId, userId, faceNumber, userNumber));
+        publisher.publishEvent(new FaceCreateEvent(appId, dstGroupId, userId, targetUserInfoDO.getFaceIdSlot(),
+                insertList.stream().map(FaceDO::getId).collect(Collectors.toList())));
         faceCacheHelper.addBatch(insertList);
     }
 
-    private FaceDO convertCopyFace(FaceDO targetFace, UserInfoDO userInfoDO, GroupInfoDO targetGroup) {
+    private FaceDO convertCopyFace(FaceDO targetFace, Integer nextFaceNo, UserInfoDO userInfoDO, GroupInfoDO targetGroup) {
         FaceDO newFace = new FaceDO();
-        Long initId = VectorSearchKeyUtils.generatedKey(targetGroup.getId(), userInfoDO.getId(), userInfoDO.getFaceNumber());
+        Long initId = VectorSearchKeyUtils.generatedKey(targetGroup.getId(), userInfoDO.getId(), nextFaceNo);
         newFace.setId(initId);
         newFace.setAppId(targetGroup.getAppId());
         newFace.setGid(targetGroup.getId());
@@ -235,17 +235,16 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             }
 
             //缓存中删除用户的所有人脸
-            List<Long> faceIdList = faceMapper.selectIdByUserId(userInfoDO.getUserId());
+            List<Long> faceIdList = faceMapper.selectId(userInfoDO.getGroupId(),userInfoDO.getUserId());
 
             //物理删除用户及人脸
-            int userCount;
-            userCount = userInfoMapper.delete(query);
+            userInfoMapper.delete(query);
             FaceDO faceDO = new FaceDO();
             faceDO.setGroupId(groupId);
             faceDO.setUserId(userInfoDO.getUserId());
             faceDO.setAppId(receive.getAppId());
+            publisher.publishEvent(new UserDeleteEvent(userInfoDO.getAppId(), userInfoDO.getGroupId(), faceIdList.size()));
 
-            publisher.publishEvent(new UserDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId(), userInfoDO.getFaceNumber(), userCount));
             faceCacheHelper.deleteBatch(query.getAppId(), faceIdList);
         }
     }

@@ -2,7 +2,6 @@ package com.newland.tianyan.face.dao;
 
 
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
-import com.newland.tianyan.face.domain.vo.FaceSearchVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Component;
@@ -17,9 +16,9 @@ import java.util.Set;
 @Component
 public interface UserInfoMapper extends CommonMapper<UserInfoDO> {
 
-    int faceNumberIncrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("userId") String userId, @Param("count") int count);
+    int faceNumberIncrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("userId") String userId, @Param("count") int count, @Param("faceIdSlot") String faceIdSlot);
 
-    int faceNumberDecrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("userId") String userId, @Param("count") int count);
+    int faceNumberDecrease(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("userId") String userId, @Param("count") int count, @Param("faceIdSlot") String faceIdSlot);
 
     /**
      * (从未逻辑删除数据集)通过用户业务标识符获取组业务标识符

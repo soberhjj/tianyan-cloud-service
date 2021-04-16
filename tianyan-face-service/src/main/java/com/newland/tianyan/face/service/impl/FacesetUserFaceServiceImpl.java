@@ -20,13 +20,14 @@ import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.event.face.FaceCreateEvent;
 import com.newland.tianyan.face.event.face.FaceDeleteEvent;
-import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
+import com.newland.tianyan.face.event.group.GroupCreateEvent;
 import com.newland.tianyan.face.event.user.UserCreateEvent;
 import com.newland.tianyan.face.mq.IMqMessageService;
 import com.newland.tianyan.face.service.FacesetUserFaceService;
 import com.newland.tianyan.face.service.IQualityCheckService;
 import com.newland.tianyan.face.service.IVectorSearchService;
 import com.newland.tianyan.face.service.ImageStoreService;
+import com.newland.tianyan.face.utils.FaceIdSlotHelper;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,23 +102,24 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         }
         insertFaceDO.setUid(userInfoDO.getId());
         insertFaceDO.setUserId(userInfoDO.getUserId());
+        FaceIdSlotHelper faceIdSlotHelper = new FaceIdSlotHelper(userInfoDO.getFaceIdSlot());
+        insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), faceIdSlotHelper.pollNextValidId()));
+
         //初次录入的情况，添加人脸
         if (userInfoDO.getFaceNumber() == 0) {
             log.info("人脸添加-新增人脸append");
-            insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
             faceMapper.insertSelective(insertFaceDO);
-            publisher.publishEvent(new UserCreateEvent(appId, groupId, userId, 1, 1));
-            publisher.publishEvent(new FaceCreateEvent(appId, groupId, userId));
+            publisher.publishEvent(new UserCreateEvent(appId, groupId, userId));
+            publisher.publishEvent(new FaceCreateEvent(appId, groupId, userId,
+                    userInfoDO.getFaceIdSlot(), insertFaceDO.getId()));
             faceCacheHelper.add(insertFaceDO);
         } else {
 
             if (ACTION_TYPE_APPEND.equals(actionType)) {
                 log.info("人脸添加-追加人脸append");
-                //缓存中添加用户的人脸
-                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), userInfoDO.getFaceNumber() + 1));
-                //添加人脸
                 faceMapper.insertSelective(insertFaceDO);
-                publisher.publishEvent(new FaceCreateEvent(appId, groupId, userId));
+                publisher.publishEvent(new FaceCreateEvent(appId, groupId, userId,
+                        userInfoDO.getFaceIdSlot(), insertFaceDO.getId()));
                 faceCacheHelper.add(insertFaceDO);
             } else if (ACTION_TYPE_REPLACE.equals(actionType)) {
                 log.info("人脸添加-清空并添加新的人脸replace");
@@ -131,12 +133,11 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
                     return null;
                 }
                 faceCacheHelper.deleteBatch(appId, faceIdList);
-                int deleteCount = faceMapper.delete(faceDO);
+                faceMapper.delete(faceDO);
 
-                //添加该用户新的人脸（只有一张）
-                insertFaceDO.setId(VectorSearchKeyUtils.generatedKey(insertFaceDO.getGid(), insertFaceDO.getUid(), 1));
                 faceMapper.insertSelective(insertFaceDO);
-                publisher.publishEvent(new FaceDeleteEvent(appId, groupId, userId, deleteCount - 1));
+                publisher.publishEvent(new FaceDeleteEvent(appId, groupId, userId,
+                        faceIdList.size() - 1, userInfoDO.getFaceIdSlot(), faceIdList));
                 faceCacheHelper.add(insertFaceDO);
             }
         }
@@ -173,7 +174,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             insertGroup.setUserNumber(0);
             insertGroup.setFaceNumber(0);
             groupInfoMapper.insertGetId(insertGroup);
-            publisher.publishEvent(new AbstractGroupCreateEvent(appId, groupId));
+            publisher.publishEvent(new GroupCreateEvent(appId, groupId));
             log.info("人脸添加-新建用户组成功{}", JsonUtils.toJson(insertGroup));
             groupInfoDO = insertGroup;
         }
@@ -250,6 +251,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
      * 删除人脸
      */
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void delete(NLBackend.BackendAllRequest receive) {
         FaceDO query = ProtobufUtils.parseTo(receive, FaceDO.class);
         query.setId(Long.parseLong(query.getFaceId()));
@@ -270,7 +272,8 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         userInfoDO.setAppId(receive.getAppId());
         userInfoDO.setGroupId(receive.getGroupId());
         userInfoDO.setUserId(receive.getUserId());
-        if (userInfoMapper.selectCount(userInfoDO) <= 0) {
+        userInfoDO = userInfoMapper.selectOne(userInfoDO);
+        if (userInfoDO == null) {
             throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, query.getUserId());
         }
 
@@ -284,6 +287,8 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         faceCacheHelper.delete(query.getAppId(), faceDO.getId());
         //物理删除人脸
         faceMapper.delete(query);
-        publisher.publishEvent(new FaceDeleteEvent(query.getAppId(), query.getGroupId(), query.getUserId()));
+
+        publisher.publishEvent(new FaceDeleteEvent(userInfoDO.getAppId(), userInfoDO.getGroupId(), userInfoDO.getUserId(),
+                1, userInfoDO.getFaceIdSlot(), faceDO.getId()));
     }
 }

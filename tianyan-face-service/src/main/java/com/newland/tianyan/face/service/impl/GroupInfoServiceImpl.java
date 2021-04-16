@@ -2,7 +2,6 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.exception.BaseException;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
@@ -13,8 +12,8 @@ import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.dao.GroupInfoMapper;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
-import com.newland.tianyan.face.event.group.AbstractGroupCreateEvent;
-import com.newland.tianyan.face.event.group.AbstractGroupDeleteEvent;
+import com.newland.tianyan.face.event.group.GroupCreateEvent;
+import com.newland.tianyan.face.event.group.GroupDeleteEvent;
 import com.newland.tianyan.face.service.GroupInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -23,8 +22,6 @@ import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
-
-import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
 
 /**
  * @Author: huangJunJie  2020-11-02 14:11
@@ -58,7 +55,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         groupInfoMapper.insertSelective(groupInfoDO);
 
         //发布事件。由于新增了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值加1
-        publisher.publishEvent(new AbstractGroupCreateEvent(receive.getAppId(), receive.getGroupId()));
+        publisher.publishEvent(new GroupCreateEvent(receive.getAppId(), receive.getGroupId()));
 
     }
 
@@ -104,7 +101,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         groupInfoMapper.updateToDelete(EntityStatusConstants.DELETE, groupToDelete.getId());
 
         //发布事件。由于删除了用户组，所以要在app_info表中将该用户组对应的app的那条记录中的group_number值减1
-        publisher.publishEvent(new AbstractGroupDeleteEvent(groupToDelete.getAppId(), groupToDelete.getGroupId()));
+        publisher.publishEvent(new GroupDeleteEvent(groupToDelete.getAppId(), groupToDelete.getGroupId()));
     }
 
     @Override

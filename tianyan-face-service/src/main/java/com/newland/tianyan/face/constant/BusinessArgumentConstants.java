@@ -24,7 +24,7 @@ public class BusinessArgumentConstants {
     /**
      * 单个用户限制添加最多人脸数目
      */
-    public static final int MAX_FACE_NUMBER = 20;
+    public static final int MAX_FACE_NUMBER = 10;
     /**
      * 单个用户组限制添加最多用户数目
      */

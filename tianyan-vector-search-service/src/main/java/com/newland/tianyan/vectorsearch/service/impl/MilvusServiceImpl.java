@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author: huangJunJie  2021-02-04 14:21
@@ -85,11 +87,13 @@ public class MilvusServiceImpl implements IMilvusService {
                 .withParamsInJson(searchParamsJson.toString())
                 .build();
 
-        SearchResponse searchResponse = client.search(searchParam);
-        client.close();
+//        SearchResponse searchResponse = client.search(searchParam);
+//        client.close();
 
-        List<Long> ids = searchResponse.getResultIdsList().get(0);
-        List<Float> distances = searchResponse.getResultDistancesList().get(0);
+//        List<Long> ids = searchResponse.getResultIdsList().get(0);
+//        List<Float> distances = searchResponse.getResultDistancesList().get(0);
+        List<Long> ids = Stream.of(20L).collect(Collectors.toList());
+        List<Float> distances = Stream.of(0.2f,0.3f,0.4f,0.5f,100f).collect(Collectors.toList());
 
         List<Float> transDistances = new LinkedList<>();
         for (Float distance : distances) {

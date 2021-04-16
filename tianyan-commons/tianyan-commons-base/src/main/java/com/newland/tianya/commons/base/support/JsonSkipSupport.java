@@ -29,7 +29,7 @@ public class JsonSkipSupport {
             return null;
         }
 
-        if (basicClass(object.getClass())&&!JsonUtils.isValidJson(object)) {
+        if (basicClass(object.getClass())||!JsonUtils.isValidJson(object)) {
             return object.toString();
         }
 
@@ -69,6 +69,8 @@ public class JsonSkipSupport {
         } else if (Character.class.equals(tClass) || char.class.equals(tClass)) {
             return true;
         } else if (List.class.equals(tClass) || Map.class.equals(tClass)) {
+            return true;
+        } else if (tClass.getName().contains("protobuf")){
             return true;
         }
         return false;

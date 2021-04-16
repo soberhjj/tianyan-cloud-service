@@ -5,7 +5,8 @@
 
     <update id="faceNumberIncrease">
         UPDATE `user_info`
-        SET face_number = face_number + #{count}
+        SET face_number = face_number + #{count},
+            face_id_slot = #{faceIdSlot}
         WHERE app_id = #{appId}
           AND group_id = #{groupId}
           AND user_id = #{userId}
@@ -13,7 +14,8 @@
 
     <update id="faceNumberDecrease">
         UPDATE `user_info`
-        SET face_number = face_number - #{count}
+        SET face_number = face_number - #{count},
+        face_id_slot = #{faceIdSlot}
         WHERE app_id = #{appId}
           AND group_id = #{groupId}
           AND user_id = #{userId}

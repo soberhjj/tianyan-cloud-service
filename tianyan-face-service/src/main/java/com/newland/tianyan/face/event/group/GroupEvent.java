@@ -1,15 +1,17 @@
-package com.newland.tianyan.face.event.user;
+package com.newland.tianyan.face.event.group;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+/**
+ * @author Administrator
+ */
+
 @Data
 @AllArgsConstructor
-public class UserEvent {
+public abstract class GroupEvent {
 
     private Long appId;
 
     private String groupId;
-
-    private String userId;
 }

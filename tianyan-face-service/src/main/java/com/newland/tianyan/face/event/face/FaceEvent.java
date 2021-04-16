@@ -1,49 +1,38 @@
 package com.newland.tianyan.face.event.face;
 
+import com.newland.tianyan.face.utils.FaceIdSlotHelper;
+import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Data
+@AllArgsConstructor
 public class FaceEvent {
 
-//    private String account;
     private Long appId;
+
     private String groupId;
+
     private String userId;
 
-    public FaceEvent(Long appId, String groupId, String userId) {
-//        this.account = account;
-        this.appId = appId;
-        this.groupId = groupId;
-        this.userId = userId;
+    private Integer faceNumber;
+
+    private String oldFaceIdSlot;
+
+    private List<Long> faceIds;
+
+    public String getNewFaceIdSlot(boolean isRollback) {
+        FaceIdSlotHelper faceIdSlotHelper = new FaceIdSlotHelper(this.getOldFaceIdSlot());
+        Set<Integer> faceIdSet = this.faceIds.stream().map(VectorSearchKeyUtils::splitFaceIndex).collect(Collectors.toSet());
+        if (isRollback){
+            faceIdSlotHelper.rollback(faceIdSet);
+        }else {
+            faceIdSlotHelper.refresh(faceIdSet);
+        }
+        return faceIdSlotHelper.getIdSlotStr();
     }
-
-//    public String getAccount() {
-//        return account;
-//    }
-//
-//    public void setAccount(String account) {
-//        this.account = account;
-//    }
-
-    public Long getAppId() {
-        return appId;
-    }
-
-    public void setAppId(Long appId) {
-        this.appId = appId;
-    }
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
 }

@@ -19,6 +19,7 @@ public class UserInfoDO extends BaseEntity {
     private String userId;
     private String userName;
     private Integer faceNumber;
+    private String faceIdSlot;
     private String userInfo;
     private String createTime;
     private String modifyTime;

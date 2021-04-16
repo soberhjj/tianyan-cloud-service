@@ -106,10 +106,10 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
         if (!CollectionUtils.isEmpty(vectorResultList)) {
             log.info("人脸搜索，向量搜索得到结果，开始筛选结果集并封装");
-            //过滤数据库中无效的用户组
             int countTopK = 0;
             List<FaceSearchVo> faceList = new ArrayList<>(maxUserNum);
             Set<String> gidUidKeySet = new HashSet<>(vectorResultList.size());
+            //留存有效用户组结果
             for (FaceSearchVo item : vectorResultList) {
                 if (countTopK >= maxUserNum) {
                     break;
@@ -129,12 +129,14 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                 gidUidKeySet.add(gidUid);
                 countTopK++;
             }
-
+            //留存有效用户结果
             if (!CollectionUtils.isEmpty(faceList)) {
                 if (uidWithUserInfoMaps == null) {
                     Set<Long> uidSetFormQueryFaceList = faceList.stream().map(FaceSearchVo::getUid).collect(Collectors.toSet());
                     uidWithUserInfoMaps = this.loadEffectUserMaps(appId, uidSetFormQueryFaceList);
                 }
+            }
+            if (gidWithGroupIdMaps.size() > 0 && uidWithUserInfoMaps != null && uidWithUserInfoMaps.size() > 0) {
                 for (FaceSearchVo item : faceList) {
                     Long uid = item.getUid();
                     Long gid = item.getGid();
@@ -374,7 +376,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         if (enableImageStorage) {
             try {
                 imageStoreService.uploadAsync(image);
-            }catch (IOException exception){
+            } catch (IOException exception) {
 
             }
         }

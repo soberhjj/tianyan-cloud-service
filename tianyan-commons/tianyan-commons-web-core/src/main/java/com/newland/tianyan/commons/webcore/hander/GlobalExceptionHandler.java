@@ -1,6 +1,7 @@
 package com.newland.tianyan.commons.webcore.hander;
 
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.exception.ArgumentException;
@@ -12,6 +13,7 @@ import com.newland.tianya.commons.base.support.ExceptionSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -125,10 +127,10 @@ public class GlobalExceptionHandler {
     /**
      * httpContent非json格式
      */
-    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    @ExceptionHandler({HttpMediaTypeNotSupportedException.class, HttpMessageNotReadableException.class, JsonParseException.class})
     @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
     public JsonErrorObject handleMediaTypeException(HttpMediaTypeNotSupportedException e) {
-        log.warn("抛出http异常", e);
+        log.warn("抛出请求参数格式异常", e);
         if (!MediaType.APPLICATION_JSON.getType().equals(Objects.requireNonNull(e.getContentType()).getType())) {
             return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.JSON_CONTENT_FORMAT_ERROR));
         } else {

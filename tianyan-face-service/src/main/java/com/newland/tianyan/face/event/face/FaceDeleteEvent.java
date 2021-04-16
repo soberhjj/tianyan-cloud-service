@@ -1,20 +1,21 @@
 package com.newland.tianyan.face.event.face;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-@Getter
-@Setter
+/**
+ * @author: RojiaHuang
+ * @description:
+ * @date: 2021/4/15
+ */
 public class FaceDeleteEvent extends FaceEvent {
 
-    private int deleteCount;
-
-    public FaceDeleteEvent(Long appId, String groupId, String userId) {
-        super(appId, groupId, userId);
+    public FaceDeleteEvent(Long appId, String groupId, String userId, Integer faceNumber, String oldFaceIdSlot, Long faceId) {
+        super(appId, groupId, userId, faceNumber, oldFaceIdSlot, Stream.of(faceId).collect(Collectors.toList()));
     }
 
-    public FaceDeleteEvent(Long appId, String groupId, String userId, int deleteCount) {
-        super(appId, groupId, userId);
-        this.deleteCount = deleteCount;
+    public FaceDeleteEvent(Long appId, String groupId, String userId, Integer faceNumber, String oldFaceIdSlot, List<Long> faceIds) {
+        super(appId, groupId, userId, faceNumber, oldFaceIdSlot, faceIds);
     }
 }

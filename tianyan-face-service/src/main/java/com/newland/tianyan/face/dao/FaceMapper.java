@@ -19,7 +19,7 @@ public interface FaceMapper extends CommonMapper<FaceDO> {
      * @param userId 用户标识号
      * @return face主键Id
      */
-    List<Long> selectIdByUserId(@Param("userId") String userId);
+    List<Long> selectId(@Param("groupId") String groupId,@Param("userId") String userId);
 
     /**
      * @param groupId 用户标识号

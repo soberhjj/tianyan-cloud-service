@@ -1,11 +1,6 @@
 package com.newland.tianyan.face.utils;
 
-import com.newland.tianya.commons.base.exception.BusinessException;
-import com.newland.tianyan.face.constant.ExceptionEnum;
-
 import java.text.NumberFormat;
-
-import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MAX_FACE_NUMBER;
 
 /**
  * @author: RojiaHuang
@@ -22,9 +17,10 @@ public class VectorSearchKeyUtils {
 
     private static final int F_LONG = 2;
 
-    public static Long generatedKey(Long gid, Long uid, int faceNoLong) {
+
+    public static Long generatedKey(Long gid, Long uid, int faceIndex) {
         //最高位占位1，giddy8位，uid8位，faceNum 2位
-        String key = "1" + lpad(gid, G_LONG) + lpad(uid, U_LONG) + lpad(faceNoLong, F_LONG);
+        String key = "1" + lpad(gid, G_LONG) + lpad(uid, U_LONG) + lpad(faceIndex, F_LONG);
         return Long.parseLong(key);
     }
 
@@ -40,6 +36,13 @@ public class VectorSearchKeyUtils {
         return Long.valueOf(uidStr);
     }
 
+    public static Integer splitFaceIndex(Long key) {
+        String keyStr = key.toString();
+        int length = keyStr.length();
+        String faceNo = keyStr.substring(length - 2, length);
+        return Integer.valueOf(faceNo);
+    }
+
     public static String lpad(Long value, int maxLength) {
         if (value.toString().length() == maxLength) {
             return value.toString();
@@ -53,7 +56,8 @@ public class VectorSearchKeyUtils {
     }
 
     public static void main(String[] args) {
-        NumberFormat nf = NumberFormat.getInstance();
+        System.out.println(VectorSearchKeyUtils.splitFaceIndex(1000000020000000502L));
+//        NumberFormat nf = NumberFormat.getInstance();
 
 //        Long beforeUid = 10000008L;
 //        Long beforeGid = 10000023L;

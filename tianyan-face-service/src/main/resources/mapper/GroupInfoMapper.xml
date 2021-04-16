@@ -18,14 +18,15 @@
 
     <update id="userNumberDecrease">
         UPDATE `group_info`
-        SET user_number = user_number - #{count}
+        SET user_number = user_number - #{userCount},
+            face_number = face_number - #{faceCount}
         WHERE app_id = #{appId}
           AND group_id = #{groupId}
     </update>
 
     <update id="faceNumberDecrease">
         UPDATE `group_info`
-        SET face_number = face_number - #{count}
+        SET face_number = face_number - #{faceCount}
         WHERE app_id = #{appId}
           AND group_id = #{groupId}
     </update>
