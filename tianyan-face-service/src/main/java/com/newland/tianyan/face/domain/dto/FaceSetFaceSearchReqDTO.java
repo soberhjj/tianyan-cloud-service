@@ -2,11 +2,9 @@ package com.newland.tianyan.face.domain.dto;
 
 import com.newland.tianyan.face.constant.VerifyConstant;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.*;
-
-import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MAX_FACE_NUMBER;
-import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MIN_APP_ID;
 
 /**
  * @program: newland-cloud
@@ -33,13 +31,13 @@ public class FaceSetFaceSearchReqDTO {
     @Pattern(regexp = VerifyConstant.USER_ID_OLD)
     private String userId;
 
-    @Min(1)
-    @Max(1)
-    private int maxFaceNum = 1;
+    @Range(min = 1, max = 1)
+    @Digits(integer = 2,fraction = 0)
+    private Integer maxFaceNum = 1;
 
-    @Min(1)
-    @Max(20)
-    private int maxUserNum = 1;
+    @Range(min = 1, max = 20)
+    @Digits(integer = 2,fraction = 0)
+    private Integer maxUserNum = 1;
 
     private String faceFields;
 

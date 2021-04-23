@@ -13,12 +13,12 @@ import com.newland.tianyan.face.domain.entity.AppInfoDO;
 import com.newland.tianyan.face.service.AppInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.Collections;
 
 /**
@@ -39,7 +39,7 @@ public class AppInfoController {
      * @Date 2020/10/21 16:37
      */
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public NLBackend.BackendAppSendMessage insert(@RequestBody @Validated AppCreateReqDTO receive) {
+    public NLBackend.BackendAppSendMessage insert(@RequestBody @Valid AppCreateReqDTO receive) {
         String[] appIdList = receive.getApiList().split(",");
         for (String item : appIdList) {
             int itemInt = Integer.parseInt(item);
@@ -59,7 +59,7 @@ public class AppInfoController {
      * @Date 2020/10/21 18:09
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public NLBackend.BackendAppSendMessage delete(@RequestBody @Validated AppDeleteReqDTO receive) {
+    public NLBackend.BackendAppSendMessage delete(@RequestBody @Valid AppDeleteReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         appInfoService.delete(request);
         return ProtobufUtils.buildMessage(NLBackend.BackendAppSendMessage.class);
@@ -72,7 +72,7 @@ public class AppInfoController {
      * @Date 2020/10/21 18:19
      */
     @RequestMapping(value = "/update", method = RequestMethod.POST)
-    public NLBackend.BackendAppSendMessage update(@RequestBody @Validated AppUpdateReqDTO receive) {
+    public NLBackend.BackendAppSendMessage update(@RequestBody @Valid AppUpdateReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         appInfoService.update(request);
         return ProtobufUtils.buildMessage(NLBackend.BackendAppSendMessage.class);
@@ -82,7 +82,7 @@ public class AppInfoController {
      * 获取一条app数据(对内接口)
      */
     @RequestMapping(value = "/getInfo", method = RequestMethod.POST)
-    public NLBackend.BackendAppSendMessage getInfo(@RequestBody @Validated AppGetInfoReqDTO receive) {
+    public NLBackend.BackendAppSendMessage getInfo(@RequestBody @Valid AppGetInfoReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         AppInfoDO info = appInfoService.getInfo(request);
         return ProtobufUtils.buildAppSendMessage(Collections.singletonList(info), 1);
@@ -92,7 +92,7 @@ public class AppInfoController {
      * 获取多条app数据(对内接口)
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
-    public NLPage.BackendAppPageMessage getPage(@RequestBody @Validated AppGetListReqDTO receive) {
+    public NLPage.BackendAppPageMessage getPage(@RequestBody @Valid AppGetListReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         PageInfo<AppInfoDO> pageInfo = appInfoService.getList(request);
         return ProtobufUtils.buildAppPageMessage(pageInfo.getList(), pageInfo.getSize());

@@ -3,6 +3,7 @@ package com.newland.tianyan.commons.webcore.hander;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.google.gson.JsonSyntaxException;
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
 import com.newland.tianya.commons.base.exception.ArgumentException;
 import com.newland.tianya.commons.base.exception.BaseException;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.UnexpectedTypeException;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
 import java.util.Objects;
@@ -40,10 +42,10 @@ public class GlobalExceptionHandler {
      * 业务异常,非hibernate验证
      */
     @ExceptionHandler(ArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public JsonErrorObject handleArgumentException2(ArgumentException e) {
-        log.warn("抛出参数异常:[{}:{}],{}", e.getErrorCode(), e.getErrorMsg(), e);
+        log.warn("抛出参数异常:[{}:{}]", e.getErrorCode(), e.getErrorMsg());
         e.printStackTrace();
         return BaseExceptionConvert.toJsonObject(e);
     }
@@ -52,10 +54,10 @@ public class GlobalExceptionHandler {
      * 业务异常
      */
     @ExceptionHandler(BusinessException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public JsonErrorObject handleBusinessException(BusinessException e) {
-        log.warn("抛出业务异常:[{}:{}],{}", e.getErrorCode(), e.getErrorMsg(), e);
+        log.warn("抛出业务异常:[{}:{}]", e.getErrorCode(), e.getErrorMsg());
         return BaseExceptionConvert.toJsonObject(e);
     }
 
@@ -75,7 +77,7 @@ public class GlobalExceptionHandler {
      * 上游微服务异常
      */
     @ExceptionHandler(BaseException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public JsonErrorObject handleMQBaseException(BaseException e) {
         log.warn("抛出上游微服务异常:[{}:{}],{}", e.getErrorCode(), e.getErrorMsg(), e);
@@ -91,10 +93,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public JsonErrorObject handleOtherException(Exception e) {
-        log.warn("抛出系统异常", e);
+        log.warn("抛出系统异常");
         e.printStackTrace();
         String loadBalance = "Load balancer";
-        if (e.getMessage().contains(loadBalance)) {
+        if (e.getMessage()!=null && e.getMessage().contains(loadBalance)) {
             return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SERVICE_NOT_SUPPORT, e.getMessage()));
         }
         return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR));
@@ -104,33 +106,38 @@ public class GlobalExceptionHandler {
      * 参数异常,hibernate验证参数
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.OK)
     public JsonErrorObject handleArgumentNotValidException(MethodArgumentNotValidException e) {
-        log.warn("抛出参数异常", e);
+        log.warn("抛出参数异常");
         FieldError fieldError = e.getBindingResult().getFieldError();
         assert fieldError != null;
         ArgumentException argumentException = getError(Objects.requireNonNull(fieldError.getCode()), fieldError.getField());
         return BaseExceptionConvert.toJsonObject(argumentException);
     }
 
-    @ExceptionHandler(InvalidFormatException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public JsonErrorObject handleArgumentInvalidFormatException(InvalidFormatException e) {
-        log.warn("抛出参数异常", e);
-        Object[] args = new Object[]{};
-        args[0] = e.getValue();
-        args[1] = e.getMessage();
-        ArgumentException argumentException = (ArgumentException) ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_INVALID_FORMAT, args);
+    @ExceptionHandler({UnexpectedTypeException.class, JsonSyntaxException.class})
+    @ResponseStatus(HttpStatus.OK)
+    public JsonErrorObject handleUnexpectedTypeException(Exception e) {
+        log.warn("抛出参数异常");
+        ArgumentException argumentException = (ArgumentException) ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR,e.getMessage());
+        return BaseExceptionConvert.toJsonObject(argumentException);
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class,InvalidFormatException.class, IllegalStateException.class})
+    @ResponseStatus(HttpStatus.OK)
+    public JsonErrorObject handleHttpMessageNotReadableException(Exception e) {
+        log.warn("抛出参数异常");
+        ArgumentException argumentException = (ArgumentException) ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR2);
         return BaseExceptionConvert.toJsonObject(argumentException);
     }
 
     /**
      * httpContent非json格式
      */
-    @ExceptionHandler({HttpMediaTypeNotSupportedException.class, HttpMessageNotReadableException.class, JsonParseException.class})
-    @ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    @ExceptionHandler({HttpMediaTypeNotSupportedException.class, JsonParseException.class})
+    @ResponseStatus(HttpStatus.OK)
     public JsonErrorObject handleMediaTypeException(HttpMediaTypeNotSupportedException e) {
-        log.warn("抛出请求参数格式异常", e);
+        log.warn("抛出请求参数格式异常");
         if (!MediaType.APPLICATION_JSON.getType().equals(Objects.requireNonNull(e.getContentType()).getType())) {
             return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.JSON_CONTENT_FORMAT_ERROR));
         } else {
@@ -144,7 +151,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public JsonErrorObject handleNoHandlerException(NoHandlerFoundException e, HttpServletRequest request) {
-        log.warn("抛出参数[URI不支持]异常", e);
+        log.warn("抛出参数[URI不支持]异常");
         return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.INVALID_METHOD, request.getRequestURI()));
     }
 
@@ -161,23 +168,10 @@ public class GlobalExceptionHandler {
     protected static ArgumentException getError(String code, String field) {
         GlobalExceptionEnum errorEnums;
         switch (code) {
-            case "NotBlank":
-                errorEnums = GlobalExceptionEnum.ARGUMENT_NOT_BLANK;
-                break;
             case "NotNull":
-                errorEnums = GlobalExceptionEnum.ARGUMENT_NOT_NULL;
-                break;
             case "NotEmpty":
-                errorEnums = GlobalExceptionEnum.ARGUMENT_NOT_EMPTY;
-                break;
-            case "Max":
-                errorEnums = GlobalExceptionEnum.ARGUMENT_SIZE_MAX;
-                break;
-            case "Min":
-                errorEnums = GlobalExceptionEnum.ARGUMENT_SIZE_MIN;
-                break;
-            case "Pattern":
-                errorEnums = GlobalExceptionEnum.ARGUMENT_PATTERN;
+            case "NotBlank":
+                errorEnums = GlobalExceptionEnum.ARGUMENT_NOT_NULL;
                 break;
             default:
                 errorEnums = GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR;

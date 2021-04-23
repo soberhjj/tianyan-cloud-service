@@ -1,5 +1,6 @@
 package com.newland.tianya.commons.base.model.auth;
 
+import com.newland.tianya.commons.base.annotation.IntegerValid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class AuthClientReqDTO {
 
     private String account;
+    @IntegerValid
     private Long appId;
     private String clientId;
     private String clientSecret;

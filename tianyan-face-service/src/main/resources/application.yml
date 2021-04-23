@@ -21,11 +21,5 @@ mybatis:
   type-aliases-package: com.newland.tianyan.face.domain.entity
 
 
-feign:
-  hystrix:
-    enabled: true
-
-
-
 
 

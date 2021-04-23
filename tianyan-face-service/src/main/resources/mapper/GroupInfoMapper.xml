@@ -41,15 +41,18 @@
         SELECT
         id,
         group_id,
-        face_number
+        face_number,
+        user_number
         FROM
         group_info
         WHERE
         app_id = #{appId}
-        AND group_id IN
-        <foreach collection="groupIdSet" index="index" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+        <if test="groupIdSet != null and groupIdSet.size > 0">
+            AND group_id IN
+            <foreach collection="groupIdSet" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
         AND is_delete = 0;
     </select>
 </mapper>

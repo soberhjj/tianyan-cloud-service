@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -42,7 +43,7 @@ public class FacesetUserFaceController {
      * 添加人脸
      */
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage add(@RequestBody @Validated FaceSetFaceAddReqDTO receive) throws Exception {
+    public NLFace.CloudFaceSendMessage add(@RequestBody @Valid FaceSetFaceAddReqDTO receive) throws Exception {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         FaceDO faceDO = facesetUserFaceService.create(request);
         NLFace.CloudFaceSendMessage.Builder result = NLFace.CloudFaceSendMessage.newBuilder();
@@ -77,7 +78,7 @@ public class FacesetUserFaceController {
      * 获取人脸列表
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
-    public NLPage.BackendFacesetPageMessage getList(@RequestBody @Validated FaceSetUserFaceGetListReqDTO receive) {
+    public NLPage.BackendFacesetPageMessage getList(@RequestBody @Valid FaceSetUserFaceGetListReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         List<FaceDO> list = facesetUserFaceService.getList(request);
         return ProtobufUtils.buildFacesetPageMessage(list, list.size());
@@ -87,7 +88,7 @@ public class FacesetUserFaceController {
      * 删除人脸
      */
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Validated FaceSetFaceDeleteReqDTO receive) {
+    public NLBackend.BackendFacesetSendMessage delete(@RequestBody @Valid FaceSetFaceDeleteReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         facesetUserFaceService.delete(request);
         return ProtobufUtils.buildFacesetSendMessage();

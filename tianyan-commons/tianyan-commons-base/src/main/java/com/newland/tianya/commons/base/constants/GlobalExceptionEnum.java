@@ -30,8 +30,10 @@ public enum GlobalExceptionEnum implements IExceptionEnums {
     ARGUMENT_NOT_EMPTY(6308, "param [{0}] should not be empty", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
     ARGUMENT_SIZE(6309, "param [{0}] wrong size error", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
     ARGUMENT_FORMAT_ERROR(6310, "param [{0}] format error", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
-    ARGUMENT_PATTERN(6310, "param [{0}] format error", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
-    ARGUMENT_INVALID_FORMAT(6311, "param [{0}] invalid format error[{1}]", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    ARGUMENT_FORMAT_ERROR2(6310, "param format error", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    ARGUMENT_INVALID_FORMAT(6310, "param [{0}] invalid format error[{1}]", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    ARGUMENT_INVALID_FORMAT2(6311, "param invalid format error: {0}", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
+    ARGUMENT_INVALID_FORMAT3(6311, "param invalid format error", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
     /**
      * 图⽚⼤⼩错误
      */

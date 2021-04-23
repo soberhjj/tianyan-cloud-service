@@ -39,7 +39,7 @@ public class FaceSetFaceAddReqDTO {
      */
     private String actionType;
 
-    private int type;
+    private Integer type;
 
-    private int qualityControl;
+    private Integer qualityControl;
 }

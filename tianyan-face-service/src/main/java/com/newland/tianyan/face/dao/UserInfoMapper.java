@@ -27,7 +27,7 @@ public interface UserInfoMapper extends CommonMapper<UserInfoDO> {
      * @param appId  应用databaseId
      * @return 用户组业务标识符
      */
-    List<String> getGroupId(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("userId") String userId);
+    Set<String> getGroupId(@Param("appId") Long appId, @Param("groupId") String groupId, @Param("userId") String userId);
 
     /**
      * 插入userInfo并且userInfo.id被赋予自增Id

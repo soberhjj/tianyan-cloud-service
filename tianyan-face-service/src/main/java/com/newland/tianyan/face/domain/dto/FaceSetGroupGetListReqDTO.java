@@ -3,6 +3,7 @@ package com.newland.tianyan.face.domain.dto;
 import com.newland.tianyan.face.constant.VerifyConstant;
 import lombok.Builder;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.*;
 
@@ -30,7 +31,6 @@ public class FaceSetGroupGetListReqDTO {
     /**
      * 查询个数，默认为 100
      */
-    @Min(0)
-    @Max(1000)
+    @Range(min = 1,max = 1000)
     private Integer length = DEFAULT_PAGE_SIZE;
 }

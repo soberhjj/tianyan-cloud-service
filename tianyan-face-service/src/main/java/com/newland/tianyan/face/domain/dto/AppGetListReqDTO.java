@@ -1,6 +1,7 @@
 package com.newland.tianyan.face.domain.dto;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -31,6 +32,6 @@ public class AppGetListReqDTO {
     /**
      * 查询个数，默认为 100
      */
-    @Min(0)
+    @Range(min = 1,max = 1000)
     private Integer length = DEFAULT_PAGE_SIZE;
 }

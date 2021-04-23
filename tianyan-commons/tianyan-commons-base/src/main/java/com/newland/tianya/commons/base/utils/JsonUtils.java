@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.PropertyNamingStrategy;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.newland.tianya.commons.base.constants.ExceptionTypeEnums;
 
 import java.util.Map;
 
@@ -34,11 +33,15 @@ public class JsonUtils {
         return JSONObject.parseObject(JSONObject.toJSONString(object));
     }
 
+    public static <T> T parseObject(String jsonString, Class<T> clazz) {
+        return JSONObject.parseObject(jsonString, clazz);
+    }
+
     /**
      * 下划线
      */
     public static String toSnakeCaseJsonString(Object jsonElement) {
-        return JSON.toJSONString(jsonElement, getSnakeConfig(),SerializerFeature.IgnoreNonFieldGetter);
+        return JSON.toJSONString(jsonElement, getSnakeConfig(), SerializerFeature.IgnoreNonFieldGetter);
     }
 
     public static Object toSnakeCaseObject(Object object) {
@@ -51,9 +54,13 @@ public class JsonUtils {
         return serializeConfig;
     }
 
+
     public static void main(String[] args) {
-//        ExceptionTypeEnums exceptionTypeEnums = ExceptionTypeEnums.ARGUMENT_EXCEPTION;
-//        System.out.println(JsonUtils.toSnakeCaseJsonString(exceptionTypeEnums));
-        System.out.println(JsonUtils.isValidJson("ok"));
+        String source = "{\n" +
+                "    \"account\": \"huangtest\",\n" +
+                "    \"app_id\": 2.2,\n" +
+                "    \"client_id\": \"1,2,3,4\",\n" +
+                "    \"client_secret\": \"新框架测试\"\n" +
+                "}";
     }
 }

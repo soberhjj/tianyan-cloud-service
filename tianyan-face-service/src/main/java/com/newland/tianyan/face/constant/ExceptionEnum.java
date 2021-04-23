@@ -32,7 +32,8 @@ public enum ExceptionEnum implements IExceptionEnums {
      */
     GROUP_NOT_FOUND(6403, "group[{0}] is not found", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     GROUP_ALREADY_EXISTS(6404, "group[{0}] already exists", ExceptionTypeEnums.BUSINESS_EXCEPTION),
-    EMPTY_GROUP(6405, "no user in group[{0}]", ExceptionTypeEnums.BUSINESS_EXCEPTION),
+    EMPTY_USER_GROUP(6405, "no user in group[{0}]", ExceptionTypeEnums.BUSINESS_EXCEPTION),
+    EMPTY_FACE_GROUP(6414, "no face in group[{0}]", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     OVER_GROUP_MAX_NUMBER(6413, "group number is over limit", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     /**
      * user

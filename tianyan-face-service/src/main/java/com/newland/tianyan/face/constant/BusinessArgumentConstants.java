@@ -20,7 +20,7 @@ public class BusinessArgumentConstants {
      * */
     public static final int SEARCH_MAX_GROUP_NUMBER = 10;
 
-    public static final int MAX_GROUP_LENGTH = 64;
+    public static final int MAX_GROUP_LENGTH = 32;
     /**
      * 单个用户限制添加最多人脸数目
      */

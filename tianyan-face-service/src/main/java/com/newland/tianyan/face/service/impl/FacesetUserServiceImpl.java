@@ -19,6 +19,7 @@ import com.newland.tianyan.face.event.face.FaceCreateEvent;
 import com.newland.tianyan.face.event.user.UserCreateEvent;
 import com.newland.tianyan.face.event.user.UserDeleteEvent;
 import com.newland.tianyan.face.service.FacesetUserService;
+import com.newland.tianyan.face.service.GroupInfoService;
 import com.newland.tianyan.face.service.IVectorSearchService;
 import com.newland.tianyan.face.utils.FaceIdSlotHelper;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
@@ -29,9 +30,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,6 +52,8 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     private UserInfoMapper userInfoMapper;
     @Autowired
     private GroupInfoMapper groupInfoMapper;
+    @Autowired
+    private GroupInfoService groupInfoService;
     @Autowired
     private FaceMapper faceMapper;
     @Autowired
@@ -104,7 +109,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         srcGroupInfo.setIsDelete(EntityStatusConstants.NOT_DELETE);
         boolean sourceInvalid = groupInfoMapper.selectCount(srcGroupInfo) > 0;
         if (!sourceInvalid) {
-            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, sourceInvalid);
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, srcGroupId);
         }
         //目标用户组有效性检查
         GroupInfoDO dstGroupInfo = new GroupInfoDO();
@@ -191,8 +196,10 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         newFace.setAppId(targetGroup.getAppId());
         newFace.setGid(targetGroup.getId());
         newFace.setGroupId(targetGroup.getGroupId());
+
         newFace.setUid(userInfoDO.getId());
         newFace.setUserId(userInfoDO.getUserId());
+
         newFace.setFeatures(targetFace.getFeatures());
         newFace.setImagePath(targetFace.getImagePath());
         return newFace;
@@ -207,11 +214,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         faceQuery.setGid(gid);
         faceQuery.setGroupId(groupId);
         faceQuery.setUserId(userId);
-        PageInfo<FaceDO> allFace = PageHelper.offsetPage(faceQuery.getStartIndex(), faceQuery.getLength())
-                .setOrderBy("create_time desc")
-                .doSelectPageInfo(
-                        () -> faceMapper.select(faceQuery));
-        return allFace.getList();
+        return faceMapper.select(faceQuery);
     }
 
     /**
@@ -221,32 +224,16 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     public void delete(NLBackend.BackendAllRequest receive) throws BaseException {
         UserInfoDO query = ProtobufUtils.parseTo(receive, UserInfoDO.class);
 
-        String[] groups = query.getGroupId().split(",");
-        for (String groupId : groups) {
-            query.setGroupId(groupId);
-
-            UserInfoDO userInfoDO = new UserInfoDO();
-            userInfoDO.setUserId(query.getUserId());
-            userInfoDO.setAppId(query.getAppId());
-            userInfoDO.setGroupId(query.getGroupId());
-            userInfoDO = userInfoMapper.selectOne(userInfoDO);
-            if (userInfoDO == null) {
-                throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
-            }
-
-            //缓存中删除用户的所有人脸
-            List<Long> faceIdList = faceMapper.selectId(userInfoDO.getGroupId(),userInfoDO.getUserId());
-
-            //物理删除用户及人脸
-            userInfoMapper.delete(query);
-            FaceDO faceDO = new FaceDO();
-            faceDO.setGroupId(groupId);
-            faceDO.setUserId(userInfoDO.getUserId());
-            faceDO.setAppId(receive.getAppId());
-            publisher.publishEvent(new UserDeleteEvent(userInfoDO.getAppId(), userInfoDO.getGroupId(), faceIdList.size()));
-
-            faceCacheHelper.deleteBatch(query.getAppId(), faceIdList);
+        UserInfoDO userInfoDO = userInfoMapper.selectOne(query);
+        if (userInfoDO == null) {
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
         }
+        List<Long> faceIdList = faceMapper.selectId(userInfoDO.getGroupId(), userInfoDO.getUserId());
+
+        //物理删除用户及人脸
+        userInfoMapper.delete(query);
+        publisher.publishEvent(new UserDeleteEvent(userInfoDO.getAppId(), userInfoDO.getGroupId(), faceIdList.size()));
+        faceCacheHelper.deleteBatch(userInfoDO.getAppId(), faceIdList);
     }
 
     /**
@@ -257,50 +244,32 @@ public class FacesetUserServiceImpl implements FacesetUserService {
     public List<UserInfoDO> getInfo(NLBackend.BackendAllRequest receive) throws BaseException {
         UserInfoDO userQuery = ProtobufUtils.parseTo(receive, UserInfoDO.class);
         //如果传入的参数中没有传入用户组的话，那么就根据传入的app_id去获取该app的所有用户组。
-        List<String> groupIds = this.getValidGroupList(receive.getAppId(), receive.getGroupId(), userQuery.getUserId());
-        if (CollectionUtils.isEmpty(groupIds)) {
-            //当前应用下没有用户组
+        Set<Long> gidIdSet = this.getValidGroupList(receive.getAppId(), receive.getGroupId(), userQuery.getUserId());
+        List<UserInfoDO> userInfoList = userInfoMapper.queryBatch(receive.getAppId(), gidIdSet, null, receive.getUserId());
+        if (CollectionUtils.isEmpty(userInfoList)) {
             throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
         }
-        List<UserInfoDO> userList = new ArrayList<>();
-        for (String groupId : groupIds) {
-            //user表索引userId、groupId
-            userQuery.setUserId(userQuery.getUserId());
-            userQuery.setGroupId(groupId);
-
-            //接下来就是去user_info表中根据app_id和group_id和user_id查询用户信息
-            UserInfoDO userInfoDO = userInfoMapper.selectOne(userQuery);
-            if (userInfoDO != null) {
-                userInfoDO.setCreateTime(null);
-                userInfoDO.setModifyTime(null);
-                userList.add(userInfoDO);
-            }
-        }
-        //当前应用下没有目标用户信息
-        if (CollectionUtils.isEmpty(userList)) {
-            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
-        }
-        return userList;
+        userInfoList.forEach(item -> {
+            item.setModifyTime(null);
+            item.setCreateTime(null);
+        });
+        return userInfoList;
     }
 
     /**
      * 根据appId获取group的databaseId列表
      */
-    private List<String> getValidGroupList(Long appId, String groupId, String userId) throws BaseException {
+    private Set<Long> getValidGroupList(Long appId, String groupId, String userId) throws BaseException {
         //获取用户所属的组列表
-        List<String> groupIdList = userInfoMapper.getGroupId(appId, groupId, userId);
+        Set<String> groupIdSet = userInfoMapper.getGroupId(appId, groupId, userId);
+        Set<Long> result = new HashSet<>();
+        if (!CollectionUtils.isEmpty(groupIdSet)) {
+            List<GroupInfoDO> groupInfoDOList = groupInfoService.queryBatch(appId, groupIdSet);
+            result = groupInfoDOList.stream().map(GroupInfoDO::getId).collect(Collectors.toSet());
+        }
         //仅返回有效状态的组id信息
-        List<String> result = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(groupIdList)) {
-            GroupInfoDO groupInfoDO = new GroupInfoDO();
-            for (String groupIdItem : groupIdList) {
-                groupInfoDO.setAppId(appId);
-                groupInfoDO.setGroupId(groupIdItem);
-                groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
-                if (groupInfoMapper.selectCount(groupInfoDO) > 0) {
-                    result.add(groupId);
-                }
-            }
+        if (CollectionUtils.isEmpty(result)) {
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, !StringUtils.isEmpty(groupId) ? groupId : !CollectionUtils.isEmpty(groupIdSet) ? groupIdSet.toString() : null);
         }
         return result;
     }

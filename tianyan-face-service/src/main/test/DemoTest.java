@@ -1,3 +1,7 @@
+import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.newland.tianya.commons.base.utils.GsonUtils;
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import com.newland.tianyan.face.FaceServiceApplication;
 import com.newland.tianyan.face.utils.FaceIdSlotHelper;
@@ -18,6 +22,17 @@ import java.util.Set;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = FaceServiceApplication.class)
 public class DemoTest {
+    @Data
+    static class TargetObject {
+        private int count;
+        private String[] array;
+
+        public TargetObject(int count, String[] array) {
+            this.count = count;
+            this.array = array;
+        }
+    }
+
     @Test
     public void testSharingTableKey() {
         String[] userIdList = "zhaoliying".split(",");
@@ -32,31 +47,15 @@ public class DemoTest {
 
     @Test
     public void testJsonFormatting() {
-        @Data
-        class TargetObject {
-            private int count;
-            private String[] array;
-
-            public TargetObject(int count, String[] array) {
-                this.count = count;
-                this.array = array;
-            }
-        }
-
         TargetObject object = new TargetObject(0, "Anna,Beta".split(","));
         String json = JsonUtils.toJson(object);
         System.out.println(json);
     }
 
     @Test
-    public void testImage() throws Exception {
-        String slot = "0000000000";
-    }
-
-    @Test
-    public void testSlot(){
+    public void testSlot() {
         String source = "'0000000000'";
-        String target = source.replaceAll("\'","").trim();
+        String target = source.replaceAll("\'", "").trim();
         System.out.println(target);
         FaceIdSlotHelper faceIdSlotHelper = new FaceIdSlotHelper(source);
         System.out.println(faceIdSlotHelper.getIdSlotStr());
@@ -70,4 +69,18 @@ public class DemoTest {
         faceIdSlotHelper.refresh(params);
         System.out.println(faceIdSlotHelper.getIdSlotStr());
     }
+
+
+    @Test
+    public void testJson() throws Exception {
+        String json = "{\"array\":[\"Anna\",\"Beta\"],\"count\":0.22}";
+        try {
+            TargetObject targetObject1 = GsonUtils.fromJson(json,TargetObject.class);
+            System.out.println(targetObject1.toString());
+        }catch (JsonSyntaxException exception){
+            System.out.println(exception.getLocalizedMessage());
+        }
+
+    }
+
 }

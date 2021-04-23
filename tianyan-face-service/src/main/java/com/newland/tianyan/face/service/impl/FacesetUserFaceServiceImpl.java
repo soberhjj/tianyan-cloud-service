@@ -219,14 +219,12 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     @Override
     public List<FaceDO> getList(NLBackend.BackendAllRequest receive) {
         FaceDO query = ProtobufUtils.parseTo(receive, FaceDO.class);
-        if (!StringUtils.isEmpty(query.getGroupId())) {
-            GroupInfoDO groupInfoDO = new GroupInfoDO();
-            groupInfoDO.setAppId(query.getAppId());
-            groupInfoDO.setGroupId(query.getGroupId());
-            groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
-            if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
-                return new ArrayList<>();
-            }
+        GroupInfoDO groupInfoDO = new GroupInfoDO();
+        groupInfoDO.setAppId(query.getAppId());
+        groupInfoDO.setGroupId(query.getGroupId());
+        groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
+        if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND,receive.getGroupId());
         }
 
         PageInfo<FaceDO> facePageInfo = PageHelper.startPage(query.getStartIndex(), query.getLength())
@@ -236,7 +234,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
         List<FaceDO> face = facePageInfo.getList();
         if (CollectionUtils.isEmpty(face)) {
-            return face;
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND,receive.getUserId());
         }
         for (FaceDO faceDO : face) {
             if (faceDO.getImagePath() != null) {

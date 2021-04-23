@@ -1,6 +1,7 @@
 package com.newland.tianyan.face.domain.dto;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -26,8 +27,7 @@ public class FaceSetFaceDetectReqDTO {
     @NotBlank
     private String image;
 
-    @Min(1)
-    @Max(120)
+    @Range(min = 1,max = 120)
     private Integer maxFaceNum = 1;
 
     private String faceFields;

@@ -28,13 +28,13 @@
         FROM
         user_info a
         <where>
-            <if test="appId != null">
+            <if test="appId != null and appId != '' ">
                 a.app_id = #{appId}
             </if>
-            <if test="userId != null">
+            <if test="userId != null and userId != '' ">
                 AND a.user_id = #{userId}
             </if>
-            <if test="groupId != null">
+            <if test="groupId != null and groupId != ''">
                 AND a.group_id = #{groupId}
             </if>
         </where>
@@ -62,7 +62,7 @@
                 #{item}
             </foreach>
         </if>
-        <if test="userId != null ">
+        <if test="userId != null and userId != '' ">
             AND a.user_id = #{userId}
         </if>
     </select>

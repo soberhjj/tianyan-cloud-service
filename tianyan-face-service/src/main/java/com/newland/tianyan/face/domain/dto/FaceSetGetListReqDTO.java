@@ -1,6 +1,7 @@
 package com.newland.tianyan.face.domain.dto;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -17,6 +18,6 @@ public class FaceSetGetListReqDTO {
     @Min(0)
     private int startIndex;
 
-    @Min(0)
+    @Range(min = 1,max = 1000)
     private int length;
 }
