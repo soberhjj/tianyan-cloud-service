@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 public class AuthClientReqDTO {
 
     private String account;
-    @IntegerValid
     private Long appId;
     private String clientId;
     private String clientSecret;

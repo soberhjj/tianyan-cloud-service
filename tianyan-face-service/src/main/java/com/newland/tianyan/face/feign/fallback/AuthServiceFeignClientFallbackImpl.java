@@ -16,6 +16,6 @@ public class AuthServiceFeignClientFallbackImpl implements FallbackFactory<AuthC
 
     @Override
     public AuthClientFeignService create(Throwable cause) {
-        throw new RuntimeException("远程服务器发生错误,请稍后再次尝试");
+        throw new RuntimeException("远程auth-service服务器发生错误,请稍后再次尝试");
     }
 }
