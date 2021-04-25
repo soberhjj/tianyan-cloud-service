@@ -1,9 +1,6 @@
 package com.newland.tianyan.commons.webcore.api;
 
-import com.newland.tianya.commons.base.model.imagestrore.DownloadReqDTO;
-import com.newland.tianya.commons.base.model.imagestrore.DownloadResDTO;
-import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
-import com.newland.tianya.commons.base.model.imagestrore.UploadResDTO;
+import com.newland.tianya.commons.base.model.imagestrore.*;
 import com.newland.tianyan.commons.webcore.annotation.ApiVersion;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author: RojiaHuang
@@ -35,4 +33,12 @@ public interface IImageStorageApi {
     @PostMapping("/asyncUpload")
     @ApiVersion(1)
     void asyncUpload(@RequestBody @Valid UploadReqDTO uploadReq) throws IOException;
+
+    @PostMapping("/batchUpload")
+    @ApiVersion(1)
+    List<UploadResDTO> batchUpload(@RequestBody @Valid BatchUploadReqDTO batchUploadReqDTO) throws IOException;
+
+    @PostMapping("/batchDownload")
+    @ApiVersion(1)
+    List<DownloadResDTO> batchDownload(@RequestBody @Valid BatchDownloadReqDTO batchDownloadReqDTO) throws IOException;
 }
