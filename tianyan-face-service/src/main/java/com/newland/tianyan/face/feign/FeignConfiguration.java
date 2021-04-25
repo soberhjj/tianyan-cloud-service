@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
  * @description:
  * @date: 2021/2/26
  */
-@Configuration
 public class FeignConfiguration {
     @Bean
     public FeignTraceInterceptor feignTraceInterceptor() {

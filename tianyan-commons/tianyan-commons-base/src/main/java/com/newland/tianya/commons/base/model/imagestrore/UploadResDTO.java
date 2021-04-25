@@ -18,4 +18,5 @@ public class UploadResDTO {
 
     String imagePath;
 
+    String imageMd5;
 }

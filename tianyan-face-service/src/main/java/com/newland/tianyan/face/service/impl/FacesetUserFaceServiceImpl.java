@@ -39,7 +39,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
@@ -224,18 +223,19 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         groupInfoDO.setGroupId(query.getGroupId());
         groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
-            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND,receive.getGroupId());
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, receive.getGroupId());
         }
-
-        PageInfo<FaceDO> facePageInfo = PageHelper.startPage(query.getStartIndex(), query.getLength())
+        //todo face增加索引
+        PageInfo<FaceDO> facePageInfo = PageHelper.startPage(query.getStartIndex() + 1, query.getLength())
                 .setOrderBy("create_time desc")
                 .doSelectPageInfo(
                         () -> faceMapper.select(query));
 
         List<FaceDO> face = facePageInfo.getList();
         if (CollectionUtils.isEmpty(face)) {
-            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND,receive.getUserId());
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
         }
+        //todo 批量查询提高效率
         for (FaceDO faceDO : face) {
             if (faceDO.getImagePath() != null) {
                 faceDO.setImage(imageStorageService.download(faceDO.getImagePath()));

@@ -74,7 +74,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             return new PageInfo<>(new ArrayList<>());
         }
 
-        return PageHelper.startPage(query.getStartIndex(), query.getLength())
+        return PageHelper.startPage(query.getStartIndex() + 1, query.getLength())
                 .doSelectPageInfo(
                         () -> {
                             Example example = new Example(UserInfoDO.class);
@@ -221,9 +221,19 @@ public class FacesetUserServiceImpl implements FacesetUserService {
      * 删除用户
      */
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void delete(NLBackend.BackendAllRequest receive) throws BaseException {
-        UserInfoDO query = ProtobufUtils.parseTo(receive, UserInfoDO.class);
+        GroupInfoDO dstGroupInfo = new GroupInfoDO();
+        dstGroupInfo.setAppId(receive.getAppId());
+        dstGroupInfo.setGroupId(receive.getGroupId());
+        dstGroupInfo.setIsDelete(EntityStatusConstants.NOT_DELETE);
+        dstGroupInfo = groupInfoMapper.selectOne(dstGroupInfo);
+        boolean targetInvalid = dstGroupInfo != null;
+        if (!targetInvalid) {
+            throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, receive.getGroupId());
+        }
 
+        UserInfoDO query = ProtobufUtils.parseTo(receive, UserInfoDO.class);
         UserInfoDO userInfoDO = userInfoMapper.selectOne(query);
         if (userInfoDO == null) {
             throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());

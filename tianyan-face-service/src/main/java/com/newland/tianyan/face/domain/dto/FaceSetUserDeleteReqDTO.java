@@ -21,7 +21,6 @@ public class FaceSetUserDeleteReqDTO {
     @Min(1L)
     private Long appId;
 
-    @NotBlank
     @Pattern(regexp = VerifyConstant.GROUP_ID_OLD)
     private String groupId;
 

@@ -8,7 +8,6 @@ import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianya.commons.base.utils.AppUtils;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
-
 import com.newland.tianyan.face.constant.EntityStatusConstants;
 import com.newland.tianyan.face.constant.ExceptionEnum;
 import com.newland.tianyan.face.dao.AppInfoMapper;
@@ -22,10 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
-
-import java.util.ArrayList;
 
 /**
  * @description: 用户接口
@@ -56,7 +52,7 @@ public class AppInfoServiceImpl implements AppInfoService {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
         appInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (appInfoMapper.selectCount(appInfoDO) > 0) {
-            throw ExceptionSupport.toException(ExceptionEnum.APP_ALREADY_EXISTS,appInfoDO.getAppName());
+            throw ExceptionSupport.toException(ExceptionEnum.APP_ALREADY_EXISTS, appInfoDO.getAppName());
         }
         appInfoDO.setApiKey(AppUtils.generateApiKey());
         appInfoDO.setSecretKey(AppUtils.generateSecretKey());
@@ -81,8 +77,8 @@ public class AppInfoServiceImpl implements AppInfoService {
 
         appInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         AppInfoDO result = appInfoMapper.selectOne(appInfoDO);
-        if (result == null){
-            throw ExceptionSupport.toException(ExceptionEnum.APP_NOT_FOUND,receive.getAppId());
+        if (result == null) {
+            throw ExceptionSupport.toException(ExceptionEnum.APP_NOT_FOUND, receive.getAppId());
         }
         return result;
     }
@@ -90,7 +86,7 @@ public class AppInfoServiceImpl implements AppInfoService {
     @Override
     public PageInfo<AppInfoDO> getList(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
-        return PageHelper.startPage(receive.getStartIndex(), receive.getLength())
+        return PageHelper.startPage(receive.getStartIndex() + 1, receive.getLength())
                 .doSelectPageInfo(
                         () -> {
                             Example example = new Example(AppInfoDO.class);

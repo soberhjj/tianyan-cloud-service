@@ -10,8 +10,7 @@ import org.springframework.context.annotation.Scope;
  * @description:
  * @date: 2021/4/20
  */
-@Configuration
-public class FeignConfiguration2 {
+public class FeignConfigurationPrototype {
     @Bean
     @Scope("prototype")
     public Feign.Builder feignBuilder(){

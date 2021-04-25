@@ -21,7 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import tk.mybatis.mapper.entity.Example;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @Author: huangJunJie  2020-11-02 14:11
@@ -62,7 +63,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     @Override
     public PageInfo<GroupInfoDO> getList(NLBackend.BackendAllRequest receive) throws BaseException {
         GroupInfoDO query = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
-        return PageHelper.startPage(query.getStartIndex(), query.getLength())
+        return PageHelper.startPage(query.getStartIndex() + 1, query.getLength())
                 .doSelectPageInfo(
                         () -> {
                             Example example = new Example(GroupInfoDO.class);
