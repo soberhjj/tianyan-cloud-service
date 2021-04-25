@@ -24,7 +24,7 @@ public class VerifyConstant {
      * */
     public static final String GROUP_ID = "^[\\dA-Za-z_]{0,32}$";
 
-    public static final String GROUP_ID_LIST = "^[\\dA-Za-z_,]{0,329}$";
+    public static final String GROUP_ID_LIST = "^[\\dA-Za-z\\u4e00-\\u9fa5_,]{0,329}$";
 
     public static final String USER_ID_OLD = "^[\\dA-Za-z_\\u4e00-\\u9fa5]{0,32}$";
     /**

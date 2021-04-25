@@ -167,7 +167,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
 
         for (String item : groupIdSet) {
             if (item.length() > MAX_GROUP_LENGTH) {
-                throw ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_SIZE_MAX, "group_id:" + item);
+                throw ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR, "group_id:" + item);
             }
         }
         return groupIdSet;
