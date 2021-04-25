@@ -11,10 +11,5 @@ public class GlobalLogConstant {
      */
     public static final String GATEWAY_TRACE_HEAD = "Gateway-Trace-Id";
 
-    /**
-     * 从mdc层面获取traceId的KEY值
-     */
-    public static final String TRACE_MDC = "traceId";
-
     public static final String HEAD_REQUEST_TIME = "Request-Time";
 }

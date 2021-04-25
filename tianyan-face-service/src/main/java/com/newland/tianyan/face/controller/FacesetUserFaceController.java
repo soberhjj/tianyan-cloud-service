@@ -51,7 +51,7 @@ public class FacesetUserFaceController {
         if (faceDO!=null){
             result.setFaceId(faceDO.getId().toString());
 
-            if (receive.getType() == 101) {
+            if (receive.getType() !=null && receive.getType() == 101) {
                 ObjectInputStream in;
                 float[] features = new float[512];
                 try {

@@ -11,9 +11,7 @@ import com.newland.tianya.commons.base.utils.ImageCheckUtils;
 import com.newland.tianya.commons.base.utils.LogIdUtils;
 import com.newland.tianyan.face.constant.ExceptionEnum;
 import com.newland.tianyan.face.dao.UserInfoMapper;
-import com.newland.tianyan.face.domain.dto.FaceDetectReqDTO;
-import com.newland.tianyan.face.domain.dto.FaceSetFaceCompareReqDTO;
-import com.newland.tianyan.face.domain.dto.FaceSetFaceSearchReqDTO;
+import com.newland.tianyan.face.domain.dto.*;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.domain.entity.GroupInfoDO;
 import com.newland.tianyan.face.domain.entity.UserInfoDO;
@@ -79,7 +77,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         String userId = request.getUserId();
         int maxUserNum = request.getMaxUserNum();
         String image = ImageCheckUtils.imageCheckAndFormatting(request.getImage());
-        Set<String> faceFields = this.checkFaceFieldAndSplitToArray(request.getFaceFields(), null);
+        Set<String> faceFields = this.splitToArray(request.getFaceFields());
         Set<String> splitGroupIdList = this.checkAndSplitGroupIdList(groupId);
 
         log.info("人脸搜索，输入用户组{},进入用户组及用户有效性筛查", groupId);
@@ -226,7 +224,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
     @Override
     public NLFace.CloudFaceSendMessage compare(FaceSetFaceCompareReqDTO request) {
         log.info("人脸比对，开始检查参数");
-        Set<String> faceFields = this.checkFaceFieldAndSplitToArray(request.getFaceFields(), null);
+        Set<String> faceFields = this.splitToArray(request.getFaceFields());
         String firstImage = ImageCheckUtils.imageCheckAndFormatting(request.getFirstImage());
         String secondImage = ImageCheckUtils.imageCheckAndFormatting(request.getSecondImage());
         log.info("人脸比对，开始请求特征值");
@@ -255,8 +253,8 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      * 可选参数 coordinate,liveness
      */
     @Override
-    public NLFace.CloudFaceSendMessage multiAttribute(FaceDetectReqDTO vo) {
-        Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(vo.getFaceFields(), null);
+    public NLFace.CloudFaceSendMessage multiAttribute(FaceMultiAttributeReqDTO vo) {
+        Set<String> optionTaskTypeKeys = this.splitToArray(vo.getFaceFields());
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
         Integer taskType = this.getTaskType(FACE_TASK_TYPE_MULTIATTRIBUTE);
@@ -269,8 +267,8 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      * 可选参数 coordinate
      */
     @Override
-    public NLFace.CloudFaceSendMessage liveness(FaceDetectReqDTO vo) {
-        Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(vo.getFaceFields(), FACE_FIELD_COORDINATE);
+    public NLFace.CloudFaceSendMessage liveness(FaceLiveNessReqDTO vo) {
+        Set<String> optionTaskTypeKeys = this.splitToArray(vo.getFaceFields());
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
         Integer taskType = this.getTaskType(FACE_TASK_TYPE_LIVENESS);
@@ -285,7 +283,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
      */
     @Override
     public NLFace.CloudFaceSendMessage detect(FaceDetectReqDTO vo) {
-        Set<String> optionTaskTypeKeys = this.checkFaceFieldAndSplitToArray(vo.getFaceFields(), FACE_FIELD_LIVENESS);
+        Set<String> optionTaskTypeKeys = this.splitToArray(vo.getFaceFields());
         String image = ImageCheckUtils.imageCheckAndFormatting(vo.getImage());
         this.storeImage(image);
         Integer taskType = this.getTaskType(FACE_TASK_TYPE_COORDINATE);
@@ -388,29 +386,8 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         }
     }
 
-    private Set<String> checkFaceFieldAndSplitToArray(String faceField, String optionField) {
-        if (StringUtils.isEmpty(faceField)) {
-            return null;
-        }
-        Set<String> faceFields = Arrays
-                .stream(faceField.split(FIELD_SPLIT_REGEX))
-                .filter(item -> !StringUtils.isEmpty(item))
-                .collect(Collectors.toSet());
-        if (!StringUtils.isEmpty(optionField)) {
-            if (faceFields.size() != 1 || !optionField.equals(faceFields.iterator().next())) {
-                throw ExceptionSupport.toException(ExceptionEnum.WRONG_FACE_FIELD);
-            }
-        } else {
-            for (String item : faceFields) {
-                boolean coordinate = FACE_FIELD_COORDINATE.equals(item);
-                boolean liveNess = FACE_FIELD_LIVENESS.equals(item);
-                if ((!coordinate) && (!liveNess)) {
-                    throw ExceptionSupport.toException(ExceptionEnum.WRONG_FACE_FIELD);
-                }
-            }
-        }
-
-        return faceFields;
+    private Set<String> splitToArray(String faceField) {
+        return StringUtils.isEmpty(faceField) ? new HashSet<>() : new HashSet<>(Arrays.asList(faceField.split(FIELD_SPLIT_REGEX)));
     }
 
 }

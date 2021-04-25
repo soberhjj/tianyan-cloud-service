@@ -1,6 +1,5 @@
 package com.newland.tianya.commons.base.model.auth;
 
-import com.newland.tianya.commons.base.annotation.IntegerValid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

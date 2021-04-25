@@ -73,7 +73,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         //参数验证
         String image = ImageCheckUtils.imageCheckAndFormatting(receive.getImage());
         String actionType = receive.getActionType();
-        this.checkOperationType(actionType);
         qualityCheckService.checkQuality(receive.getQualityControl(), image);
 
         FaceDO insertFaceDO = new FaceDO();
@@ -114,7 +113,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             faceCacheHelper.add(insertFaceDO);
         } else {
 
-            if (ACTION_TYPE_APPEND.equals(actionType)) {
+            if (ACTION_TYPE_APPEND.equals(actionType) || StringUtils.isEmpty(actionType)) {
                 log.info("人脸添加-追加人脸append");
                 faceMapper.insertSelective(insertFaceDO);
                 publisher.publishEvent(new FaceCreateEvent(appId, groupId, userId,
@@ -142,20 +141,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         }
 
         return insertFaceDO;
-    }
-
-    private void checkOperationType(String operationType) {
-        if (StringUtils.isEmpty(operationType)) {
-            return;
-        }
-        String[] arr = operationType.split(",");
-        for (String item : arr) {
-            boolean append = ACTION_TYPE_APPEND.equals(item);
-            boolean replace = ACTION_TYPE_REPLACE.equals(item);
-            if ((!append) && (!replace)) {
-                throw ExceptionSupport.toException(ExceptionEnum.WRONG_ACTION_TYPE);
-            }
-        }
     }
 
     private GroupInfoDO getExistedGroup(Long appId, String groupId) {

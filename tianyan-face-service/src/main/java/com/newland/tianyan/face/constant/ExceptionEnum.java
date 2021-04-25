@@ -18,11 +18,6 @@ public enum ExceptionEnum implements IExceptionEnums {
      */
     PROTO_PARSE_ERROR(6011, "proto转换失败", ExceptionTypeEnums.SYSTEM_EXCEPTION),
     /**
-     * 存在性异常
-     */
-    WRONG_FACE_FIELD(6311, "param [face_field] format error", ExceptionTypeEnums.BUSINESS_EXCEPTION),
-    WRONG_ACTION_TYPE(6312, "param [action_type] format error", ExceptionTypeEnums.BUSINESS_EXCEPTION),
-    /**
      * app
      */
     APP_NOT_FOUND(6401, "app[{0}] is not found", ExceptionTypeEnums.BUSINESS_EXCEPTION),

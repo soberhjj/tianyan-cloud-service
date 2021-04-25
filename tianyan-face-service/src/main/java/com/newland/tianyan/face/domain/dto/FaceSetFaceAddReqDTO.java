@@ -1,12 +1,10 @@
 package com.newland.tianyan.face.domain.dto;
 
+import com.newland.tianyan.face.validate.ActionTypeValid;
 import com.newland.tianyan.face.constant.VerifyConstant;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
-
-import static com.newland.tianyan.face.constant.BusinessArgumentConstants.MIN_APP_ID;
 
 @Data
 public class FaceSetFaceAddReqDTO {
@@ -34,9 +32,8 @@ public class FaceSetFaceAddReqDTO {
 
     @Pattern(regexp = VerifyConstant.USER_INFO)
     private String userInfo;
-    /**
-     * action_type取值有两种("append"和"replace")。
-     */
+
+    @ActionTypeValid
     private String actionType;
 
     private Integer type;

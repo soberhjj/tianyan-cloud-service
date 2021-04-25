@@ -1,13 +1,12 @@
 package com.newland.tianyan.face.domain.dto;
 
 import com.newland.tianyan.face.validate.FaceFieldValid;
-import com.newland.tianyan.face.validate.FaceFieldValidator;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
 
-import static com.newland.tianyan.face.constant.BusinessArgumentConstants.FACE_FIELD_LIVENESS;
+import static com.newland.tianyan.face.constant.BusinessArgumentConstants.FACE_FIELD_COORDINATE;
 
 /**
  * @program: newland-cloud
@@ -15,7 +14,7 @@ import static com.newland.tianyan.face.constant.BusinessArgumentConstants.FACE_F
  * @author: THE KING
  **/
 @Data
-public class FaceDetectReqDTO {
+public class FaceLiveNessReqDTO {
 
     @NotBlank
     private String image;
@@ -23,7 +22,7 @@ public class FaceDetectReqDTO {
     @Range(min = 1, max = 120)
     private Integer maxFaceNum = 1;
 
-    @FaceFieldValid(benchmark = FACE_FIELD_LIVENESS)
+    @FaceFieldValid(benchmark = FACE_FIELD_COORDINATE)
     private String faceFields;
 
 
