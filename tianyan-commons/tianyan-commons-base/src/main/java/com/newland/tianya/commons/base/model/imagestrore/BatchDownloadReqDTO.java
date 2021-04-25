@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * @author: RojiaHuang
  * @description:
@@ -14,10 +16,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UploadResDTO {
+public class BatchDownloadReqDTO {
 
-    String imagePath;
-
-    String imageMD5;
+    List<String> imagesPath;
 
 }
