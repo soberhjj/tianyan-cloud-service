@@ -2,7 +2,9 @@ package com.newland.tianyan.face.domain.dto;
 
 import com.newland.tianyan.face.validate.ActionTypeValid;
 import com.newland.tianyan.face.constant.VerifyConstant;
+import com.newland.tianyan.face.validate.QualityControlValid;
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.*;
 
@@ -38,5 +40,6 @@ public class FaceSetFaceAddReqDTO {
 
     private Integer type;
 
+    @QualityControlValid
     private Integer qualityControl;
 }

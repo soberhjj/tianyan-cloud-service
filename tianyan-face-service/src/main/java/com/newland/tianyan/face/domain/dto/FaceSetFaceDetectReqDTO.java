@@ -1,5 +1,7 @@
 package com.newland.tianyan.face.domain.dto;
 
+import com.newland.tianyan.face.validate.FaceFieldValid;
+import com.newland.tianyan.face.validate.QualityControlValid;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
@@ -30,7 +32,9 @@ public class FaceSetFaceDetectReqDTO {
     @Range(min = 1,max = 120)
     private Integer maxFaceNum = 1;
 
+    @FaceFieldValid
     private String faceFields;
 
+    @QualityControlValid
     private Integer qualityControl;
 }

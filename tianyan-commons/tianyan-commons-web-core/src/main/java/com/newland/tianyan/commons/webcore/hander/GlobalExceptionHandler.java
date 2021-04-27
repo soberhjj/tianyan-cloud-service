@@ -96,7 +96,7 @@ public class GlobalExceptionHandler {
         log.warn("抛出系统异常");
         e.printStackTrace();
         String loadBalance = "Load balancer";
-        if (e.getMessage()!=null && e.getMessage().contains(loadBalance)) {
+        if (e.getMessage() != null && e.getMessage().contains(loadBalance)) {
             return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SERVICE_NOT_SUPPORT, e.getMessage()));
         }
         return BaseExceptionConvert.toJsonObject(ExceptionSupport.toException(GlobalExceptionEnum.SYSTEM_ERROR));
@@ -119,11 +119,11 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.OK)
     public JsonErrorObject handleUnexpectedTypeException(Exception e) {
         log.warn("抛出参数异常");
-        ArgumentException argumentException = (ArgumentException) ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR,e.getMessage());
+        ArgumentException argumentException = (ArgumentException) ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR, e.getMessage());
         return BaseExceptionConvert.toJsonObject(argumentException);
     }
 
-    @ExceptionHandler({HttpMessageNotReadableException.class,InvalidFormatException.class, IllegalStateException.class})
+    @ExceptionHandler({HttpMessageNotReadableException.class, InvalidFormatException.class, IllegalStateException.class})
     @ResponseStatus(HttpStatus.OK)
     public JsonErrorObject handleHttpMessageNotReadableException(Exception e) {
         log.warn("抛出参数异常");
@@ -172,6 +172,11 @@ public class GlobalExceptionHandler {
             case "NotEmpty":
             case "NotBlank":
                 errorEnums = GlobalExceptionEnum.ARGUMENT_NOT_NULL;
+                break;
+            case "FaceFieldValid":
+            case "ActionTypeValid":
+            case "QualityControlValid":
+                errorEnums = GlobalExceptionEnum.ARGUMENT_INVALID_FORMAT;
                 break;
             default:
                 errorEnums = GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR;

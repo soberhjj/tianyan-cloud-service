@@ -43,14 +43,8 @@ public class FaceFieldValidator implements ConstraintValidator<FaceFieldValid, O
                 .collect(Collectors.toSet());
 
         boolean valid = true;
-        int failCount = 0;
         for (String item : arr) {
-            for (String benchmark : benchmarks) {
-                if (!item.equals(benchmark)) {
-                    failCount++;
-                }
-            }
-            if (failCount == benchmarks.size()) {
+            if(!benchmarks.contains(item)){
                 valid = false;
                 break;
             }

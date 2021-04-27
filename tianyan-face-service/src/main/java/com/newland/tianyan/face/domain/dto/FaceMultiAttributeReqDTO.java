@@ -23,5 +23,4 @@ public class FaceMultiAttributeReqDTO {
     @FaceFieldValid
     private String faceFields;
 
-
 }

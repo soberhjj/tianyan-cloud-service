@@ -6,3 +6,4 @@ target/
 *.iml
 LOG_PATH_IS_UNDEFINED/
 logs/
+*.log

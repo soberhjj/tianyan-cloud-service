@@ -4,10 +4,13 @@ import com.google.gson.JsonSyntaxException;
 import com.newland.tianya.commons.base.utils.GsonUtils;
 import com.newland.tianya.commons.base.utils.JsonUtils;
 import com.newland.tianyan.face.FaceServiceApplication;
+import com.newland.tianyan.face.dao.FaceMapper;
+import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.utils.FaceIdSlotHelper;
 import lombok.Data;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -22,6 +25,10 @@ import java.util.Set;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = FaceServiceApplication.class)
 public class DemoTest {
+
+    @Autowired
+    private FaceMapper faceMapper;
+
     @Data
     static class TargetObject {
         private int count;
@@ -83,4 +90,21 @@ public class DemoTest {
 
     }
 
+
+    @Test
+    public void testDB() throws Exception {
+        String userId = "test_user_1111111111111111111321";
+        int db = (userId.hashCode() & Integer.MAX_VALUE) % 2 + 1;
+        int table = ((userId.hashCode() ^ (userId.hashCode() >>> 16)) & (16 - 1)) + 1;
+        System.out.println("db:"+db);
+        System.out.println("table:"+table);
+    }
+
+    @Test
+    public void deleteFace() throws Exception {
+        String faceId = "1808000088080000101";
+        FaceDO faceDO = new FaceDO();
+        faceDO.setFaceId(faceId);
+        faceMapper.delete(faceDO);
+    }
 }

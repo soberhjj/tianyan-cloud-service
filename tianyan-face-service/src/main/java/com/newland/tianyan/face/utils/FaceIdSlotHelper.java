@@ -1,5 +1,7 @@
 package com.newland.tianyan.face.utils;
 
+import com.newland.tianya.commons.base.support.ExceptionSupport;
+import com.newland.tianyan.face.constant.ExceptionEnum;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
@@ -74,6 +76,9 @@ public class FaceIdSlotHelper {
     }
 
     public synchronized Integer pollNextValidId() {
+        if (lastValidIndexQueue.size()==0){
+            throw ExceptionSupport.toException(ExceptionEnum.OVER_FACE_MAX_NUMBER);
+        }
         Integer index = lastValidIndexQueue.poll();
         if (index != null) {
             idSlotList.get(index).setAsInvalid();
