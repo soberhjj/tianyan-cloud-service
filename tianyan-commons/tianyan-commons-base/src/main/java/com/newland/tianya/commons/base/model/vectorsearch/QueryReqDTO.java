@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -18,8 +21,13 @@ import java.util.List;
 @Builder
 public class QueryReqDTO {
 
+    @NotBlank
     private String appId;
+
+    @NotEmpty
     private List<Float> feature;
+
+    @NotNull
     private Integer topK;
 
 }

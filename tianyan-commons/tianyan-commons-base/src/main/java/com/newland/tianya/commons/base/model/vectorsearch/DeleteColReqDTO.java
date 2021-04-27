@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * @author: RojiaHuang
  * @description:
@@ -16,6 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DeleteColReqDTO {
 
+    @NotBlank
     private String appId;
 
 
