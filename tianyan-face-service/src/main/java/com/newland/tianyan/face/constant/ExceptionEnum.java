@@ -18,11 +18,6 @@ public enum ExceptionEnum implements IExceptionEnums {
      */
     PROTO_PARSE_ERROR(6011, "proto转换失败", ExceptionTypeEnums.SYSTEM_EXCEPTION),
     /**
-     * 存在性异常
-     */
-    WRONG_FACE_FIELD(6311, "param [face_field] format error", ExceptionTypeEnums.BUSINESS_EXCEPTION),
-    WRONG_ACTION_TYPE(6312, "param [action_type] format error", ExceptionTypeEnums.BUSINESS_EXCEPTION),
-    /**
      * app
      */
     APP_NOT_FOUND(6401, "app[{0}] is not found", ExceptionTypeEnums.BUSINESS_EXCEPTION),
@@ -47,6 +42,7 @@ public enum ExceptionEnum implements IExceptionEnums {
      */
     PICTURE_HAS_NO_FACE(6409, "pic has no face", ExceptionTypeEnums.ARGUMENT_EXCEPTION),
     OVER_FACE_MAX_NUMBER(6410, "the number of user's faces is beyond the limit", ExceptionTypeEnums.BUSINESS_EXCEPTION),
+    FACE_SLOT_OVER_SIZE(6415,"faceIdSlot of userInfo is over size",ExceptionTypeEnums.SYSTEM_EXCEPTION),
     FACE_NOT_FOUND(6411, "face is not exists", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     FACE_NOT_MATCH(6412, "no matching users found", ExceptionTypeEnums.BUSINESS_EXCEPTION),
     /**

@@ -5,10 +5,7 @@ import com.newland.tianya.commons.base.constants.TaskTypeEnums;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.model.proto.NLFace;
 import com.newland.tianya.commons.base.utils.ProtobufUtils;
-import com.newland.tianyan.face.domain.dto.FaceDetectReqDTO;
-import com.newland.tianyan.face.domain.dto.FaceSetFaceCompareReqDTO;
-import com.newland.tianyan.face.domain.dto.FaceSetFaceDetectReqDTO;
-import com.newland.tianyan.face.domain.dto.FaceSetFaceSearchReqDTO;
+import com.newland.tianyan.face.domain.dto.*;
 import com.newland.tianyan.face.service.FacesetFaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -37,12 +34,12 @@ public class FacesetFaceController {
     }
 
     @RequestMapping(value = "/multiAttribute", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage multiAttribute(@RequestBody @Valid FaceDetectReqDTO vo) {
+    public NLFace.CloudFaceSendMessage multiAttribute(@RequestBody @Valid FaceMultiAttributeReqDTO vo) {
         return facesetFaceService.multiAttribute(vo);
     }
 
     @RequestMapping(value = "/liveness", method = RequestMethod.POST)
-    public NLFace.CloudFaceSendMessage liveness(@RequestBody @Valid FaceDetectReqDTO vo) {
+    public NLFace.CloudFaceSendMessage liveness(@RequestBody @Valid FaceLiveNessReqDTO vo) {
         return facesetFaceService.liveness(vo);
     }
 

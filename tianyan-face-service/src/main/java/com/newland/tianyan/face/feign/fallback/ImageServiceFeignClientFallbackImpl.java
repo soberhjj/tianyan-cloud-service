@@ -2,10 +2,7 @@ package com.newland.tianyan.face.feign.fallback;
 
 
 import com.newland.tianya.commons.base.constants.GlobalExceptionEnum;
-import com.newland.tianya.commons.base.model.imagestrore.DownloadReqDTO;
-import com.newland.tianya.commons.base.model.imagestrore.DownloadResDTO;
-import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
-import com.newland.tianya.commons.base.model.imagestrore.UploadResDTO;
+import com.newland.tianya.commons.base.model.imagestrore.*;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
 import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import feign.hystrix.FallbackFactory;
@@ -13,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author: RojiaHuang
@@ -45,6 +44,26 @@ public class ImageServiceFeignClientFallbackImpl implements FallbackFactory<Imag
 
             @Override
             public void asyncUpload(@Valid UploadReqDTO uploadReq) {
+            }
+
+            @Override
+            public List<UploadResDTO> batchUpload(@Valid BatchUploadReqDTO batchUploadReqDTO) {
+                List<UploadResDTO> fallbackList = new ArrayList<>();
+                int size = batchUploadReqDTO.getImages().size();
+                for (int i = 0; i < size; i++) {
+                    fallbackList.add(UploadResDTO.builder().imagePath("fallback").build());
+                }
+                return fallbackList;
+            }
+
+            @Override
+            public List<DownloadResDTO> batchDownload(@Valid BatchDownloadReqDTO batchDownloadReqDTO) {
+                List<DownloadResDTO> fallbackList = new ArrayList<>();
+                int size = batchDownloadReqDTO.getImagesPath().size();
+                for (int i = 0; i < size; i++) {
+                    fallbackList.add(DownloadResDTO.builder().image("null").build());
+                }
+                return fallbackList;
             }
         };
     }

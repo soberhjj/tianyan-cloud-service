@@ -173,20 +173,22 @@ public class FacesetUserServiceImpl implements FacesetUserService {
                 }
             }
         }
-        //封装复制人脸信息
-        long faceCount = 0L;
-        FaceIdSlotHelper faceIdSlotHelper = new FaceIdSlotHelper(targetUserInfoDO.getFaceIdSlot());
-        for (FaceDO faceDO : srcFace) {
-            FaceDO insertFace = this.convertCopyFace(faceDO, faceIdSlotHelper.pollNextValidId(), targetUserInfoDO, dstGroupInfo);
-            insertFace.setId(insertFace.getId() + ++faceCount);
-            insertList.add(insertFace);
+        if(!CollectionUtils.isEmpty(srcFace)){
+            //封装复制人脸信息
+            long faceCount = 0L;
+            FaceIdSlotHelper faceIdSlotHelper = new FaceIdSlotHelper(targetUserInfoDO.getFaceIdSlot());
+            for (FaceDO faceDO : srcFace) {
+                FaceDO insertFace = this.convertCopyFace(faceDO, faceIdSlotHelper.pollNextValidId(), targetUserInfoDO, dstGroupInfo);
+                insertFace.setId(insertFace.getId() + ++faceCount);
+                insertList.add(insertFace);
+            }
+            log.info("人脸复制-请求向量搜索服务添加人脸");
+            faceMapper.insertBatch(insertList);
+            //存在同名用户：组下用户数+0，人脸数+新增数
+            publisher.publishEvent(new FaceCreateEvent(appId, dstGroupId, userId, targetUserInfoDO.getFaceIdSlot(),
+                    insertList.stream().map(FaceDO::getId).collect(Collectors.toList())));
+            faceCacheHelper.addBatch(insertList);
         }
-        log.info("人脸复制-请求向量搜索服务添加人脸");
-        faceMapper.insertBatch(insertList);
-        //存在同名用户：组下用户数+0，人脸数+新增数
-        publisher.publishEvent(new FaceCreateEvent(appId, dstGroupId, userId, targetUserInfoDO.getFaceIdSlot(),
-                insertList.stream().map(FaceDO::getId).collect(Collectors.toList())));
-        faceCacheHelper.addBatch(insertList);
     }
 
     private FaceDO convertCopyFace(FaceDO targetFace, Integer nextFaceNo, UserInfoDO userInfoDO, GroupInfoDO targetGroup) {

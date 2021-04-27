@@ -73,7 +73,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         //参数验证
         String image = ImageCheckUtils.imageCheckAndFormatting(receive.getImage());
         String actionType = receive.getActionType();
-        this.checkOperationType(actionType);
         qualityCheckService.checkQuality(receive.getQualityControl(), image);
 
         FaceDO insertFaceDO = new FaceDO();
@@ -93,11 +92,9 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         //对于不存在的用户进行新建
         UserInfoDO queryUser = ProtobufUtils.parseTo(receive, UserInfoDO.class);
         queryUser.setGid(groupInfoDO.getId());
-        queryUser.setUserInfo(receive.getUserInfo());
         UserInfoDO userInfoDO = this.getExistedUser(queryUser);
-        if (userInfoDO.getFaceNumber() > MAX_FACE_NUMBER) {
-            throw new BusinessException(ExceptionEnum.OVER_FACE_MAX_NUMBER.getErrorCode(),
-                    ExceptionEnum.OVER_FACE_MAX_NUMBER.getErrorMsg());
+        if (userInfoDO.getFaceNumber() >= MAX_FACE_NUMBER) {
+            throw ExceptionSupport.toException(ExceptionEnum.OVER_FACE_MAX_NUMBER);
         }
         insertFaceDO.setUid(userInfoDO.getId());
         insertFaceDO.setUserId(userInfoDO.getUserId());
@@ -114,7 +111,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             faceCacheHelper.add(insertFaceDO);
         } else {
 
-            if (ACTION_TYPE_APPEND.equals(actionType)) {
+            if (ACTION_TYPE_APPEND.equals(actionType) || StringUtils.isEmpty(actionType)) {
                 log.info("人脸添加-追加人脸append");
                 faceMapper.insertSelective(insertFaceDO);
                 publisher.publishEvent(new FaceCreateEvent(appId, groupId, userId,
@@ -144,20 +141,6 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         return insertFaceDO;
     }
 
-    private void checkOperationType(String operationType) {
-        if (StringUtils.isEmpty(operationType)) {
-            return;
-        }
-        String[] arr = operationType.split(",");
-        for (String item : arr) {
-            boolean append = ACTION_TYPE_APPEND.equals(item);
-            boolean replace = ACTION_TYPE_REPLACE.equals(item);
-            if ((!append) && (!replace)) {
-                throw ExceptionSupport.toException(ExceptionEnum.WRONG_ACTION_TYPE);
-            }
-        }
-    }
-
     private GroupInfoDO getExistedGroup(Long appId, String groupId) {
         GroupInfoDO groupInfoDO = new GroupInfoDO();
         groupInfoDO.setAppId(appId);
@@ -184,27 +167,31 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     }
 
     private UserInfoDO getExistedUser(UserInfoDO sourceUser) {
-        UserInfoDO queryCondition = sourceUser;
-        sourceUser = userInfoMapper.selectOne(queryCondition);
-        if (sourceUser == null) {
-            log.info("人脸添加-目标用户不存在{}", JsonUtils.toJson(queryCondition));
+        UserInfoDO queryResult = new UserInfoDO();
+        queryResult.setAppId(sourceUser.getAppId());
+        queryResult.setGid(sourceUser.getGid());
+        queryResult.setUserId(sourceUser.getUserId());
+        queryResult = userInfoMapper.selectOne(queryResult);
+        if (queryResult == null) {
+            log.info("人脸添加-目标用户不存在{}", JsonUtils.toJson(queryResult));
             UserInfoDO userInfoDO = new UserInfoDO();
-            userInfoDO.setAppId(queryCondition.getAppId());
-            userInfoDO.setGid(queryCondition.getGid());
-            userInfoDO.setGroupId(queryCondition.getGroupId());
-            userInfoDO.setUserId(queryCondition.getUserId());
-            userInfoDO.setUserInfo(queryCondition.getUserInfo());
+            userInfoDO.setAppId(sourceUser.getAppId());
+            userInfoDO.setGid(sourceUser.getGid());
+            userInfoDO.setGroupId(sourceUser.getGroupId());
+            userInfoDO.setUserId(sourceUser.getUserId());
+            String userInfo = sourceUser.getUserInfo();
+            userInfoDO.setUserInfo(StringUtils.isEmpty(userInfo)?" ":userInfo);
             userInfoDO.setFaceNumber(0);
-            if (!StringUtils.isEmpty(queryCondition.getUserName())) {
-                userInfoDO.setUserName(queryCondition.getUserName());
+            if (!StringUtils.isEmpty(sourceUser.getUserName())) {
+                userInfoDO.setUserName(sourceUser.getUserName());
             } else {
-                userInfoDO.setUserName(queryCondition.getUserId());
+                userInfoDO.setUserName(sourceUser.getUserId());
             }
             userInfoMapper.insertGetId(userInfoDO);
             log.info("人脸添加-新建用户成功{}", JsonUtils.toJson(userInfoDO));
-            sourceUser = userInfoDO;
+            queryResult = userInfoDO;
         }
-        return sourceUser;
+        return queryResult;
     }
 
     private void handleFeatures(FaceDO faceDO, String image) {

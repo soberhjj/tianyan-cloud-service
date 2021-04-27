@@ -1,6 +1,4 @@
-package com.newland.tianya.commons.base.annotation;
-
-import com.newland.tianya.commons.base.support.IntegerValidator;
+package com.newland.tianyan.face.validate;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -14,8 +12,8 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = IntegerValidator.class)
-public @interface IntegerValid {
+@Constraint(validatedBy = ActionTypeValidator.class)
+public @interface ActionTypeValid {
 
     String message() default "";
 
