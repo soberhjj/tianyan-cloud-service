@@ -1,9 +1,6 @@
 package com.newland.tianyan.face.domain.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -13,6 +10,7 @@ import javax.persistence.Transient;
  * @Author: huangJunJie  2020-11-04 09:20
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString

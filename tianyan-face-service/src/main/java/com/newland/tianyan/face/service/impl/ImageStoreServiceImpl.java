@@ -1,9 +1,6 @@
 package com.newland.tianyan.face.service.impl;
 
-import com.newland.tianya.commons.base.model.imagestrore.DownloadReqDTO;
-import com.newland.tianya.commons.base.model.imagestrore.DownloadResDTO;
-import com.newland.tianya.commons.base.model.imagestrore.UploadReqDTO;
-import com.newland.tianya.commons.base.model.imagestrore.UploadResDTO;
+import com.newland.tianya.commons.base.model.imagestrore.*;
 import com.newland.tianyan.face.feign.client.ImageStoreFeignService;
 import com.newland.tianyan.face.service.ImageStoreService;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +9,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author: RojiaHuang
@@ -26,10 +24,22 @@ public class ImageStoreServiceImpl implements ImageStoreService {
     private ImageStoreFeignService imageStorageService;
 
     @Override
+    public List<DownloadResDTO> batchDownload(List<String> images) throws IOException {
+        BatchDownloadReqDTO batchDownloadReqDTO = BatchDownloadReqDTO.builder().imagesPath(images).build();
+        return imageStorageService.batchDownload(batchDownloadReqDTO);
+    }
+
+    @Override
     public String download(String image) {
         DownloadResDTO resDTO = imageStorageService.download(DownloadReqDTO.builder().imagePath(image).build());
         // maybe null
         return resDTO.getImage();
+    }
+
+    @Override
+    public List<UploadResDTO> batchUpload(List<String> images) throws IOException {
+        BatchUploadReqDTO batchUploadReqDTO = BatchUploadReqDTO.builder().images(images).build();
+        return imageStorageService.batchUpload(batchUploadReqDTO);
     }
 
     @Override
@@ -40,7 +50,7 @@ public class ImageStoreServiceImpl implements ImageStoreService {
     @Override
     @Async("asyncPool")
     public void uploadAsync(String image) throws IOException {
-        log.debug("current-thread:{}",Thread.currentThread().getName());
+        log.debug("current-thread:{}", Thread.currentThread().getName());
         imageStorageService.asyncUpload(UploadReqDTO.builder().image(image).build());
     }
 }

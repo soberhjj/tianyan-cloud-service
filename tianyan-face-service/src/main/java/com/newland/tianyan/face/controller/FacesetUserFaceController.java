@@ -78,7 +78,7 @@ public class FacesetUserFaceController {
      * 获取人脸列表
      */
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
-    public NLPage.BackendFacesetPageMessage getList(@RequestBody @Valid FaceSetUserFaceGetListReqDTO receive) {
+    public NLPage.BackendFacesetPageMessage getList(@RequestBody @Valid FaceSetUserFaceGetListReqDTO receive)throws Exception{
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         List<FaceDO> list = facesetUserFaceService.getList(request);
         return ProtobufUtils.buildFacesetPageMessage(list, list.size());

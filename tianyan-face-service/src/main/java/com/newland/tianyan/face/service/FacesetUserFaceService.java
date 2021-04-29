@@ -14,7 +14,7 @@ public interface FacesetUserFaceService {
 
     FaceDO create(NLBackend.BackendAllRequest receive) throws IOException;
 
-    List<FaceDO> getList(NLBackend.BackendAllRequest receive);
+    List<FaceDO> getList(NLBackend.BackendAllRequest receive) throws IOException;
 
     void delete(NLBackend.BackendAllRequest receive);
 }

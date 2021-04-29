@@ -95,8 +95,8 @@ public class GroupInfoServiceImpl implements GroupInfoService {
         }
 
         //todo 删除该组所有用户的所有人脸-可以做个闲时的人脸删除
-        List<Long> faceIdList = faceMapper.selectIdByGroupId(groupToDelete.getGroupId());
-        faceCacheHelper.deleteBatch(groupInfoDO.getAppId(), faceIdList);
+//        List<Long> faceIdList = faceMapper.selectIdByGroupId(groupToDelete.getGroupId());
+//        faceCacheHelper.deleteBatch(groupInfoDO.getAppId(), faceIdList);
 
         //逻辑删除
         groupInfoMapper.updateToDelete(EntityStatusConstants.DELETE, groupToDelete.getId());

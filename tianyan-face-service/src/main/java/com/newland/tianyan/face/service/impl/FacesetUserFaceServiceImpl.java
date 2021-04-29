@@ -2,6 +2,7 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.newland.tianya.commons.base.model.imagestrore.DownloadResDTO;
 import com.newland.tianya.commons.base.model.imagestrore.UploadResDTO;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.model.proto.NLFace;
@@ -40,7 +41,10 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.newland.tianyan.face.constant.BusinessArgumentConstants.*;
 
@@ -206,33 +210,55 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     }
 
     @Override
-    public List<FaceDO> getList(NLBackend.BackendAllRequest receive) {
-        FaceDO query = ProtobufUtils.parseTo(receive, FaceDO.class);
+    public List<FaceDO> getList(NLBackend.BackendAllRequest receive) throws IOException {
+        Long appId = receive.getAppId();
+        String groupId = receive.getGroupId();
+        String userId = receive.getUserId();
         GroupInfoDO groupInfoDO = new GroupInfoDO();
-        groupInfoDO.setAppId(query.getAppId());
-        groupInfoDO.setGroupId(query.getGroupId());
+        groupInfoDO.setAppId(appId);
+        groupInfoDO.setGroupId(groupId);
         groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
         if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
             throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, receive.getGroupId());
         }
         //todo face增加索引
-        PageInfo<FaceDO> facePageInfo = PageHelper.startPage(query.getStartIndex() + 1, query.getLength())
+        PageInfo<FaceDO> facePageInfo = PageHelper.startPage(receive.getStartIndex() + 1, receive.getLength())
                 .setOrderBy("create_time desc")
                 .doSelectPageInfo(
-                        () -> faceMapper.select(query));
+                        () -> {
+                            FaceDO query = FaceDO.builder()
+                                    .userId(userId)
+                                    .appId(appId)
+                                    .groupId(groupId)
+                                    .build();
+                            faceMapper.select(query);
+                        });
 
-        List<FaceDO> face = facePageInfo.getList();
-        if (CollectionUtils.isEmpty(face)) {
-            return face;
+        List<FaceDO> faceList = facePageInfo.getList();
+        if (CollectionUtils.isEmpty(faceList)) {
+            return faceList;
         }
-        //todo 批量查询提高效率
-        for (FaceDO faceDO : face) {
-            if (faceDO.getImagePath() != null) {
-                faceDO.setImage(imageStorageService.download(faceDO.getImagePath()));
+
+        List<String> imagePath = faceList.stream()
+                .map(FaceDO::getImagePath)
+                .filter(item -> !StringUtils.isEmpty(item))
+                .collect(Collectors.toList());
+        List<DownloadResDTO> downloadResDTOList = imageStorageService.batchDownload(imagePath);
+        if (!CollectionUtils.isEmpty(downloadResDTOList)) {
+            List<String> images = downloadResDTOList.stream().map(DownloadResDTO::getImage).collect(Collectors.toList());
+            Map<String, String> pathKeyImageValues = new HashMap<>(images.size());
+            for (int i = 0; i < images.size(); i++) {
+                pathKeyImageValues.put(imagePath.get(i), images.get(i));
             }
-            faceDO.setFaceId(faceDO.getId().toString());
+
+            faceList.forEach(faceItem -> {
+                String key = faceItem.getImagePath();
+                if (pathKeyImageValues.containsKey(key)) {
+                    faceItem.setImage(pathKeyImageValues.get(key));
+                }
+            });
         }
-        return face;
+        return faceList;
     }
 
     /**
