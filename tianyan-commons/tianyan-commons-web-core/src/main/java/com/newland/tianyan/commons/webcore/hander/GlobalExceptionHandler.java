@@ -173,11 +173,11 @@ public class GlobalExceptionHandler {
             case "NotBlank":
                 errorEnums = GlobalExceptionEnum.ARGUMENT_NOT_NULL;
                 break;
-            case "FaceFieldValid":
-            case "ActionTypeValid":
-            case "QualityControlValid":
-                errorEnums = GlobalExceptionEnum.ARGUMENT_INVALID_FORMAT;
-                break;
+//            case "FaceFieldValid":
+//            case "ActionTypeValid":
+//            case "QualityControlValid":
+//                errorEnums = GlobalExceptionEnum.ARGUMENT_INVALID_FORMAT;
+//                break;
             default:
                 errorEnums = GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR;
         }

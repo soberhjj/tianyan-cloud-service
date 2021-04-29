@@ -17,6 +17,6 @@ public class QualityControlValidator implements ConstraintValidator<QualityContr
     @Override
     public boolean isValid(Object o, ConstraintValidatorContext constraintValidatorContext) {
         Integer value = (Integer) o;
-        return value == null || value == 1 || value == 2 || value == 3;
+        return value == null || value == 0 || value == 1 || value == 2 || value == 3;
     }
 }
