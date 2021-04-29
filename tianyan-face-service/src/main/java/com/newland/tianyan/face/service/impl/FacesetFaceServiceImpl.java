@@ -10,6 +10,7 @@ import com.newland.tianya.commons.base.utils.FeaturesTool;
 import com.newland.tianya.commons.base.utils.ImageCheckUtils;
 import com.newland.tianya.commons.base.utils.LogIdUtils;
 import com.newland.tianyan.face.constant.ExceptionEnum;
+import com.newland.tianyan.face.constant.VerifyConstant;
 import com.newland.tianyan.face.dao.UserInfoMapper;
 import com.newland.tianyan.face.domain.dto.*;
 import com.newland.tianyan.face.domain.entity.FaceDO;
@@ -117,6 +118,10 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                 if (!gidWithGroupIdMaps.containsKey(gid)) {
                     continue;
                 }
+                //剔除非选定用户的记录
+                if (uidWithUserInfoMaps!=null && !uidWithUserInfoMaps.containsKey(item.getUid())){
+                    continue;
+                }
                 //剔除同组同用户的记录
                 String vectorId = item.getVectorId().toString();
                 String gidUid = vectorId.substring(0, vectorId.length() - 2);
@@ -165,10 +170,15 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             throw ExceptionSupport.toException(ExceptionEnum.OVER_GROUP_MAX_NUMBER);
         }
 
+        int failCount = 0;
         for (String item : groupIdSet) {
-            if (item.length() > MAX_GROUP_LENGTH) {
-                throw ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR, "group_id:" + item);
+            if (!item.matches(VerifyConstant.GROUP_ID_OLD)) {
+                failCount++;
             }
+        }
+
+        if (failCount == groupIdSet.size()) {
+            throw ExceptionSupport.toException(GlobalExceptionEnum.ARGUMENT_FORMAT_ERROR, "group_id:" + groupIdSet.toString());
         }
         return groupIdSet;
     }
@@ -180,12 +190,15 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         int groupEmptyUserCounters = 0;
         Map<Long, String> effectiveGidMaps = new HashMap<>(groupList.size());
         for (GroupInfoDO item : groupList) {
-            if (item.getFaceNumber() == 0) {
-                groupEmptyFaceCounters++;
-            }
             if (item.getUserNumber() == 0) {
                 groupEmptyUserCounters++;
+                continue;
             }
+            if (item.getFaceNumber() == 0) {
+                groupEmptyFaceCounters++;
+                continue;
+            }
+
             effectiveGidMaps.put(item.getId(), item.getGroupId());
         }
 
@@ -214,7 +227,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         List<UserInfoDO> userInfoList = userInfoMapper.queryBatch(appId, null, uidIdSet, null);
         if (CollectionUtils.isEmpty(userInfoList)) {
             log.info("人脸搜索，查询用户组用户信息为空...");
-            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND);
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, uidIdSet.toString());
         }
         Map<Long, UserInfoDO> uidWithUserInfoMaps = new HashMap<>(userInfoList.size());
         userInfoList.forEach(userInfoDO -> uidWithUserInfoMaps.putIfAbsent(userInfoDO.getId(), userInfoDO));

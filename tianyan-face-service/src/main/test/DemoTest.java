@@ -14,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.newland.tianyan.face.constant.VerifyConstant.GROUP_ID;
 
 /**
  * @author: RojiaHuang
@@ -93,7 +96,7 @@ public class DemoTest {
 
     @Test
     public void testDB() throws Exception {
-        String userId = "test_user_1111111111111111111321";
+        String userId = "face_delete_user_111111111110041";
         int db = (userId.hashCode() & Integer.MAX_VALUE) % 2 + 1;
         int table = ((userId.hashCode() ^ (userId.hashCode() >>> 16)) & (16 - 1)) + 1;
         System.out.println("db:"+db);
@@ -106,5 +109,17 @@ public class DemoTest {
         FaceDO faceDO = new FaceDO();
         faceDO.setFaceId(faceId);
         faceMapper.delete(faceDO);
+    }
+
+    @Test
+    public void checkStringMatch() throws Exception {
+        String groupId = "&4AAQSkZJRgABAQAAAQABAAD_2wBDAAA0";
+        System.out.println(groupId.matches(GROUP_ID));
+    }
+
+    @Test
+    public void checkString() throws Exception {
+        Set<String> stringSet = new HashSet<>(Arrays.asList("a,v,b,c".split(",")));
+        System.out.println("test:"+stringSet.toString());
     }
 }

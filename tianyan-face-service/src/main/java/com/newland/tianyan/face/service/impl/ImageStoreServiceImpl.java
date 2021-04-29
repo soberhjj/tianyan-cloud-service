@@ -33,9 +33,8 @@ public class ImageStoreServiceImpl implements ImageStoreService {
     }
 
     @Override
-    public String upload(String image) throws IOException {
-        UploadResDTO uploadResDTO = imageStorageService.uploadV2(UploadReqDTO.builder().image(image).build());
-        return uploadResDTO.getImagePath();
+    public UploadResDTO upload(String image) throws IOException {
+        return imageStorageService.uploadV2(UploadReqDTO.builder().image(image).build());
     }
 
     @Override

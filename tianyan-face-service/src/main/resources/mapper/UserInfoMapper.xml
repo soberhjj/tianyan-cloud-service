@@ -21,25 +21,6 @@
           AND user_id = #{userId}
     </update>
 
-    <select id="getGroupId" resultType="String">
-        SELECT
-        DISTINCT
-        a.group_id
-        FROM
-        user_info a
-        <where>
-            <if test="appId != null and appId != '' ">
-                a.app_id = #{appId}
-            </if>
-            <if test="userId != null and userId != '' ">
-                AND a.user_id = #{userId}
-            </if>
-            <if test="groupId != null and groupId != ''">
-                AND a.group_id = #{groupId}
-            </if>
-        </where>
-    </select>
-
     <insert id="insertGetId" parameterType="com.newland.tianyan.face.domain.entity.UserInfoDO" useGeneratedKeys="true"
             keyProperty="id"
             keyColumn="id">

@@ -272,13 +272,25 @@ public class ProtobufUtils {
         return buildFacesetSendMessage(LogIdUtils.traceId(), results, count);
     }
 
-    public static NLBackend.BackendFacesetSendMessage buildFacesetSendMessage(String faceId) {
-        NLBackend.BackendFacesetSendMessage.Builder builder = NLBackend.BackendFacesetSendMessage.newBuilder();
+    public static NLBackend.BackendUserInfoMessage buildUserInfoMessage(List results, long count) {
+        NLBackend.BackendUserInfoMessage.Builder builder = NLBackend.BackendUserInfoMessage.newBuilder();
         builder.setLogId(LogIdUtils.traceId());
-        builder.setFaceId(faceId);
+        builder.setCount((int) count);
+
+        NLBackend.BackendUserInfoMessage.BackendFacesetTableMessage.Builder tableBuilder =
+                NLBackend.BackendUserInfoMessage.BackendFacesetTableMessage.newBuilder();
+
+        for (Object result : results) {
+            String jsonFormat = JSON.toJSONString(result, getConfig());
+            try {
+                JsonFormat.merge(jsonFormat, tableBuilder);
+                builder.addUserResult(tableBuilder);
+            } catch (JsonFormat.ParseException e) {
+                e.printStackTrace();
+            }
+        }
         return builder.build();
     }
-
 
     public static NLBackend.BackendFacesetSendMessage buildFacesetSendMessage(String logId, List results, long count) {
         NLBackend.BackendFacesetSendMessage.Builder builder = NLBackend.BackendFacesetSendMessage.newBuilder();

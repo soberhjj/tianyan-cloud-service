@@ -55,9 +55,9 @@ public class FacesetUserController {
     }
 
     @RequestMapping(value = "/getInfo", method = RequestMethod.POST)
-    public NLBackend.BackendFacesetSendMessage getInfo(@RequestBody @Valid FaceSetUserMessageReqDTO receive) {
+    public NLBackend.BackendUserInfoMessage getInfo(@RequestBody @Valid FaceSetUserMessageReqDTO receive) {
         NLBackend.BackendAllRequest request = ProtobufUtils.toBackendAllRequest(receive, TaskTypeEnums.BACKEND_APP_GET_INFO);
         List<UserInfoDO> info = facesetUserService.getInfo(request);
-        return ProtobufUtils.buildFacesetSendMessage(info, info.size());
+        return ProtobufUtils.buildUserInfoMessage(info, info.size());
     }
 }

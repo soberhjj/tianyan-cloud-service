@@ -2,7 +2,7 @@ package com.newland.tianyan.face.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.newland.tianya.commons.base.exception.BusinessException;
+import com.newland.tianya.commons.base.model.imagestrore.UploadResDTO;
 import com.newland.tianya.commons.base.model.proto.NLBackend;
 import com.newland.tianya.commons.base.model.proto.NLFace;
 import com.newland.tianya.commons.base.support.ExceptionSupport;
@@ -30,6 +30,7 @@ import com.newland.tianyan.face.service.ImageStoreService;
 import com.newland.tianyan.face.utils.FaceIdSlotHelper;
 import com.newland.tianyan.face.utils.VectorSearchKeyUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -77,7 +78,9 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
         FaceDO insertFaceDO = new FaceDO();
         log.info("人脸添加-提交图片至存储服务");
-        insertFaceDO.setImagePath(imageStorageService.upload(image));
+        UploadResDTO uploadResDTO = imageStorageService.upload(image);
+        insertFaceDO.setImagePath(uploadResDTO.getImagePath());
+        insertFaceDO.setPhotoSign(uploadResDTO.getImagePath());
         log.info("人脸添加-请求图片特征值");
         this.handleFeatures(insertFaceDO, image);
         insertFaceDO.setAppId(receive.getAppId());
@@ -180,7 +183,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             userInfoDO.setGroupId(sourceUser.getGroupId());
             userInfoDO.setUserId(sourceUser.getUserId());
             String userInfo = sourceUser.getUserInfo();
-            userInfoDO.setUserInfo(StringUtils.isEmpty(userInfo)?" ":userInfo);
+            userInfoDO.setUserInfo(StringUtils.isEmpty(userInfo) ? " " : userInfo);
             userInfoDO.setFaceNumber(0);
             if (!StringUtils.isEmpty(sourceUser.getUserName())) {
                 userInfoDO.setUserName(sourceUser.getUserName());
@@ -220,7 +223,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
         List<FaceDO> face = facePageInfo.getList();
         if (CollectionUtils.isEmpty(face)) {
-            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
+            return face;
         }
         //todo 批量查询提高效率
         for (FaceDO faceDO : face) {
@@ -241,21 +244,26 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         FaceDO query = ProtobufUtils.parseTo(receive, FaceDO.class);
         query.setId(Long.parseLong(query.getFaceId()));
 
+        Long gid = null;
         //检查group_info表中是否存在该group_id
         if (!StringUtils.isEmpty(receive.getGroupId())) {
             GroupInfoDO groupInfoDO = new GroupInfoDO();
             groupInfoDO.setAppId(groupInfoDO.getAppId());
             groupInfoDO.setGroupId(groupInfoDO.getGroupId());
             groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
-            if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
+            groupInfoDO = groupInfoMapper.selectOne(groupInfoDO);
+            if (groupInfoDO == null) {
                 throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, query.getGroupId());
             }
+            gid = groupInfoDO.getId();
         }
 
         //检查user_info表中是否存在该user_id
         UserInfoDO userInfoDO = new UserInfoDO();
         userInfoDO.setAppId(receive.getAppId());
-        userInfoDO.setGroupId(receive.getGroupId());
+        if (gid != null) {
+            userInfoDO.setGid(gid);
+        }
         userInfoDO.setUserId(receive.getUserId());
         userInfoDO = userInfoMapper.selectOne(userInfoDO);
         if (userInfoDO == null) {
@@ -263,7 +271,10 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         }
 
         //然后直接去face表中查询是否存在这张人脸图片的记录，若不存在则抛出异常，存在则删除该人脸
-        FaceDO faceDO = faceMapper.selectOne(query);
+        FaceDO queryFace = new FaceDO();
+        BeanUtils.copyProperties(userInfoDO, queryFace);
+        queryFace.setId(null);
+        FaceDO faceDO = faceMapper.selectOne(queryFace);
         if (faceDO == null) {
             throw ExceptionSupport.toException(ExceptionEnum.FACE_NOT_FOUND);
         }

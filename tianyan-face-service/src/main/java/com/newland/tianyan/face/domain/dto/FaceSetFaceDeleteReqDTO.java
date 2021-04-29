@@ -27,7 +27,6 @@ public class FaceSetFaceDeleteReqDTO {
     @Pattern(regexp = VerifyConstant.USER_ID_OLD)
     private String userId;
 
-    @NotBlank
     @Pattern(regexp = VerifyConstant.GROUP_ID_OLD)
     private String groupId;
 

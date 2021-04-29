@@ -1,5 +1,7 @@
 package com.newland.tianyan.face.service;
 
+import com.newland.tianya.commons.base.model.imagestrore.UploadResDTO;
+
 import java.io.IOException;
 
 /**
@@ -11,7 +13,7 @@ public interface ImageStoreService {
 
     String download(String image);
 
-    String upload(String image) throws IOException;
+    UploadResDTO upload(String image) throws IOException;
 
     void uploadAsync(String image) throws IOException;
 }
