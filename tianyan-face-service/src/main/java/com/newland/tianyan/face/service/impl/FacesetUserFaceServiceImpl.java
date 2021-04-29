@@ -218,10 +218,20 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         groupInfoDO.setAppId(appId);
         groupInfoDO.setGroupId(groupId);
         groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
-        if (groupInfoMapper.selectCount(groupInfoDO) <= 0) {
+        groupInfoDO = groupInfoMapper.selectOne(groupInfoDO);
+        if (groupInfoDO == null) {
             throw ExceptionSupport.toException(ExceptionEnum.GROUP_NOT_FOUND, receive.getGroupId());
         }
-        //todo face增加索引
+
+        UserInfoDO userInfoDO = UserInfoDO.builder()
+                .appId(appId)
+                .gid(groupInfoDO.getId())
+                .userId(userId)
+                .build();
+        if (userInfoMapper.selectCount(userInfoDO) == 0) {
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
+        }
+
         PageInfo<FaceDO> facePageInfo = PageHelper.startPage(receive.getStartIndex() + 1, receive.getLength())
                 .setOrderBy("create_time desc")
                 .doSelectPageInfo(
@@ -269,13 +279,15 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
     public void delete(NLBackend.BackendAllRequest receive) {
         FaceDO query = ProtobufUtils.parseTo(receive, FaceDO.class);
         query.setId(Long.parseLong(query.getFaceId()));
-
+        Long appId = receive.getAppId();
+        String groupId = receive.getGroupId();
+        String userId = receive.getUserId();
         Long gid = null;
         //检查group_info表中是否存在该group_id
-        if (!StringUtils.isEmpty(receive.getGroupId())) {
+        if (!StringUtils.isEmpty(groupId)) {
             GroupInfoDO groupInfoDO = new GroupInfoDO();
-            groupInfoDO.setAppId(groupInfoDO.getAppId());
-            groupInfoDO.setGroupId(groupInfoDO.getGroupId());
+            groupInfoDO.setAppId(appId);
+            groupInfoDO.setGroupId(groupId);
             groupInfoDO.setIsDelete(EntityStatusConstants.NOT_DELETE);
             groupInfoDO = groupInfoMapper.selectOne(groupInfoDO);
             if (groupInfoDO == null) {
@@ -286,14 +298,14 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
 
         //检查user_info表中是否存在该user_id
         UserInfoDO userInfoDO = new UserInfoDO();
-        userInfoDO.setAppId(receive.getAppId());
+        userInfoDO.setAppId(appId);
         if (gid != null) {
             userInfoDO.setGid(gid);
         }
-        userInfoDO.setUserId(receive.getUserId());
+        userInfoDO.setUserId(userId);
         userInfoDO = userInfoMapper.selectOne(userInfoDO);
         if (userInfoDO == null) {
-            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, query.getUserId());
+            throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, userId);
         }
 
         //然后直接去face表中查询是否存在这张人脸图片的记录，若不存在则抛出异常，存在则删除该人脸
@@ -306,7 +318,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
         }
 
         //缓存中删除用户指定的人脸
-        faceCacheHelper.delete(query.getAppId(), faceDO.getId());
+        faceCacheHelper.delete(faceDO.getAppId(), faceDO.getId());
         //物理删除人脸
         faceMapper.delete(query);
 
