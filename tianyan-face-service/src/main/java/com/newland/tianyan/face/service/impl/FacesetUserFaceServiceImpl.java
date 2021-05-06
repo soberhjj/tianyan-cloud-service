@@ -232,7 +232,7 @@ public class FacesetUserFaceServiceImpl implements FacesetUserFaceService {
             throw ExceptionSupport.toException(ExceptionEnum.USER_NOT_FOUND, receive.getUserId());
         }
 
-        PageInfo<FaceDO> facePageInfo = PageHelper.startPage(receive.getStartIndex() + 1, receive.getLength())
+        PageInfo<FaceDO> facePageInfo = PageHelper.startPage(receive.getStartIndex() , receive.getLength())
                 .setOrderBy("create_time desc")
                 .doSelectPageInfo(
                         () -> {

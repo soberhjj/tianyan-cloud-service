@@ -17,8 +17,8 @@
         SET face_number = face_number - #{count},
         face_id_slot = #{faceIdSlot}
         WHERE app_id = #{appId}
-          AND group_id = #{groupId}
           AND user_id = #{userId}
+          AND group_id = #{groupId}
     </update>
 
     <insert id="insertGetId" parameterType="com.newland.tianyan.face.domain.entity.UserInfoDO" useGeneratedKeys="true"

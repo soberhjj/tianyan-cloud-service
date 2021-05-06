@@ -108,30 +108,39 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
             int countTopK = 0;
             List<FaceSearchVo> faceList = new ArrayList<>(maxUserNum);
             Set<String> gidUidKeySet = new HashSet<>(vectorResultList.size());
+            log.debug("筛选用户组信息before:{}", gidWithGroupIdMaps.toString());
             //留存有效用户组结果
             for (FaceSearchVo item : vectorResultList) {
                 if (countTopK >= maxUserNum) {
+                    log.debug("countTopK:{}", countTopK);
                     break;
                 }
                 //剔除非选定用户组的记录
                 Long gid = item.getGid();
                 if (!gidWithGroupIdMaps.containsKey(gid)) {
+                    log.debug("剔除非选定用户组的记录:gid:{}", gid);
                     continue;
                 }
+                log.debug("filter符合选定用户组的记录:gid:{}", gid);
                 //剔除非选定用户的记录
-                if (uidWithUserInfoMaps!=null && !uidWithUserInfoMaps.containsKey(item.getUid())){
+                if (uidWithUserInfoMaps != null && !uidWithUserInfoMaps.containsKey(item.getUid())) {
+                    log.debug("剔除非选定用户的记录:uidWithUserInfoMaps:{}", uidWithUserInfoMaps.toString());
+                    log.debug("剔除非选定用户的记录:uid:{}", item.getUid());
                     continue;
                 }
                 //剔除同组同用户的记录
                 String vectorId = item.getVectorId().toString();
                 String gidUid = vectorId.substring(0, vectorId.length() - 2);
                 if (gidUidKeySet.contains(gidUid)) {
+                    log.debug("剔除同组同用户的记录:gidUidKeySet:{}", gidUidKeySet.toString());
+                    log.debug("剔除同组同用户的记录:gidUid:{}", gidUid);
                     continue;
                 }
                 faceList.add(item);
                 gidUidKeySet.add(gidUid);
                 countTopK++;
             }
+            log.debug("筛选用户组信息after:{}", gidUidKeySet.toString());
             //留存有效用户结果
             if (!CollectionUtils.isEmpty(faceList)) {
                 if (uidWithUserInfoMaps == null) {
@@ -140,6 +149,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                 }
             }
             if (gidWithGroupIdMaps.size() > 0 && uidWithUserInfoMaps != null && uidWithUserInfoMaps.size() > 0) {
+                log.debug("筛选用户信息{}", uidWithUserInfoMaps.toString());
                 for (FaceSearchVo item : faceList) {
                     Long uid = item.getUid();
                     Long gid = item.getGid();
@@ -155,7 +165,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
                         builder.setConfidence(item.getDistance());
                     }
                 }
-                log.info("人脸搜索-异步请求活体或5~106点坐标");
+                log.info("人脸搜索-请求活体或5~106点坐标");
                 this.addOperationFeature(resultBuilder, image, request.getMaxFaceNum(), faceFields);
                 return resultBuilder.build();
             }

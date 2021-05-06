@@ -27,7 +27,7 @@ public class ImageStorageController implements IImageStorageApi {
 
     @Override
     @PostMapping("/upload")
-    public UploadResDTO upload(@RequestBody UploadReqDTO uploadReq) throws IOException {
+    public UploadResDTO upload(@RequestBody @Valid UploadReqDTO uploadReq) throws IOException {
         UploadResDTO res = new UploadResDTO();
         res.setImagePath(imageStorageService.uploadImage(uploadReq.getImage()));
         res.setImageMD5(MD5Util.crypt(uploadReq.getImage()));
@@ -36,7 +36,7 @@ public class ImageStorageController implements IImageStorageApi {
 
     @Override
     @PostMapping("/uploadV2")
-    public UploadResDTO uploadV2(@RequestBody UploadReqDTO uploadReq) throws IOException {
+    public UploadResDTO uploadV2(@RequestBody @Valid  UploadReqDTO uploadReq) throws IOException {
         UploadResDTO res = new UploadResDTO();
         res.setImagePath(imageStorageService.uploadImageV2(uploadReq.getImage()));
         res.setImageMD5(MD5Util.crypt(uploadReq.getImage()));
@@ -45,7 +45,7 @@ public class ImageStorageController implements IImageStorageApi {
 
     @Override
     @PostMapping("/download")
-    public DownloadResDTO download(@RequestBody DownloadReqDTO downloadReq) {
+    public DownloadResDTO download(@RequestBody @Valid  DownloadReqDTO downloadReq) {
         DownloadResDTO res = new DownloadResDTO();
         res.setImage(imageStorageService.downloadImage(downloadReq.getImagePath()));
         return res;
@@ -53,13 +53,13 @@ public class ImageStorageController implements IImageStorageApi {
 
     @Override
     @PostMapping("/asyncUpload")
-    public void asyncUpload(@RequestBody UploadReqDTO uploadReq) throws IOException {
+    public void asyncUpload(@RequestBody @Valid  UploadReqDTO uploadReq) throws IOException {
         imageStorageService.asyncUploadImage(uploadReq.getImage());
     }
 
     @Override
     @PostMapping("/batchUpload")
-    public List<UploadResDTO> batchUpload(@Valid BatchUploadReqDTO batchUploadReqDTO) throws IOException {
+    public List<UploadResDTO> batchUpload(@RequestBody @Valid BatchUploadReqDTO batchUploadReqDTO) throws IOException {
         List<UploadResDTO> res = new LinkedList<>();
         List<String> images = batchUploadReqDTO.getImages();
         for (String image : images) {
@@ -73,7 +73,7 @@ public class ImageStorageController implements IImageStorageApi {
 
     @Override
     @PostMapping("/batchDownload")
-    public List<DownloadResDTO> batchDownload(@Valid BatchDownloadReqDTO batchDownloadReqDTO) throws IOException {
+    public List<DownloadResDTO> batchDownload(@RequestBody @Valid BatchDownloadReqDTO batchDownloadReqDTO) throws IOException {
         List<DownloadResDTO> res = new LinkedList<>();
         List<String> imagesPath = batchDownloadReqDTO.getImagesPath();
         for (String imagePath : imagesPath) {

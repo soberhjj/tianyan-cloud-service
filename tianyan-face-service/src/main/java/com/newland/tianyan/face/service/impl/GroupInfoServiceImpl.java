@@ -63,7 +63,7 @@ public class GroupInfoServiceImpl implements GroupInfoService {
     @Override
     public PageInfo<GroupInfoDO> getList(NLBackend.BackendAllRequest receive) throws BaseException {
         GroupInfoDO query = ProtobufUtils.parseTo(receive, GroupInfoDO.class);
-        return PageHelper.startPage(query.getStartIndex() + 1, query.getLength())
+        return PageHelper.startPage(query.getStartIndex() , query.getLength())
                 .doSelectPageInfo(
                         () -> {
                             Example example = new Example(GroupInfoDO.class);

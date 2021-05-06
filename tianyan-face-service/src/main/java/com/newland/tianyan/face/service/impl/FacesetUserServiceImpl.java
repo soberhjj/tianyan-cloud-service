@@ -76,7 +76,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         }
         Long appId = groupInfoDO.getAppId();
         Long gid = groupInfoDO.getId();
-        return PageHelper.startPage(query.getStartIndex() + 1, query.getLength())
+        return PageHelper.startPage(query.getStartIndex(), query.getLength())
                 .doSelectPageInfo(
                         () -> {
                             Example example = new Example(UserInfoDO.class);
@@ -167,11 +167,13 @@ public class FacesetUserServiceImpl implements FacesetUserService {
             if (CollectionUtils.isEmpty(srcFace)) {
                 return;
             }
+            //md5唯一为空的时候或目标照片符合去重结果的，留存
             List<FaceDO> srcFaceCopy = new ArrayList<>(srcFace);
             for (FaceDO faceDO : srcFaceCopy) {
-                if (!srcImages.contains(faceDO.getImagePath())) {
-                    srcFace.remove(faceDO);
+                if (StringUtils.isEmpty(faceDO.getPhotoSign()) || srcImages.contains(faceDO.getPhotoSign())) {
+                    continue;
                 }
+                srcFace.remove(faceDO);
             }
         }
         if (!CollectionUtils.isEmpty(srcFace)) {
