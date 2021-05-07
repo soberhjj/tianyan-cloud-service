@@ -86,7 +86,7 @@ public class AppInfoServiceImpl implements AppInfoService {
     @Override
     public PageInfo<AppInfoDO> getList(NLBackend.BackendAllRequest receive) throws BaseException {
         AppInfoDO appInfoDO = ProtobufUtils.parseTo(receive, AppInfoDO.class);
-        return PageHelper.startPage(receive.getStartIndex(), receive.getLength())
+        return PageHelper.offsetPage(receive.getStartIndex(), receive.getLength())
                 .doSelectPageInfo(
                         () -> {
                             Example example = new Example(AppInfoDO.class);

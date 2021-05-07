@@ -1,5 +1,3 @@
-import com.alibaba.fastjson.JSON;
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.newland.tianya.commons.base.utils.GsonUtils;
 import com.newland.tianya.commons.base.utils.JsonUtils;
@@ -7,6 +5,7 @@ import com.newland.tianyan.face.FaceServiceApplication;
 import com.newland.tianyan.face.dao.FaceMapper;
 import com.newland.tianyan.face.domain.entity.FaceDO;
 import com.newland.tianyan.face.utils.FaceIdSlotHelper;
+import lombok.Builder;
 import lombok.Data;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.newland.tianyan.face.constant.VerifyConstant.GROUP_ID;
 
@@ -42,6 +42,19 @@ public class DemoTest {
             this.array = array;
         }
     }
+
+    @Data
+    @Builder
+    static class FaceObject {
+        private int id;
+        private String path;
+
+        public FaceObject(int id, String path) {
+            this.id = id;
+            this.path = path;
+        }
+    }
+
 
     @Test
     public void testSharingTableKey() {
@@ -96,7 +109,7 @@ public class DemoTest {
 
     @Test
     public void testDB() throws Exception {
-        String userId = "face_delete_user_111111111110041";
+        String userId = "人脸搜索中文用户";
         int db = (userId.hashCode() & Integer.MAX_VALUE) % 2 + 1;
         int table = ((userId.hashCode() ^ (userId.hashCode() >>> 16)) & (16 - 1)) + 1;
         System.out.println("db:"+db);
@@ -121,5 +134,79 @@ public class DemoTest {
     public void checkString() throws Exception {
         Set<String> stringSet = new HashSet<>(Arrays.asList("a,v,b,c".split(",")));
         System.out.println("test:"+stringSet.toString());
+    }
+
+    @Test
+    public void getFeatures() throws Exception {
+        Set<String> stringSet = new HashSet<>(Arrays.asList("a,v,b,c".split(",")));
+        System.out.println("test:"+stringSet.toString());
+    }
+
+    @Test
+    public void filter() throws Exception {
+        Set<FaceObject> stringSetA = new HashSet<FaceObject>(){{
+            add(FaceObject.builder()
+                    .id(1)
+                    .path("a")
+                    .build());
+            add(FaceObject.builder()
+                    .id(2)
+                    .path("b")
+                    .build());
+            add(FaceObject.builder()
+                    .id(3)
+                    .path("")
+                    .build());
+            add(FaceObject.builder()
+                    .id(4)
+                    .path("c")
+                    .build());
+            add(FaceObject.builder()
+                    .id(5)
+                    .path("d")
+                    .build());
+            add(FaceObject.builder()
+                    .id(6)
+                    .path("e")
+                    .build());
+            add(FaceObject.builder()
+                    .id(7)
+                    .path("")
+                    .build());
+        }};
+
+        Set<FaceObject> stringSetB = new HashSet<FaceObject>(){{
+            add(FaceObject.builder()
+                    .id(1)
+                    .path("a")
+                    .build());
+            add(FaceObject.builder()
+                    .id(2)
+                    .path("b")
+                    .build());
+            add(FaceObject.builder()
+                    .id(3)
+                    .path("")
+                    .build());
+            add(FaceObject.builder()
+                    .id(4)
+                    .path("c")
+                    .build());
+            add(FaceObject.builder()
+                    .id(5)
+                    .path("d")
+                    .build());
+        }};
+
+        Set<String> setA = stringSetA.stream().map(FaceObject::getPath).collect(Collectors.toSet());
+        Set<String> setB = stringSetB.stream().map(FaceObject::getPath).collect(Collectors.toSet());
+        setA.removeAll(setB);
+//        for (String item : stringSetA) {
+//            if (stringSetA.contains(item)) {
+//                stringSetA.remove(item);
+//            }
+//        }
+//
+        System.out.println("test:"+setA.toString());
     }
 }

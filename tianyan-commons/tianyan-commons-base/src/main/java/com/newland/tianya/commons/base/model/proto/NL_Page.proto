@@ -14,6 +14,7 @@ message BackendAppPageMessage {
         optional uint32 type = 6;
         optional string api_list = 7;
         optional string app_info = 8;
+        optional uint32 group_number = 9;
     }
     repeated BackendAppTableMessage result = 3;
 }

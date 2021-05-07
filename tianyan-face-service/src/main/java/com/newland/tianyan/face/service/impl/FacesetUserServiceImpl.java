@@ -76,7 +76,7 @@ public class FacesetUserServiceImpl implements FacesetUserService {
         }
         Long appId = groupInfoDO.getAppId();
         Long gid = groupInfoDO.getId();
-        return PageHelper.startPage(query.getStartIndex(), query.getLength())
+        return PageHelper.offsetPage(query.getStartIndex(), query.getLength())
                 .doSelectPageInfo(
                         () -> {
                             Example example = new Example(UserInfoDO.class);
