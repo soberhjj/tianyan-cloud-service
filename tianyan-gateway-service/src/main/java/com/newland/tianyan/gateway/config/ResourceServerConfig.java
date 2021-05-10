@@ -3,12 +3,14 @@ package com.newland.tianyan.gateway.config;
 import cn.hutool.core.util.ArrayUtil;
 import com.newland.tianyan.gateway.filter.CheckTokenRestAuthenticationEntryPoint;
 import com.newland.tianyan.gateway.filter.NoTokenRestAuthenticationEntryPoint;
+import com.newland.tianyan.gateway.filter.AccessTokenFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
@@ -37,6 +39,7 @@ public class ResourceServerConfig {
 
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+        http.addFilterBefore(new AccessTokenFilter(), SecurityWebFiltersOrder.AUTHENTICATION);
         // jwt 增加
         http.oauth2ResourceServer().jwt()
                 .jwtAuthenticationConverter(jwtAuthenticationConverter());
