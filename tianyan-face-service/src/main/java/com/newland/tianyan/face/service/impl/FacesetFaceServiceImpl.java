@@ -19,6 +19,7 @@ import com.newland.tianyan.face.domain.entity.UserInfoDO;
 import com.newland.tianyan.face.domain.vo.FaceSearchVo;
 import com.newland.tianyan.face.mq.IMqMessageService;
 import com.newland.tianyan.face.service.*;
+import com.newland.tianyan.face.utils.VideoProcess;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,7 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         put(FACE_TASK_TYPE_FEATURE, 2);
         put(FACE_TASK_TYPE_LIVENESS, 3);
         put(FACE_TASK_TYPE_MULTIATTRIBUTE, 4);
+        put(FACE_TASK_TYPE_InteractLIVENESS,5);
     }};
 
     private Integer getTaskType(String taskTypeKey) {
@@ -350,6 +352,22 @@ public class FacesetFaceServiceImpl implements FacesetFaceService {
         }
 
         return result.build();
+    }
+
+    @Override
+    public NLFace.CloudFaceSendMessage interactLiveness(FaceInteractLiveNessReqDTO request) {
+        String video = request.getVideo();
+        String logId = UUID.randomUUID().toString();
+        //TODO save video
+//        ImageProcess.sendVideo(video, "interLiveness", logId+".mp4");
+        String storagePath = VideoProcess.base64ToVideoAndSaveVideo(video);
+        System.out.println(storagePath);
+        NLFace.CloudFaceSendMessage.Builder builder = NLFace.CloudFaceSendMessage.newBuilder();
+//        NLFace.CloudFaceSendMessage def =
+//                mqMessageService.amqpHelper(video, request.getMaxFaceNum(), this.getTaskType(FACE_TASK_TYPE_InteractLIVENESS));
+//        builder.mergeFrom(def);
+        builder.setLogId(logId);
+        return builder.build();
     }
 
     /**

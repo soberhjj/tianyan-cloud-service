@@ -24,4 +24,6 @@ public interface FacesetFaceService {
 
     NLFace.CloudFaceSendMessage features(NLBackend.BackendAllRequest receive, int model);
 
+    NLFace.CloudFaceSendMessage interactLiveness(FaceInteractLiveNessReqDTO request);
+
 }

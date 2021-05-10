@@ -35,4 +35,9 @@ public class RabbitMqQueueName {
     public static String FACE_FEATURE_QUEUE_V34 = "faceFeatureQueue_V34";
 
     public static String FACE_FEATURE_QUEUE_V36 = "faceFeatureQueue_V36";
+
+    /**
+     * 交互式活体检测
+     */
+    public static String FACE_INTERACT_LIVENESS = "faceInterLivenessQueue";
 }

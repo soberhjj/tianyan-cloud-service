@@ -82,6 +82,9 @@ public class MQMessageServiceImpl implements IMqMessageService {
             case 36:
                 routingKey = RabbitMqQueueName.FACE_DETECT_QUEUE_V36;
                 break;
+            case 5:
+                routingKey = RabbitMqQueueName.FACE_INTERACT_LIVENESS;
+                break;
             default:
                 routingKey = RabbitMqQueueName.FACE_DETECT_QUEUE;
         }

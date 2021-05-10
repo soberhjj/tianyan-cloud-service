@@ -77,4 +77,9 @@ public class FacesetFaceController {
         NLBackend.BackendAllRequest receive = ProtobufUtils.toBackendAllRequest(request, TaskTypeEnums.BACKEND_APP_GET_INFO);
         return facesetFaceService.features(receive, 34);
     }
+
+    @RequestMapping(value = "/interactLiveness", method = RequestMethod.POST)
+    public NLFace.CloudFaceSendMessage interactLiveness(@RequestBody @Validated FaceInteractLiveNessReqDTO request) {
+        return facesetFaceService.interactLiveness(request);
+    }
 }

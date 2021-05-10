@@ -51,4 +51,7 @@ public class BusinessArgumentConstants {
     public static final String FACE_TASK_TYPE_MULTIATTRIBUTE = "multiAttribute";
 
     public static final String NULL_STRING = "null";
+
+    public static final String FACE_TASK_TYPE_InteractLIVENESS = "interLiveness";
+
 }
